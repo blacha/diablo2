@@ -22,7 +22,9 @@ export class PacketBuffer {
       this.reset();
       return bytes;
     }
-    return this.buffer.concat(bytes);
+    const out = this.buffer.concat(bytes);
+    this.buffer = null;
+    return out;
   }
 }
 
@@ -41,48 +43,66 @@ export class Diablo2GameClient {
     for (const packet of ServerPacketsPod) this.serverToClient.register(packet);
   }
 
-  onPacketIn(inBytes: number[]) {
+  inCount = 0;
+  onPacketIn(inBytes: number[], parseCount = 0) {
+    this.inCount++;
     if (inBytes[0] == 0xaf && inBytes[1] == 0x01) {
       if (inBytes.length == 2) return;
       inBytes = inBytes.slice(2);
     }
-    console.log('\tInput:', inBytes.map((c) => toHex(c)).join(', '));
     const bytes = this.inputBuffer.getBytes(inBytes);
     const packetInfo = Huffman.getPacketInfo(bytes);
     const requiredBytes = packetInfo.length + packetInfo.offset;
+    // console.log('\tInput:', this.inCount, packetInfo.length, bytes.length, requiredBytes); //inBytes.map((c) => '0x' + c.toString(16).padStart(2, '0')).join(', '));
 
     // Need more bytes
     if (requiredBytes > bytes.length) {
       this.inputBuffer.buffer = bytes;
       return;
     }
-    if (requiredBytes < bytes.length) console.log('ExtraBytes');
 
-    const packets = Huffman.decompress(bytes, packetInfo.offset, requiredBytes);
+    const packets = Huffman.decompress(bytes, packetInfo.offset, packetInfo.length);
+    // console.log('\t', inBytes.length, inBytes, packets.length, packetInfo.offset + requiredBytes)
+
+    console.log('Amount', packets.length, {
+      len: bytes.length,
+      req: packetInfo.length + packetInfo.offset,
+      info: packetInfo,
+    });
 
     const results = [];
     let offset = 0;
     while (offset < packets.length) {
-      if (results.length > 4) break;
-
+      // if (offset == packets.length - 1) break;      // Why do i need this
       const res = this.serverToClient.create(packets, offset);
-      console.log({
+      console.log(this.serverToClient.count + 1, {
         id: toHex(packets[offset]),
         name: this.serverToClient.packets.get(packets[offset])?.name,
-        size: res.packet.size,
+        s: res.packet.size,
+        o: offset + res.packet.size,
+        p: this.inCount,
       });
-      console.log(packets[offset], { offset, totalLen: packets.length, value: res });
+
+      //   console.log(packets[offset], { offset, totalLen: packets.length, value: res });
       if (res.packet.size != GSPacketSize.getPacketSize(packets.slice(offset))) {
         console.error('PacketSizeMissMatch', {
           expected: GSPacketSize.getPacketSize(packets.slice(offset)),
           got: res.packet.size,
         });
-        break;
+        process.exit();
       }
+
       offset += res.packet.size;
 
       //   this.emit(res);
       results.push(res);
+    }
+
+    if (requiredBytes < bytes.length) {
+      const extraBytes = bytes.slice(requiredBytes);
+
+      console.log('ExtraBytes', extraBytes);
+      this.onPacketIn(extraBytes, parseCount + 1);
     }
   }
 

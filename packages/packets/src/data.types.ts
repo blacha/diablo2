@@ -1,3 +1,4 @@
+import { BitStream } from '@diablo2/bitstream';
 import { Diablo2ParsedPacket } from './packet';
 
 export interface D2PacketType<T> {
@@ -71,6 +72,24 @@ export function DataObject<T extends Record<string, AllDataTypes>>(name: string,
     },
   };
 }
+export function DataBitField<T extends Record<string, number>>(name: string, obj: T): D2PacketType<T> {
+  let totalBits = 0;
+  const fields = Object.keys(obj);
+  for (const f of fields) totalBits += obj[f];
+  const bytesRequired = Math.ceil(totalBits / 8);
+  return {
+    name,
+    parse(bytes: number[], offset: number) {
+      const output = {} as any;
+      const bs = new BitStream(bytes, offset, offset + bytesRequired);
+      for (const f of fields) {
+        const bitsRequired = obj[f] as number;
+        output[f] = bs.bits(bitsRequired);
+      }
+      return { value: output, size: bytesRequired };
+    },
+  };
+}
 
 type ValueOf<T> = T[keyof T];
 export function DataLookup<T>(
@@ -86,7 +105,6 @@ export function DataLookup<T>(
       if (lookedUp == null) throw Error('Foo');
 
       const outputValue = { value: res.value, name: lookedUp } as any;
-      console.log(outputValue);
       return { value: outputValue, size: res.size };
     },
   };
@@ -123,13 +141,18 @@ export function DataString(size: number): D2PacketType<string> {
   };
 }
 
-// export const UInt16: D2PacketType<number> = { name: 'UInt32', bits: 16, type: 0 };
-// export const UInt32: D2PacketType<number> = { name: 'UInt32', bits: 32, type: 0 };
-// export const CString: D2PacketType<string> = {
-//   name: 'CString',
-//   parse(bytes: number[], offset: number) {
-//     return { value: 'string', size: 0 };
-//   },
-// };
+export const CString: D2PacketType<string> = {
+  name: 'String',
+  parse(bytes: number[], offset: number) {
+    const value = [];
+    let size = 0;
+    for (; size + offset < bytes.length; size++) {
+      const res = bytes[offset + size];
+      if (res == 0) break;
+      value.push(String.fromCharCode(res));
+    }
+    return { value: value.join(''), size: size + 1 };
+  },
+};
 
 export type AllDataTypes = D2PacketType<unknown> | D2PacketType<unknown[]>;

@@ -6,6 +6,7 @@ export function toHex(num: number, padding = 2): string {
 
 export class Diablo2PacketFactory {
   packets: Map<number, Diablo2Packet> = new Map();
+  count = 0;
 
   register(packet: Diablo2Packet): void {
     if (this.packets.has(packet.id)) {
@@ -19,6 +20,7 @@ export class Diablo2PacketFactory {
     const packetId = bytes[offset];
     const fact = this.packets.get(packetId);
     if (fact == null) throw new Error(`Invalid packet: ${toHex(packetId)}`);
+    this.count++;
     return fact.parse(bytes, offset);
   }
 }

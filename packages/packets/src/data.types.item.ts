@@ -31,7 +31,7 @@ export const DataTypeItem: D2PacketType<D2ItemParsed> = {
     value.itemId = parseAndSet(ctx, UInt32);
 
     ctx.size = packetLength + 1;
-    console.log(currentPacket, packetLength);
+    // console.log(currentPacket, packetLength);
     // process.exit(1)
 
     return { value, size: ctx.size };

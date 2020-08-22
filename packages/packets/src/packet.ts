@@ -33,8 +33,9 @@ export class Diablo2Packet<T extends Record<string, AllDataTypes> = Record<strin
     const value = { packet } as any;
     for (const p of this.parser) {
       const output = p.type.parse(bytes, offset + packet.size, value);
-      if (offset + packet.size > bytes.length)
+      if (offset + packet.size > bytes.length) {
         throw new Error(`ParseOverflow: ${this.idString} bytes: ${offset + packet.size} > ${bytes.length}`);
+      }
       packet.size += output.size;
       value[p.key] = output.value;
     }

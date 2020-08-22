@@ -1152,12 +1152,10 @@ export class Huffman {
 
     while (true) {
       if (count >= 8) {
-        while (size > 1 && count >= 8) {
+        while (size > 0 && count >= 8) {
           count -= 8;
           size--;
-          if (i > input.length) throw new Error(`Out of range ${offset} ${size}`);
-          const val = input[i++];
-          a = val << count;
+          a = input[i++] << count;
           b |= a;
         }
       }
@@ -1168,7 +1166,10 @@ export class Huffman {
       c = Huffman.CharacterTable[index + 2 * d + 2];
 
       count += c;
-      if (count > 0x20) return output;
+      if (count > 0x20) {
+        console.log(output);
+        return output;
+      }
 
       a = Huffman.CharacterTable[index + 2 * d + 1];
 
@@ -1179,10 +1180,13 @@ export class Huffman {
 
   static getPacketInfo(buffer: number[]): { length: number; offset: number } {
     if (buffer[0] < 0xf0) {
+      console.log({ length: buffer[0], buffer: buffer.length });
+
       return { offset: 1, length: buffer[0] - 1 };
     }
 
     const length = (buffer[0] & 0x0f) << 8;
+    console.log({ length });
     return { offset: 2, length: length + buffer[1] - 2 };
   }
 }
