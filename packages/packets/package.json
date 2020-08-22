@@ -1,0 +1,25 @@
+{
+    "name": "@diablo2/packets",
+    "version": "0.0.1",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/blacha/diablo2.git",
+      "directory": "packages/packets"
+    },
+    "license": "MIT",
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "scripts": {
+      "test": "ospec --globs 'build/**/*.test.js'"
+    },
+    "dependencies": {
+        "@diablo2/data": "0.0.1"
+    },
+    "publishConfig": {
+      "access": "public"
+    },
+    "files": [
+      "build/"
+    ]
+  }
+  

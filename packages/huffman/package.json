@@ -1,0 +1,22 @@
+{
+    "name": "@diablo2/huffman",
+    "version": "0.0.1",
+    "repository": {
+      "type": "git",
+      "url": "https://github.com/blacha/diablo2.git",
+      "directory": "packages/huffman"
+    },
+    "license": "MIT",
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "scripts": {
+      "test": "ospec --globs 'build/**/*.test.js'"
+    },
+    "publishConfig": {
+      "access": "public"
+    },
+    "files": [
+      "build/"
+    ]
+  }
+  

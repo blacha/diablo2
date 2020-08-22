@@ -1,0 +1,28 @@
+{
+    "compilerOptions": {
+        "composite": true,
+        "target": "ES2019",
+        "module": "commonjs",
+        "lib": [],
+        "declaration": true,
+        "declarationMap": true,
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "noImplicitReturns": true,
+        "noFallthroughCasesInSwitch": false,
+        "inlineSourceMap": true,
+        "inlineSources": true,
+        "noEmitOnError": false,
+        "experimentalDecorators": true,
+        "strictPropertyInitialization": false,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "resolveJsonModule": true,
+        "baseUrl": "./",
+    }
+}

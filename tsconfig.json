@@ -1,0 +1,10 @@
+{
+    "files": [],
+    "references": [
+        { "path": "./packages/bitstream" },
+        { "path": "./packages/data" },
+        { "path": "./packages/huffman" },
+        { "path": "./packages/packets" },
+        { "path": "./packages/core" },
+    ]
+}
