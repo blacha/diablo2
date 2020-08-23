@@ -8,7 +8,8 @@
   "scripts": {
     "build": "tsc -b",
     "lint": "eslint 'packages/*/src/**/*.ts' --quiet --fix --report-unused-disable-directives",
-    "clean": "tsc -b --clean && rimraf 'packages/*/build'"
+    "clean": "tsc -b --clean && rimraf 'packages/*/build'",
+    "test": "yarn workspaces run test"
   },
   "devDependencies": {
     "@types/node": "^14.6.0",

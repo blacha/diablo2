@@ -226,7 +226,7 @@ export class GSPacketSize {
         return GSPacketSize.getChatPacketSize(data);
       case 0x5b:
         if (length < 3) break;
-        throw new Error(''); // GSPacketSize
+        return ToUInt16(data, 1); // GSPacketSize
       case 0x94:
         if (length < 2) break;
         return 6 + data[1] * 3;
@@ -243,7 +243,7 @@ export class GSPacketSize {
         return data[12];
       case 0xae:
         if (length < 4) break;
-        throw new Error(''); // GSPacketSize
+        return ToUInt16(data, 1); // GSPacketSize
       default:
         pLen = 0;
         break;
@@ -251,4 +251,10 @@ export class GSPacketSize {
 
     return pLen;
   }
+}
+
+function ToUInt16(bytes: number[] | Buffer, offset: number): number {
+  const byteA = bytes[offset];
+  const byteB = bytes[offset + 1];
+  return (byteB << 8) + byteA;
 }

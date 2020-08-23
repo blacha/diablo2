@@ -1,39 +1,29 @@
-import { D2PacketType, UInt32, UInt8 } from './data.types';
-import { Diablo2ParsedPacket } from './packet';
+import { s } from './strutparse';
+import { StrutTypeLookup } from './strutparse/lookup';
+import { StrutParserContext, StrutType } from './strutparse/type';
+import { ItemActionType, ItemCategory } from '@diablo2/data';
 
 export interface D2ItemParsed {
-  action: number;
-  category: number;
+  action: { value: ItemActionType; name: keyof typeof ItemActionType };
+  category: { value: ItemCategory; name: keyof typeof ItemCategory };
   itemId: number;
 }
 
-interface PacketContext {
-  bytes: number[];
-  offset: number;
-  size: number;
-  packet: Diablo2ParsedPacket;
-}
+const StrutItemAction = new StrutTypeLookup('ItemAction', s.i8, ItemActionType);
+const StrutItemCategory = new StrutTypeLookup('ItemCategory', s.i8, ItemCategory);
 
-function parseAndSet<T>(ctx: PacketContext, parser: D2PacketType<T>): T {
-  const res = parser.parse(ctx.bytes, ctx.offset + ctx.size, ctx.packet);
-  ctx.size += res.size;
-  return res.value;
-}
+export const DataTypeItem: StrutType<D2ItemParsed> = {
+  name: 'Item',
+  parse(bytes: number[], ctx: StrutParserContext): D2ItemParsed {
+    const output: Partial<D2ItemParsed> = {};
+    output.action = StrutItemAction.parse(bytes, ctx);
+    const currentSize = ctx.offset - ctx.startOffset;
+    const packetLength = s.i8.parse(bytes, ctx);
+    output.category = StrutItemCategory.parse(bytes, ctx);
+    output.itemId = s.i32.parse(bytes, ctx);
 
-export const DataTypeItem: D2PacketType<D2ItemParsed> = {
-  name: 'D2:Item',
-  parse(bytes: number[], offset: number, currentPacket: Diablo2ParsedPacket): { value: D2ItemParsed; size: number } {
-    const value = {} as D2ItemParsed;
-    const ctx: PacketContext = { bytes, offset, size: 0, packet: currentPacket };
-    value.action = parseAndSet(ctx, UInt8);
-    const packetLength = parseAndSet(ctx, UInt8) - ctx.size;
-    value.category = parseAndSet(ctx, UInt8);
-    value.itemId = parseAndSet(ctx, UInt32);
-
-    ctx.size = packetLength + 1;
-    // console.log(currentPacket, packetLength);
-    // process.exit(1)
-
-    return { value, size: ctx.size };
+    console.log('ParseItem', { packetLength, ...ctx, currentSize });
+    ctx.offset = ctx.startOffset + packetLength;
+    return output as D2ItemParsed;
   },
 };

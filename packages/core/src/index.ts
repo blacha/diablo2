@@ -51,35 +51,25 @@ export class Diablo2GameClient {
       inBytes = inBytes.slice(2);
     }
     const bytes = this.inputBuffer.getBytes(inBytes);
-    const packetInfo = Huffman.getPacketInfo(bytes);
-    const requiredBytes = packetInfo.length + packetInfo.offset;
-    // console.log('\tInput:', this.inCount, packetInfo.length, bytes.length, requiredBytes); //inBytes.map((c) => '0x' + c.toString(16).padStart(2, '0')).join(', '));
+    const packetSize = Huffman.getPacketSize(bytes);
 
     // Need more bytes
-    if (requiredBytes > bytes.length) {
+    if (packetSize > bytes.length) {
       this.inputBuffer.buffer = bytes;
       return;
     }
 
-    const packets = Huffman.decompress(bytes, packetInfo.offset, packetInfo.length);
-    // console.log('\t', inBytes.length, inBytes, packets.length, packetInfo.offset + requiredBytes)
-
-    console.log('Amount', packets.length, {
-      len: bytes.length,
-      req: packetInfo.length + packetInfo.offset,
-      info: packetInfo,
-    });
-
+    const packets = Huffman.decompress(bytes);
     const results = [];
     let offset = 0;
     while (offset < packets.length) {
       // if (offset == packets.length - 1) break;      // Why do i need this
       const res = this.serverToClient.create(packets, offset);
-      console.log(this.serverToClient.count + 1, {
+      console.log(this.serverToClient.count, {
         id: toHex(packets[offset]),
         name: this.serverToClient.packets.get(packets[offset])?.name,
         s: res.packet.size,
-        o: offset + res.packet.size,
+        o: offset,
         p: this.inCount,
       });
 
@@ -98,10 +88,8 @@ export class Diablo2GameClient {
       results.push(res);
     }
 
-    if (requiredBytes < bytes.length) {
-      const extraBytes = bytes.slice(requiredBytes);
-
-      console.log('ExtraBytes', extraBytes);
+    if (packetSize < bytes.length) {
+      const extraBytes = bytes.slice(packetSize);
       this.onPacketIn(extraBytes, parseCount + 1);
     }
   }

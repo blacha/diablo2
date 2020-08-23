@@ -4,3 +4,4 @@ tsconfig.tsbuildinfo
 dist
 .cache
 cdk.context.json
+test-data

@@ -1,44 +1,49 @@
-import { AllDataTypes, D2PacketType, ExtractTypeOf } from './data.types';
+import { s } from './strutparse';
+import { StrutAny, StrutInfer, StrutParserContext, StrutType } from './strutparse/type';
 
-export interface Diablo2ParsedPacket extends Record<string, unknown> {
+export interface Diablo2ParsedPacketInfo {
   packet: {
     id: number;
     name: string;
+    offset: number;
     size: number;
   };
 }
 
-export class Diablo2Packet<T extends Record<string, AllDataTypes> = Record<string, AllDataTypes>> {
+export type Diablo2ParsedPacket<T = Record<string, unknown>> = Diablo2ParsedPacketInfo & T;
+
+export class Diablo2Packet<T> {
   name: string;
   id: number;
-  parser: { key: string; type: D2PacketType<unknown> }[];
+  parser: StrutType<T>;
 
-  constructor(id: number, name: string, parser: T) {
+  constructor(id: number, name: string, parser: StrutType<T>) {
     this.id = id;
     this.name = name;
-    this.parser = Object.keys(parser).map((key) => {
-      return { key, type: parser[key] };
-    });
+    this.parser = parser;
   }
 
-  get idHex() {
+  static create<T extends Record<string, StrutAny>>(
+    id: number,
+    name: string,
+    obj: T,
+  ): Diablo2Packet<{ [K in keyof T]: StrutInfer<T[K]> }> {
+    return new Diablo2Packet(id, name, s.object(name, obj));
+  }
+
+  static empty(id: number, name: string): Diablo2Packet<unknown> {
+    return new Diablo2Packet(id, name, s.empty);
+  }
+
+  get idHex(): string {
     return '0x' + this.id.toString(16).padStart(2, '0');
   }
-  get idString() {
+
+  idString(): string {
     return `<Packet ${this.name}: ${this.idHex}>`;
   }
 
-  parse(bytes: number[], offset: number): ExtractTypeOf<T> & Diablo2ParsedPacket {
-    const packet = { id: bytes[offset], name: this.name, size: 1 };
-    const value = { packet } as any;
-    for (const p of this.parser) {
-      const output = p.type.parse(bytes, offset + packet.size, value);
-      if (offset + packet.size > bytes.length) {
-        throw new Error(`ParseOverflow: ${this.idString} bytes: ${offset + packet.size} > ${bytes.length}`);
-      }
-      packet.size += output.size;
-      value[p.key] = output.value;
-    }
-    return value;
+  parse(bytes: number[], ctx: StrutParserContext): T {
+    return this.parser.parse(bytes, ctx);
   }
 }
