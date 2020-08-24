@@ -13,6 +13,7 @@ export enum GameObjectInteraction {
   GeneralObject = 0x00, // Stash, chests, etc.
   Well = 0x01,
   HealthShrine = 0x02,
+  Unknown1 = 0x03,
   TrappedChest = 0x05,
   MonsterChest = 0x08,
   ManaShrine = 0x0d,

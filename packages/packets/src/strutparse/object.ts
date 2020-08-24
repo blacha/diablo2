@@ -25,7 +25,7 @@ export class StrutTypeArrayOffsetLength implements StrutType<number> {
     this.type = type;
     this.name = this.type.name + ':PacketLength';
   }
-  parse(bytes: number[], pkt: StrutParserContext) {
+  parse(bytes: number[], pkt: StrutParserContext): number {
     const offset = pkt.offset;
     const packetLength = bytes[offset];
     pkt.packetLength = packetLength;
@@ -38,19 +38,15 @@ export class StrutTypeArrayOffset<T> implements StrutType<T[]> {
   type: StrutType<T>;
   name: string;
   isMaxLength: boolean;
-  // lengthType: StrutType<number>;
-  // lengthOffset: number;
 
   constructor(type: StrutType<T>, isMaxLength: boolean) {
-    // this.lengthType = lengthType;
-    // this.lengthOffset = lengthOffset
     this.isMaxLength = isMaxLength;
     this.type = type;
     this.name = 'Array:' + this.type.name;
   }
 
-  parse(bytes: number[], ctx: StrutParserContext) {
-    const value = [];
+  parse(bytes: number[], ctx: StrutParserContext): T[] {
+    const value: T[] = [];
     let packetLength = ctx.packetLength;
     if (packetLength == null) throw new Error(`${this.name}: Requires a "StrutTypeArrayOffsetLength"`);
     if (this.isMaxLength) packetLength -= ctx.offset - ctx.startOffset;
@@ -74,6 +70,7 @@ export class StrutTypeObject<T extends Record<string, StrutAny>>
     const value = {} as any;
     for (const [key, parser] of this.fields) {
       value[key] = parser.parse(bytes, ctx);
+      if (ctx.offset > bytes.length) throw new Error(`${this.name}: Buffer Overflow`);
     }
     return value;
   }

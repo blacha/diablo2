@@ -17,12 +17,9 @@ export const DataTypeItem: StrutType<D2ItemParsed> = {
   parse(bytes: number[], ctx: StrutParserContext): D2ItemParsed {
     const output: Partial<D2ItemParsed> = {};
     output.action = StrutItemAction.parse(bytes, ctx);
-    const currentSize = ctx.offset - ctx.startOffset;
     const packetLength = s.i8.parse(bytes, ctx);
     output.category = StrutItemCategory.parse(bytes, ctx);
     output.itemId = s.i32.parse(bytes, ctx);
-
-    console.log('ParseItem', { packetLength, ...ctx, currentSize });
     ctx.offset = ctx.startOffset + packetLength;
     return output as D2ItemParsed;
   },

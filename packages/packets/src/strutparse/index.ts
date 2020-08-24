@@ -1,8 +1,8 @@
 import { StrutTypeBits } from './bits';
 import { UInt16, UInt32, UInt8 } from './int';
 import { StrutTypeArray, StrutTypeArrayOffsetLength, StrutTypeObject } from './object';
-import { StrutTypeStringNull, StrutTypeStringVariable } from './string';
-import { StrutAny } from './type';
+import { StrutTypeStringNull, StrutTypeStringFixed } from './string';
+import { StrutAny, StrutType } from './type';
 
 const i8 = new UInt8();
 const i16 = new UInt16();
@@ -14,11 +14,11 @@ export const s = {
   i32,
   empty: new StrutTypeObject('Empty', {}),
   offset: new StrutTypeArrayOffsetLength(i8),
-  string(len?: number) {
+  string(len?: number): StrutType<string> {
     if (len == null) return new StrutTypeStringNull();
-    return new StrutTypeStringVariable(len);
+    return new StrutTypeStringFixed(len);
   },
   bits: (name: string, obj: Record<string, number>) => new StrutTypeBits(name, obj),
   object: (name: string, obj: Record<string, StrutAny>) => new StrutTypeObject(name, obj),
-  bytes: (count: number) => new StrutTypeArray(i8, count),
+  bytes: (count: number): StrutType<number[]> => new StrutTypeArray(i8, count),
 };

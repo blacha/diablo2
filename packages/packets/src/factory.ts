@@ -20,12 +20,12 @@ export class Diablo2PacketFactory {
   create(bytes: number[], offset: number): Diablo2ParsedPacket {
     const packetId = bytes[offset];
     const fact = this.packets.get(packetId);
-    if (fact == null) throw new Error(`Invalid packet: ${toHex(packetId)}`);
+    if (fact == null) throw new Error(`#${this.count}: Invalid packet: ${toHex(packetId)}`);
     this.count++;
 
     const startOffset = offset;
     const ctx: StrutParserContext = { startOffset, offset: offset + 1 };
-    const packet = { id: bytes[offset], name: fact.name, size: 1, offset: offset + 1 };
+    const packet = { id: bytes[offset], name: fact.name, size: 1 };
 
     const res = fact.parse(bytes, ctx);
 

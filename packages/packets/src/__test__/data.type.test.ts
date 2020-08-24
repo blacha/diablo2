@@ -2,6 +2,7 @@ import o from 'ospec';
 import 'source-map-support/register';
 import { StrutParserContext } from '../strutparse/type';
 import { s } from '../strutparse';
+import { StrutTypeArrayOffset } from '../strutparse/object';
 
 o.spec('DataType', () => {
   let pkt: StrutParserContext;
@@ -17,7 +18,7 @@ o.spec('DataType', () => {
     o('String:Var', () => {
       const res = s.string().parse([100, 101, 102, 80, 83, 0], pkt);
       o(res).equals('defPS');
-      o(pkt.offset).equals(5);
+      o(pkt.offset).equals(6);
     });
   });
 
@@ -37,24 +38,16 @@ o.spec('DataType', () => {
       o(pkt.offset).equals(4);
     });
 
-    // o('should parse a var array with offset', () => {
-    //     const obj = s.object('Obj', { varArray: s.array(s.i8, 'i8') })
-    //     pkt.i8 = 3;
-    //     o(obj.parse([1, 2, 3], pkt)).deepEquals({ varArray: [1, 2, 3] })
-    //     o(pkt.offset).equals(3)
-    //     o(obj.parse([1, 2, 3, 4, 5, 6], pkt)).deepEquals({ varArray: [] })
-    //     o(pkt.offset).equals(3)
-    // })
-    // o('should parse a var array without offset', () => {
-    //     const obj = s.object('Obj', { varArray: s.array(s.i8, 'i8', false) })
-    //     pkt.i8 = 3;
-    //     o(obj.parse([1, 2, 3], pkt)).deepEquals({ varArray: [1, 2, 3] })
-    //     o(pkt.offset).equals(3)
-    //     o(obj.parse([1, 2, 3, 4, 5, 6], pkt)).deepEquals({ varArray: [4, 5, 6] })
-    //     o(pkt.offset).equals(6)
-    //     o(obj.parse([1, 2, 3, 4, 5, 6, 7, 8, 9], pkt)).deepEquals({ varArray: [7, 8, 9] })
-    //     o(pkt.offset).equals(9)
-    // })
+    o('should parse a var array with offset', () => {
+      const obj = s.object('Obj', { len: s.offset, varArray: new StrutTypeArrayOffset(s.i8, true) });
+      o(obj.parse([3, 2, 3, 4], pkt)).deepEquals({ len: 3, varArray: [2, 3] });
+      o(pkt.offset).equals(3);
+    });
+    o('should parse a var array without offset', () => {
+      const obj = s.object('Obj', { len: s.offset, varArray: new StrutTypeArrayOffset(s.i8, false) });
+      o(obj.parse([3, 2, 3, 4], pkt)).deepEquals({ len: 3, varArray: [2, 3, 4] });
+      o(pkt.offset).equals(4);
+    });
   });
 
   o.spec('Int', () => {

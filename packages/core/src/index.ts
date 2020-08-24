@@ -1,8 +1,8 @@
 import { Huffman } from '@diablo2/huffman';
-import { Diablo2PacketFactory } from '@diablo2/packets';
+import { Diablo2Packet, Diablo2PacketFactory, Diablo2ParsedPacket } from '@diablo2/packets';
 import { ClientPackets } from '@diablo2/packets/build/client';
 import { ServerPacketsPod } from '@diablo2/packets/build/server-pod';
-import { GSPacketSize } from './packet.size';
+import { EventEmitter } from 'events';
 
 export class PacketBuffer {
   static MaxBufferCount = 5;
@@ -28,11 +28,12 @@ export class PacketBuffer {
   }
 }
 
-function toHex(num: number, padding = 2): string {
-  return `0x` + num.toString(16).padStart(padding, '0');
-}
+// function toHex(num: number, padding = 2): string {
+//   return `0x` + num.toString(16).padStart(padding, '0');
+// }
 
 export class Diablo2GameClient {
+  events = new EventEmitter();
   clientToServer = new Diablo2PacketFactory();
   serverToClient = new Diablo2PacketFactory();
 
@@ -60,32 +61,46 @@ export class Diablo2GameClient {
     }
 
     const packets = Huffman.decompress(bytes);
-    const results = [];
     let offset = 0;
     while (offset < packets.length) {
+      const packetId = packets[offset];
+      if (packetId == 0x2b) return;
       // if (offset == packets.length - 1) break;      // Why do i need this
       const res = this.serverToClient.create(packets, offset);
-      console.log(this.serverToClient.count, {
-        id: toHex(packets[offset]),
-        name: this.serverToClient.packets.get(packets[offset])?.name,
-        s: res.packet.size,
-        o: offset,
-        p: this.inCount,
-      });
+      // if (this.serverToClient.count > LogStart && this.serverToClient.count < LogEnd) {
+      //   if (NpcStop.is(res) || NpcMove.is(res) || NpcMoveToTarget.is(res) || WalkVerify.is(res)) {
+      //     console.log(res.packet.name, res.x, res.y);
+      //   } else if (NpcAssign.is(res)) {
+      //     console.log(res);
+      //   } else {
+      //     console.log(this.serverToClient.count, {
+      //       id: toHex(packets[offset]),
+      //       name: this.serverToClient.packets.get(packets[offset])?.name,
+      //       s: res.packet.size,
+      //       o: offset,
+      //       p: this.inCount,
+      //     });
+      //   }
+      // }
 
-      //   console.log(packets[offset], { offset, totalLen: packets.length, value: res });
-      if (res.packet.size != GSPacketSize.getPacketSize(packets.slice(offset))) {
-        console.error('PacketSizeMissMatch', {
-          expected: GSPacketSize.getPacketSize(packets.slice(offset)),
-          got: res.packet.size,
-        });
-        process.exit();
-      }
+      // if (res.packet.size != GSPacketSize.getPacketSize(packets.slice(offset))) {
+      //   console.error(this.serverToClient.count, 'PacketSizeMissMatch', {
+      //     id: toHex(packets[offset]),
+      //     expected: GSPacketSize.getPacketSize(packets.slice(offset)),
+      //     got: res.packet.size,
+      //     packet: res,
+      //   });
+      //   const pktSize = offset + GSPacketSize.getPacketSize(packets.slice(offset))!;
+      //   console.log(packets.slice(offset, pktSize));
+      //   process.exit();
+      // }
+
+      // if (packetId == 0x96) console.log(res);
 
       offset += res.packet.size;
 
-      //   this.emit(res);
-      results.push(res);
+      this.events.emit(res.packet.name, res, this.serverToClient.count);
+      // results.push(res);
     }
 
     if (packetSize < bytes.length) {
@@ -94,7 +109,9 @@ export class Diablo2GameClient {
     }
   }
 
-  //   emit(packet: Diablo2ParsedPacket) {}
+  on<T>(pkt: Diablo2Packet<T>, cb: (pkt: Diablo2ParsedPacket<T>, index: number) => void): EventEmitter {
+    return this.events.on(pkt.name, cb);
+  }
 
   //   onPacketOut(bytes: number[]) {}
 }
