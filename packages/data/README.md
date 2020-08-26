@@ -8,5 +8,5 @@ import {Act} from '@diablo2/data'
 console.log(Act.ActI) // 0
 
 import {Difficulty} from '@diablo2/data'
-console.log(Difficulty.Normal) // 0
+console.log(Difficulty.Normal, Difficulty[0]) // 0, 'Normal'
 ```

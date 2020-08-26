@@ -1,6 +1,6 @@
 import { ItemActionType } from '@diablo2/data';
 import o from 'ospec';
-import { ItemActionWorld } from '..';
+import { ItemActionWorld } from '../server';
 
 o.spec('ItemPacket', () => {
   o('should parse a packet', () => {

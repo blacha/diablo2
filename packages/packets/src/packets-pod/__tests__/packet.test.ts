@@ -9,7 +9,7 @@ import {
   StateSet,
   UnitUseSkill,
   WarpAssign,
-} from '../index';
+} from '../server';
 
 // This has really weird formatting in prettier
 const PlayerInGamePacket = [
@@ -23,7 +23,7 @@ o.spec('PacketTest', () => {
 
     o(playerInGame.name).equals('dcdad');
     o(playerInGame.level).equals(24);
-    o(playerInGame.playerId).equals(1);
+    o(playerInGame.unitId).equals(1);
     o(playerInGame.class.value).equals(3);
     o(playerInGame.class.name).equals('Paladin');
   });

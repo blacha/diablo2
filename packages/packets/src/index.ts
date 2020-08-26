@@ -1,2 +1,2 @@
-export { Diablo2Packet, Diablo2ParsedPacket } from './packet';
+export { Diablo2Packet, Diablo2ParsedPacket, Diablo2Packets } from './packet';
 export { Diablo2PacketFactory } from './factory';

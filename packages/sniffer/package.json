@@ -1,10 +1,10 @@
 {
-  "name": "@diablo2/core",
+  "name": "@diablo2/sniffer",
   "version": "0.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/blacha/diablo2.git",
-    "directory": "packages/core"
+    "directory": "packages/sniffer"
   },
   "license": "MIT",
   "main": "./build/index.js",
@@ -13,9 +13,13 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
+    "@diablo2/core": "0.0.1",
     "@diablo2/huffman": "0.0.1",
     "@diablo2/packets": "0.0.1",
-    "ulid": "^2.3.0"
+    "@types/pino": "^6.3.0",
+    "pcap": "^3.1.0",
+    "pino": "^6.5.1",
+    "pretty-json-log": "^0.3.1"
   },
   "publishConfig": {
     "access": "public"

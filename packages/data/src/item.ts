@@ -13,7 +13,7 @@ export enum ItemActionType {
    *The result will be the new item being equipped and the old going to cursor.
    */
   IndirectlySwapBodyItem = 7,
-  Unequip = 8,
+  UnEquip = 8,
   SwapBodyItem = 9,
   AddQuantity = 0x0a,
   AddToShop = 0x0b,
@@ -25,7 +25,7 @@ export enum ItemActionType {
   /**
    *Sent for the secondary hand's item going to inventory when changing from a dual item setup to a two handed weapon.
    */
-  AutoUnequip = 0x11,
+  AutoUnEquip = 0x11,
   RemoveFromHireling = 0x12, // sent along with a 9d 08 packet... Also Item on cursor when entering game ?? MiscToCursor??
   ItemInSocket = 0x13,
   UNKNOWN1 = 0x14,

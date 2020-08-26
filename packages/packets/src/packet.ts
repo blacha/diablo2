@@ -1,6 +1,5 @@
 import { toHex } from './factory';
-import { s } from './strutparse';
-import { StrutAny, StrutInfer, StrutParserContext, StrutType } from './strutparse/type';
+import { bp, StrutAny, StrutInfer, StrutParserContext, StrutType } from 'binparse';
 
 export interface Diablo2ParsedPacketInfo {
   packet: {
@@ -11,6 +10,12 @@ export interface Diablo2ParsedPacketInfo {
     /** Number of bytes needed to read in packet */
     size: number;
   };
+}
+export interface Diablo2Packets {
+  /** Packets going client -> server */
+  client: Diablo2Packet<any>[];
+  /** Packets going server -> client */
+  server: Diablo2Packet<any>[];
 }
 
 export type Diablo2ParsedPacket<T = Record<string, unknown>> = Diablo2ParsedPacketInfo & T;
@@ -35,15 +40,15 @@ export class Diablo2Packet<T extends Record<string, any>> {
     name: string,
     obj: T,
   ): Diablo2Packet<{ [K in keyof T]: StrutInfer<T[K]> }> {
-    return new Diablo2Packet(id, name, s.object(name, obj));
+    return new Diablo2Packet(id, name, bp.object(name, obj));
   }
 
   static bits<T extends Record<string, number>>(id: number, name: string, obj: T): Diablo2Packet<T> {
-    return new Diablo2Packet(id, name, s.bits(name, obj));
+    return new Diablo2Packet(id, name, bp.bits(name, obj));
   }
 
   static empty(id: number, name: string): Diablo2Packet<any> {
-    return new Diablo2Packet(id, name, s.empty);
+    return new Diablo2Packet(id, name, bp.empty);
   }
 
   /** Hex */
@@ -55,7 +60,14 @@ export class Diablo2Packet<T extends Record<string, any>> {
     return `<Packet ${this.name}: ${this.idHex}>`;
   }
 
-  parse(bytes: number[], ctx: StrutParserContext): T {
+  create(bytes: number[]): { value: T; size: number } {
+    const ctx = { offset: 0, startOffset: 0 };
+    const value = this.parse(bytes, ctx);
+    return { value, size: ctx.offset };
+  }
+
+  parse(bytes: number[], ctx?: StrutParserContext): T {
+    if (ctx == null) ctx = { offset: 0, startOffset: 0 };
     return this.parser.parse(bytes, ctx);
   }
 }

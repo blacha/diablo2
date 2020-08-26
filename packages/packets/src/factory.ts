@@ -1,5 +1,5 @@
 import { Diablo2Packet, Diablo2ParsedPacket } from './packet';
-import { StrutParserContext } from './strutparse/type';
+import { StrutParserContext } from 'binparse';
 
 export function toHex(num: number, padding = 2): string {
   return `0x${num.toString(16).padStart(padding, '0')}`;
@@ -7,7 +7,6 @@ export function toHex(num: number, padding = 2): string {
 
 export class Diablo2PacketFactory {
   packets: Map<number, Diablo2Packet<any>> = new Map();
-  count = 0;
 
   register(packet: Diablo2Packet<any>): void {
     if (this.packets.has(packet.id)) {
@@ -20,8 +19,7 @@ export class Diablo2PacketFactory {
   create(bytes: number[], offset: number): Diablo2ParsedPacket {
     const packetId = bytes[offset];
     const fact = this.packets.get(packetId);
-    if (fact == null) throw new Error(`#${this.count}: Invalid packet: ${toHex(packetId)}`);
-    this.count++;
+    if (fact == null) throw new Error(`Invalid packet: ${toHex(packetId)}`);
 
     const startOffset = offset;
     const ctx: StrutParserContext = { startOffset, offset: offset + 1 };

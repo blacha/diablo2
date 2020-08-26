@@ -1,8 +1,8 @@
 import 'source-map-support/register';
 
-import o from 'ospec';
-import { Diablo2GameClient } from '../index';
-import { FullGamePackets } from './packets';
+// import o from 'ospec';
+// import { Diablo2PacketParser } from '../packet.parser';
+// import { FullGamePackets } from './packets';
 
 // const GamePackets = [
 //   { data: [175, 1] },
@@ -11,18 +11,18 @@ import { FullGamePackets } from './packets';
 //   { data: [2, 92] },
 // ];
 
-o.spec('LoginTest', () => {
-  // o('should handle game init', () => {
-  //   const client = new Diablo2GameClient();
-  //   for (const pkt of GamePackets) {
-  //     client.onPacketIn(pkt.data);
-  //   }
-  // })
-  o('should handle full game init', () => {
-    const client = new Diablo2GameClient();
+// o.spec('LoginTest', () => {
+//   o('should handle game init', () => {
+//     const client = new Diablo2PacketParser();
+//     for (const pkt of GamePackets) {
+//       client.onPacketIn(pkt.data);
+//     }
+//   });
+//   o('should handle full game init', () => {
+//     const client = new Diablo2PacketParser();
 
-    for (const pkt of FullGamePackets) {
-      client.onPacketIn(pkt.data);
-    }
-  });
-});
+//     for (const pkt of FullGamePackets) {
+//       client.onPacketIn(pkt.data);
+//     }
+//   });
+// });

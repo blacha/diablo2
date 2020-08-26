@@ -1139,10 +1139,12 @@ export class Huffman {
     0x6c060000,
   ];
 
-  static decompress(input: number[]): number[] {
+  static decompress(input: number[] | Buffer | Uint8Array): number[] {
+    // Offset to first data byte
     let i = Huffman.getHeaderSize(input);
+    // Total number of bytes to parse
     let size = Huffman.getPacketSize(input) - i;
-    const output = [];
+    const output: number[] = [];
 
     let a: number;
     let b = 0;
@@ -1175,12 +1177,21 @@ export class Huffman {
     }
   }
 
-  static getHeaderSize(buffer: number[]): number {
+  /**
+   * Get the number of bytes used for the packet header
+   * @param buffer buffer to parse
+   */
+  static getHeaderSize(buffer: number[] | Buffer | Uint8Array): number {
     if (buffer[0] < 0xf0) return 1;
     return 2;
   }
 
-  static getPacketSize(buffer: number[]): number {
+  /**
+   * Get the size of the huffman encoded data
+   * This includes the size of the header
+   * @param buffer buffer to parse
+   */
+  static getPacketSize(buffer: number[] | Buffer | Uint8Array): number {
     if (buffer[0] < 0xf0) return buffer[0];
     return 0 + ((buffer[0] & 0x0f) << 8) + buffer[0 + 1];
   }

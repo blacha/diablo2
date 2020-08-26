@@ -1,10 +1,11 @@
 {
     "files": [],
     "references": [
-        { "path": "./packages/bitstream" },
+        { "path": "./packages/binparse" },
         { "path": "./packages/data" },
         { "path": "./packages/huffman" },
         { "path": "./packages/packets" },
         { "path": "./packages/core" },
+        { "path": "./packages/sniffer" },
     ]
 }
