@@ -1,10 +1,10 @@
 {
-  "name": "@diablo2/binfiles",
+  "name": "@diablo2/bintools",
   "version": "0.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/blacha/diablo2.git",
-    "directory": "packages/binfiles"
+    "directory": "packages/bintools"
   },
   "license": "MIT",
   "main": "./build/index.js",

@@ -1,11 +1,11 @@
 {
     "files": [],
     "references": [
-        { "path": "./packages/binfiles" },
-        // { "path": "./packages/data" },
-        // { "path": "./packages/huffman" },
-        // { "path": "./packages/packets" },
-        // { "path": "./packages/core" },
-        // { "path": "./packages/sniffer" },
+        { "path": "./packages/bintools" },
+        { "path": "./packages/data" },
+        { "path": "./packages/huffman" },
+        { "path": "./packages/packets" },
+        { "path": "./packages/core" },
+        { "path": "./packages/sniffer" },
     ]
 }
