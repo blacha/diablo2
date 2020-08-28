@@ -3,13 +3,13 @@ import { DataTypeItem } from '../item.parser';
 import { Diablo2Packet } from '../packet';
 import { bp } from 'binparse';
 
-const DataAct = bp.lookup('Act', bp.u8, Act);
-const DataPlayerClass = bp.lookup('PlayerClass', bp.u8, PlayerClass);
-const DataDifficulty = bp.lookup('Difficulty', bp.u8, Difficulty);
+const DataAct = bp.lookup('Act', bp.u8, (id) => Act[id]);
+const DataPlayerClass = bp.lookup('PlayerClass', bp.u8, (id) => PlayerClass[id]);
+const DataDifficulty = bp.lookup('Difficulty', bp.u8, (id) => Difficulty[id]);
 // const DataGameObjectMode = bp.lookup('GameObjectMode', bp.u8, GameObjectMode);
 // const DataGameObjectInteraction = bp.lookup('GameObjectInteraction', bp.u8, GameObjectInteraction);
-const DataWarp = bp.lookup('Warp', bp.u8, WarpType);
-const DataUnitType = bp.lookup('UnitType', bp.u8, UnitType);
+const DataWarp = bp.lookup('Warp', bp.u8, (id) => WarpType[id]);
+const DataUnitType = bp.lookup('UnitType', bp.u8, (id) => UnitType[id]);
 
 export const GameLoading = Diablo2Packet.empty(0x00, 'GameLoading');
 export const GameLogonReceipt = Diablo2Packet.create(0x01, 'GameLogonReceipt', {
@@ -349,9 +349,9 @@ export const PartyMemberPulse = Diablo2Packet.create(0x90, 'PartyMemberPulse', {
   y: bp.lu32,
 });
 export const BaseSkills = Diablo2Packet.create(0x94, 'BaseSkills', {
-  amount: bp.offset,
+  amount: bp.variable('count', bp.u8),
   unitId: bp.lu32,
-  skills: bp.arrayWithOffset('Skills', bp.object('SkillLevels', { skill: bp.lu16, level: bp.u8 }), false),
+  skills: bp.array('Skills', bp.object('SkillLevels', { skill: bp.lu16, level: bp.u8 }), 'count', false),
 });
 export const PlayerWeaponSwitch = Diablo2Packet.empty(0x97, 'PlayerWeaponSwitch');
 export const SkillTriggered = Diablo2Packet.create(0x99, 'SkillTriggered', { unk1: bp.bytes(15) });
@@ -381,9 +381,9 @@ export const StateDelayed = Diablo2Packet.create(0xa7, 'StateDelayed', {
 export const StateSet = Diablo2Packet.create(0xa8, 'StateSet', {
   unitType: bp.u8,
   unitId: bp.lu32,
-  packetLength: bp.offset,
+  packetLength: bp.variable('count', bp.u8),
   state: bp.u8,
-  stateEffects: bp.arrayWithOffset('StateEffects', bp.u8, true),
+  stateEffects: bp.array('StateEffects', bp.u8, 'count', true),
 });
 export const StateEnd = Diablo2Packet.create(0xa9, 'StateEnd', {
   unitType: bp.u8,
@@ -399,8 +399,8 @@ export const NpcAssign = Diablo2Packet.create(0xac, 'NpcAssign', {
   x: bp.lu16,
   y: bp.lu16,
   life: bp.u8,
-  packetLength: bp.offset,
-  stateEffects: bp.arrayWithOffset('StateEffects', bp.u8, true),
+  packetLength: bp.variable('count', bp.u8),
+  stateEffects: bp.array('StateEffects', bp.u8, 'count', true),
 });
 export const GameTerminated = Diablo2Packet.empty(0xb0, 'GameTerminated');
 export const GameBanIp = Diablo2Packet.create(0xb3, 'GameBanIp', { param: bp.lu32 });

@@ -13,10 +13,10 @@ o.spec('ItemPacket', () => {
     o(ctx.offset).equals(29);
     o(ctx.startOffset).equals(0);
 
-    o(item.action.value).equals(ItemActionType.PutInContainer);
+    o(item.action.id).equals(ItemActionType.PutInContainer);
     o(item.action.name).equals('PutInContainer');
 
-    o(item.category.value).equals(16);
+    o(item.category.id).equals(16);
     o(item.category.name).equals('Misc');
 
     console.log(item, ctx);

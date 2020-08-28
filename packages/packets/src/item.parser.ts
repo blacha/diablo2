@@ -2,13 +2,13 @@ import { bp, StrutParserContext, StrutType } from 'binparse';
 import { ItemActionType, ItemCategory } from '@diablo2/data';
 
 export interface D2ItemParsed {
-  action: { value: ItemActionType; name: keyof typeof ItemActionType };
-  category: { value: ItemCategory; name: keyof typeof ItemCategory };
+  action: any;
+  category: any;
   itemId: number;
 }
 
-const StrutItemAction = bp.lookup('ItemAction', bp.u8, ItemActionType);
-const StrutItemCategory = bp.lookup('ItemCategory', bp.u8, ItemCategory);
+const StrutItemAction = bp.lookup('ItemAction', bp.u8, (id) => ItemActionType[id]);
+const StrutItemCategory = bp.lookup('ItemCategory', bp.u8, (id) => ItemCategory[id]);
 
 export const DataTypeItem: StrutType<D2ItemParsed> = {
   name: 'Item',

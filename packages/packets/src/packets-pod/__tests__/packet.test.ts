@@ -24,7 +24,7 @@ o.spec('PacketTest', () => {
     o(playerInGame.name).equals('dcdad');
     o(playerInGame.level).equals(24);
     o(playerInGame.unitId).equals(1);
-    o(playerInGame.class.value).equals(3);
+    o(playerInGame.class.id).equals(3);
     o(playerInGame.class.name).equals('Paladin');
   });
 
@@ -62,7 +62,7 @@ o.spec('PacketTest', () => {
 
     o(playerAssign.name).equals('dcdad');
     o(playerAssign.class.name).equals('Paladin');
-    o(playerAssign.class.value).equals(3);
+    o(playerAssign.class.id).equals(3);
     o(playerAssign.x).equals(0);
     o(playerAssign.y).equals(0);
   });
@@ -73,7 +73,7 @@ o.spec('PacketTest', () => {
       startOffset: 0,
     });
     o(loadAct.act.name).equals(Act[2] as any);
-    o(loadAct.act.value).equals(0x02);
+    o(loadAct.act.id).equals(0x02);
     o(loadAct.mapId).equals(1);
     o(loadAct.areaId).equals(2);
     o(loadAct.unk1).equals(3);
@@ -101,7 +101,7 @@ o.spec('PacketTest', () => {
     const res = WarpAssign.parse([9, 5, 1, 0, 0, 0, 76, 73, 39, 154, 50], ctx);
 
     o(res.type.name).equals('Warp');
-    o(res.warp.value).equals(76);
+    o(res.warp.id).equals(76);
     o(res.warp.name).equals('Act5TempleEntrance');
 
     // const bytes = [9, 5, 1, 0, 0, 0, 76, 73, 39, 154];
