@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "ulid": "^2.3.0",
-    "binparse": "^0.0.1"
+    "binparse": "^0.2.0"
   },
   "publishConfig": {
     "access": "public"

@@ -1,4 +1,3 @@
-import { PacketsPod } from '@diablo2/packets/build/packets-pod';
 import * as fs from 'fs';
 import * as path from 'path';
 import 'source-map-support/register';
@@ -13,7 +12,7 @@ if (fs.existsSync(packetPath)) {
 
   FullGamePackets.sort((a, b) => a.seqno - b.seqno);
 
-  const client = new Diablo2Client(PacketsPod);
+  const client = new Diablo2Client();
 
   // client.on(WalkVerify, (pkt, index) => console.log(index, pkt.x, pkt.y));
   console.time('ParseAllPackets');
@@ -47,7 +46,7 @@ if (fs.existsSync(packetPath)) {
     // break;
   }
   for (const stream of Streams) {
-    const session = client.startSession();
+    const session = client.startSession(console);
 
     if (stream.length !== 14193) continue;
     console.log('StartStream', stream.length);

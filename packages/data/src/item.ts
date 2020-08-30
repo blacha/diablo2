@@ -48,3 +48,40 @@ export enum ItemCategory {
   /** BaseMiscItems and gloves, boots... */
   Misc = 16,
 }
+
+export enum ItemDestination {
+  Unspecified = 0,
+  Equipment = 1,
+  Belt = 2,
+  Ground = 3,
+  Cursor = 4,
+  Item = 6,
+}
+
+export enum ItemQuality {
+  NotApplicable = 0,
+  Inferior = 1,
+  Normal = 2,
+  Superior = 3,
+  Magic = 4,
+  Set = 5,
+  Rare = 6,
+  Unique = 7,
+  Crafted = 8,
+}
+
+export enum ItemContainer {
+  Equipment = 0x00, // Player or Merc Equipment
+  Ground = 0x01,
+  Inventory = 0x02,
+  TraderOffer = 0x04,
+  ForTrade = 0x06,
+  Cube = 0x08,
+  Stash = 0x0a,
+  Belt = 0x0c,
+  Item = 0x0e,
+  ArmorTab = 0x82,
+  WeaponTab1 = 0x84,
+  WeaponTab2 = 0x86,
+  MiscTab = 0x88,
+}

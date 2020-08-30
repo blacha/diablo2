@@ -20,7 +20,6 @@ const PlayerInGamePacket = [
 o.spec('PacketTest', () => {
   o('0x5b - PlayerInGame', () => {
     const playerInGame = PlayerInGame.parse(PlayerInGamePacket, { offset: 1, startOffset: 0 });
-
     o(playerInGame.name).equals('dcdad');
     o(playerInGame.level).equals(24);
     o(playerInGame.unitId).equals(1);
@@ -99,15 +98,8 @@ o.spec('PacketTest', () => {
     const ctx = { offset: 1, startOffset: 0 };
     // X,Y near 4683 5101
     const res = WarpAssign.parse([9, 5, 1, 0, 0, 0, 76, 73, 39, 154, 50], ctx);
-
     o(res.type.name).equals('Warp');
     o(res.warp.id).equals(76);
     o(res.warp.name).equals('Act5TempleEntrance');
-
-    // const bytes = [9, 5, 1, 0, 0, 0, 76, 73, 39, 154];
-    // for (let i = 0; i < bytes.length; i++) {
-    //   console.log(i, new UInt16().parse(bytes, { offset: i, startOffset: 0 }));
-    // }
-    console.log(res);
   });
 });

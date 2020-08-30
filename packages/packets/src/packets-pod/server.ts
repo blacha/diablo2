@@ -1,15 +1,16 @@
-import { Act, Difficulty, PlayerClass, UnitType, WarpType } from '@diablo2/data';
+import { Act, Attribute, Difficulty, PlayerClass, UnitType, WarpType } from '@diablo2/data';
 import { DataTypeItem } from '../item.parser';
 import { Diablo2Packet } from '../packet';
 import { bp } from 'binparse';
 
-const DataAct = bp.lookup('Act', bp.u8, (id) => Act[id]);
-const DataPlayerClass = bp.lookup('PlayerClass', bp.u8, (id) => PlayerClass[id]);
-const DataDifficulty = bp.lookup('Difficulty', bp.u8, (id) => Difficulty[id]);
-// const DataGameObjectMode = bp.lookup('GameObjectMode', bp.u8, GameObjectMode);
-// const DataGameObjectInteraction = bp.lookup('GameObjectInteraction', bp.u8, GameObjectInteraction);
-const DataWarp = bp.lookup('Warp', bp.u8, (id) => WarpType[id]);
-const DataUnitType = bp.lookup('UnitType', bp.u8, (id) => UnitType[id]);
+const DataAct = bp.enum('Act', bp.u8, Act);
+const DataPlayerClass = bp.enum('PlayerClass', bp.u8, PlayerClass);
+const DataDifficulty = bp.enum('Difficulty', bp.u8, Difficulty);
+// const DataGameObjectMode = bp.enum('GameObjectMode', bp.u8, GameObjectMode);
+// const DataGameObjectInteraction = bp.enum('GameObjectInteraction', bp.u8, GameObjectInteraction);
+const DataWarp = bp.enum('Warp', bp.u8, WarpType);
+const DataUnitType = bp.enum('UnitType', bp.u8, UnitType);
+const DataAttribute = bp.enum('Attribute', bp.u8, Attribute);
 
 export const GameLoading = Diablo2Packet.empty(0x00, 'GameLoading');
 export const GameLogonReceipt = Diablo2Packet.create(0x01, 'GameLogonReceipt', {
@@ -95,15 +96,15 @@ export const ExperienceByte = Diablo2Packet.create(0x1a, 'ExperienceByte', { amo
 export const ExperienceWord = Diablo2Packet.create(0x1b, 'ExperienceWord', { amount: bp.lu16 });
 export const ExperienceDWord = Diablo2Packet.create(0x1c, 'ExperienceDWord', { amount: bp.lu32 });
 export const PlayerAttributeByte = Diablo2Packet.create(0x1d, 'PlayerAttributeByte', {
-  attribute: bp.u8,
+  attribute: DataAttribute,
   amount: bp.u8,
 });
 export const PlayerAttributeWord = Diablo2Packet.create(0x1e, 'PlayerAttributeWord', {
-  attribute: bp.u8,
+  attribute: DataAttribute,
   amount: bp.lu16,
 });
 export const PlayerAttributeDWord = Diablo2Packet.create(0x1f, 'PlayerAttributeDWord', {
-  attribute: bp.u8,
+  attribute: DataAttribute,
   amount: bp.lu32,
 });
 export const StateNotification = Diablo2Packet.create(0x20, 'StateNotification', {
@@ -413,8 +414,8 @@ export const GameChatOverhead = Diablo2Packet.create(0xb5, 'GameChatOverhead', {
   message: bp.u8,
   unk4: bp.u8,
 });
-export const ItemActionWorld = new Diablo2Packet(0x9c, 'ItemActionWorld', DataTypeItem);
-export const ItemActionOwned = new Diablo2Packet(0x9d, 'ItemActionOwned', DataTypeItem);
+export const ItemActionWorld = new Diablo2Packet(0x9c, 'ItemActionWorld', new DataTypeItem());
+export const ItemActionOwned = new Diablo2Packet(0x9d, 'ItemActionOwned', new DataTypeItem());
 export const PlayerLifeChange = Diablo2Packet.bits(0x95, 'PlayerLifeChange', {
   life: 15,
   mana: 15,
@@ -470,6 +471,7 @@ export const Unknown0xad = Diablo2Packet.create(0xad, 'Unknown0xad', { unk1: bp.
 export const Unknown0xb1 = Diablo2Packet.create(0xb1, 'Unknown0xb1', { unk1: bp.bytes(52) });
 export const Unknown0xb2 = Diablo2Packet.empty(0xb2, 'Unknown0xb2');
 export const Unknown0xb4 = Diablo2Packet.empty(0xb4, 'Unknown0xb4');
+export const Unknown0xff = Diablo2Packet.empty(0xff, 'Unknown0xff');
 
 export const ServerPacketsPod = [
   GameLoading,
@@ -615,4 +617,5 @@ export const ServerPacketsPod = [
   Unknown0xb1,
   Unknown0xb2,
   Unknown0xb4,
+  Unknown0xff,
 ];

@@ -5,7 +5,7 @@ import { ItemFileParser } from '../item/item.reader';
 import { LangNode, LangReader } from '../lang/lang.reader';
 import { MonsterReader } from '../monster/monster.stat.reader';
 
-const BasePath = `/home/blacha/Games/d2/game/Path of Diablo/mpq`;
+const BasePath = ``;
 
 const Lang = new Map<string, LangNode>();
 const LangIndex: LangNode[][] = [];
@@ -51,8 +51,6 @@ async function loadItems(basePath: string): Promise<void> {
     for (const itm of items.items) {
       console.log({ code: itm.code, name: LangIndex[itm.nameLang]?.map((c) => c.value) });
     }
-
-    // console.log(items.items.slice(0, 5));
   }
 }
 
@@ -67,10 +65,6 @@ async function loadMonsters(basePath: string): Promise<void> {
     console.time('Parse:' + monStatFile);
     MonsterReader.raw(bytes as any);
     console.timeEnd('Parse:' + monStatFile);
-    // for (const mon of monsters.slice(0, 900)) {
-    //   //   console.log(mon.id, LangIndex[mon.name]?.value, LangIndex[mon.description]?.value);
-    // }
-    // console.log(items);
   }
 }
 

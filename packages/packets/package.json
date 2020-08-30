@@ -13,8 +13,8 @@
       "test": "ospec --globs 'build/**/*.test.js'"
     },
     "dependencies": {
-        "binparse": "0.0.1",
-        "@diablo2/data": "0.0.1"
+        "binparse": "^0.2.0",
+        "@diablo2/data": "^0.0.1"
     },
     "publishConfig": {
       "access": "public"
