@@ -396,9 +396,11 @@ export const StateEnd = Diablo2Packet.create(0xa9, 'StateEnd', {
 export const NpcHeal = Diablo2Packet.create(0xab, 'NpcHeal', { unitType: bp.u8, unitId: bp.lu32, unitLife: bp.u8 });
 export const NpcAssign = Diablo2Packet.create(0xac, 'NpcAssign', {
   unitId: bp.lu32,
+  /** NpcId */
   code: bp.lu16,
   x: bp.lu16,
   y: bp.lu16,
+  /** Health values are 0 - 128 */
   life: bp.u8,
   packetLength: bp.variable('count', bp.u8),
   stateEffects: bp.array('StateEffects', bp.u8, 'count', true),

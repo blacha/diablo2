@@ -1,5 +1,7 @@
 import { existsSync } from 'fs';
 import 'source-map-support/register';
+import { sniffItems } from './example/item.tracker';
+import { sniffNpc } from './example/npc.tracker';
 import { Log } from './logger';
 import { Diablo2PacketSniffer, findLocalIps } from './sniffer';
 
@@ -40,6 +42,11 @@ async function main(): Promise<void> {
 
   const sniffer = new Diablo2PacketSniffer(networkAdapter, gamePath);
   sniffer.isWriteDump = isWriteDump > 0;
+
+  // Track items being dropped onto the ground
+  sniffItems(sniffer);
+
+  sniffNpc(sniffer);
 
   await sniffer.start(Log);
 }

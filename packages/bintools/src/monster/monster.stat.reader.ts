@@ -1,10 +1,12 @@
-import { bp } from 'binparse';
+import { bp, StrutInfer } from 'binparse';
 
-const Monster = bp.object('Monster', {
+const MonsterParser = bp.object('Monster', {
   id: bp.lu16,
   baseId: bp.lu16,
   baseNextId: bp.lu16,
+  /** Name index, lookup inside of lang index */
   name: bp.lu16,
+  /** Description lookup inside of lang index */
   description: bp.lu16,
   unk1: bp.lu16,
   flags: bp.lu32,
@@ -12,7 +14,9 @@ const Monster = bp.object('Monster', {
   unk100: bp.skip(424 - 20),
 });
 
+export type MonsterNode = StrutInfer<typeof MonsterParser>;
+
 export const MonsterReader = bp.object('Monsters', {
   count: bp.variable('count', bp.lu32),
-  monsters: bp.array('Monster', Monster, 'count'),
+  monsters: bp.array('Monster', MonsterParser, 'count'),
 });

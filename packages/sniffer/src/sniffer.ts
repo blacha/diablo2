@@ -1,8 +1,9 @@
 import { Diablo2Client, Diablo2GameSession } from '@diablo2/core';
-import { createWriteStream, WriteStream } from 'fs';
+import { EventEmitter } from 'events';
 import { networkInterfaces } from 'os';
 import * as pcap from 'pcap';
 import { LogType } from './logger';
+import { AutoClosingStream } from './replay.tracker';
 
 export function findLocalIps(): { address: string; interface: string }[] {
   const output: { address: string; interface: string }[] = [];
@@ -25,10 +26,11 @@ export interface PacketLine {
   bytes: string;
 }
 
-export class Diablo2PacketSniffer {
+export class Diablo2PacketSniffer extends EventEmitter {
   networkAdapter: string;
   localIps: { address: string; interface: string }[];
   session: pcap.PcapSession;
+  // No typings exist for this?
   tcpTracker: any;
 
   /** Resolve the exit promise to exit the pcap loop */
@@ -40,6 +42,7 @@ export class Diablo2PacketSniffer {
   gamePath: string;
 
   constructor(networkAdapter: string, gamePath: string) {
+    super();
     this.networkAdapter = networkAdapter;
     this.localIps = findLocalIps();
     this.tcpTracker = new pcap.TCPTracker();
@@ -47,17 +50,27 @@ export class Diablo2PacketSniffer {
     this.gamePath = gamePath;
   }
 
-  onData(
-    direction: 'in' | 'out',
-    data: Buffer,
-    session: Diablo2GameSession,
-    stream: WriteStream | null,
-    log: LogType,
-  ): void {
+  /** Dump packets into a output stream if requested */
+  fileStreams = new Map<string, AutoClosingStream>();
+  private getTraceStream(sessionId: string): AutoClosingStream {
+    let existingStream = this.fileStreams.get(sessionId);
+    if (existingStream == null) {
+      existingStream = new AutoClosingStream(`./replay-${sessionId}.ndjson`);
+      this.fileStreams.set(sessionId, existingStream);
+    }
+    return existingStream;
+  }
+
+  /** When a new game session is started */
+  onNewGame(cb: (game: Diablo2GameSession) => void): EventEmitter {
+    return this.on('session', cb);
+  }
+
+  private onData(direction: 'in' | 'out', data: Buffer, session: Diablo2GameSession, log: LogType): void {
     const inputId = session.parser.inPacketRawCount;
-    if (stream) {
+    if (this.isWriteDump) {
       const logLine: PacketLine = { direction, bytes: data.toString('hex'), time: Date.now() };
-      stream.write(JSON.stringify(logLine) + '\n');
+      this.getTraceStream(session.id).write(logLine);
     }
     try {
       session.onPacket(direction, data);
@@ -81,9 +94,7 @@ export class Diablo2PacketSniffer {
       }
 
       const gameSession = this.client.startSession(log);
-      gameSession.parser.inputBuffer.reset();
-      let stream: WriteStream | null = null;
-      if (this.isWriteDump) stream = createWriteStream(`./replay-${gameSession.id}.ndjson`, { flags: 'a' });
+      this.emit('session', gameSession);
 
       const directions: { send: 'in' | 'out'; recv: 'in' | 'out' } = { send: 'in', recv: 'out' };
       /** is session.src really the source? */
@@ -97,15 +108,14 @@ export class Diablo2PacketSniffer {
       // TODO why do I need to clone the buffer?
       // Sometime the data in the buffer is just wrong?
       session.on('data send', (session: any, bytes: Buffer) => {
-        this.onData(directions.send, Buffer.from(bytes.toJSON().data), gameSession, stream, log);
+        this.onData(directions.send, Buffer.from(bytes.toJSON().data), gameSession, log);
       });
       session.on('data recv', (session: any, bytes: Buffer) => {
-        this.onData(directions.recv, Buffer.from(bytes.toJSON().data), gameSession, stream, log);
+        this.onData(directions.recv, Buffer.from(bytes.toJSON().data), gameSession, log);
       });
 
       session.on('end', () => {
         log.info({ src: session.src, dst: session.dst }, 'Session Close');
-        stream?.close();
       });
     });
 
