@@ -12,14 +12,13 @@ import {
 } from '../server';
 
 // This has really weird formatting in prettier
-const PlayerInGamePacket = [
-  [91, 36, 0, 1, 0, 0, 0, 3, 100, 99, 100, 97, 100],
-  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 24, 0, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0],
-].reduce((acc, val) => acc.concat(val), []);
 
 o.spec('PacketTest', () => {
   o('0x5b - PlayerInGame', () => {
-    const playerInGame = PlayerInGame.parse(PlayerInGamePacket, { offset: 1, startOffset: 0 });
+    const playerInGame = PlayerInGame.parse(
+      Buffer.from('5b24000100000003646364616400000000000000000000001800ffff0000000000000000', 'hex'),
+      { offset: 1, startOffset: 0 },
+    );
     o(playerInGame.name).equals('dcdad');
     o(playerInGame.level).equals(24);
     o(playerInGame.unitId).equals(1);
@@ -36,15 +35,10 @@ o.spec('PacketTest', () => {
   });
 
   o('0x26 - GameChat', () => {
-    const pkt = [
-      [38, 4, 0, 2, 0, 0, 0, 0, 1, 0, 91, 97],
-      [100, 109, 105, 110, 105, 115, 116, 114, 97, 116, 111, 114],
-      [93, 0, 255, 99, 57, 71, 83, 35, 56, 58, 32, 83],
-      [121, 100, 110, 101, 121, 44, 65, 85, 83, 46, 32, 115],
-      [117, 112, 112, 111, 114, 116, 101, 100, 32, 98, 121, 32],
-      [65, 67, 69, 32, 71, 117, 105, 108, 100, 32, 32, 255],
-      [99, 52, 0],
-    ].reduce((acc, val) => acc.concat(val), []);
+    const pkt = Buffer.from(
+      '260400020000000001005b61646d696e6973747261746f725d00ff6339475323383a205379646e65792c4155532e20737570706f7274656420627920414345204775696c642020ff633400',
+      'hex',
+    );
 
     const ctx = { offset: 1, startOffset: 0 };
     const res = GameChat.parse(pkt, ctx);

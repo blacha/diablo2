@@ -475,7 +475,7 @@ export const Unknown0xb2 = Diablo2Packet.empty(0xb2, 'Unknown0xb2');
 export const Unknown0xb4 = Diablo2Packet.empty(0xb4, 'Unknown0xb4');
 export const Unknown0xff = Diablo2Packet.empty(0xff, 'Unknown0xff');
 
-export const ServerPacketsPod = [
+export const ServerPacketsPod = {
   GameLoading,
   GameLogonReceipt,
   GameLogonSuccess,
@@ -620,4 +620,4 @@ export const ServerPacketsPod = [
   Unknown0xb2,
   Unknown0xb4,
   Unknown0xff,
-];
+};

@@ -12,8 +12,8 @@ export class Diablo2Client {
   serverToClient = new Diablo2PacketFactory();
 
   constructor() {
-    for (const packet of PacketsPod.client) this.clientToServer.register(packet);
-    for (const packet of PacketsPod.server) this.serverToClient.register(packet);
+    for (const packet of Object.values(PacketsPod.client)) this.clientToServer.register(packet);
+    for (const packet of Object.values(PacketsPod.server)) this.serverToClient.register(packet);
   }
 
   async init(path: string, logger: Logger): Promise<void> {
