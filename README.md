@@ -6,5 +6,5 @@ Tools to work with diablo2
 
 - [bintools](./packages/bintools) - Binary parsers to read the `.bin` files
 - [huffman](./packages/huffman) - Decompressor for network data
-- [packets](./packages/packages) - Diablo2 network protocol
+- [packets](./packages/packets) - Diablo2 network protocol
 - [sniffer](./packages/sniffer) - Diablo2 network sniffer
