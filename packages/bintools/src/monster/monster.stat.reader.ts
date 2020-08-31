@@ -5,9 +5,9 @@ const MonsterParser = bp.object('Monster', {
   baseId: bp.lu16,
   baseNextId: bp.lu16,
   /** Name index, lookup inside of lang index */
-  name: bp.lu16,
+  nameLangId: bp.lu16,
   /** Description lookup inside of lang index */
-  description: bp.lu16,
+  descriptionLangId: bp.lu16,
   unk1: bp.lu16,
   flags: bp.lu32,
   code: bp.lu32,

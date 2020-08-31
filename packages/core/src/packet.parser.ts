@@ -34,7 +34,9 @@ export class Diablo2PacketParser {
   inPacketRawCount = 0;
   /** Number of packets that have been unpacked */
   inPacketParsedCount = 0;
+  /** Number of outgoing packets seen */
   outPacketRawCount = 0;
+  /** Number of outgoing packets that have been unpacked */
   outPacketParsedCount = 0;
   /**
    * Incoming packets something need more data than that is in one packet

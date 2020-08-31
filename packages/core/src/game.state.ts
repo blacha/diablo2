@@ -1,6 +1,6 @@
+import { Logger } from '@diablo2/bintools';
 import { ulid } from 'ulid';
 import { Diablo2Client } from './client';
-import { Logger } from './log.interface';
 import { Diablo2PacketParser } from './packet.parser';
 
 export class Diablo2GameSession {
