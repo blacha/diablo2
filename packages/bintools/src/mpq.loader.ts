@@ -7,7 +7,7 @@ import { MonsterReader, MonsterReader2 } from './monster/monster.stat.reader';
 import { LangReader } from './lang/lang.reader';
 
 export class Diablo2MpqLoader {
-  static async init(basePath: string, log?: Logger, mpq = Diablo2Mpq): Promise<Diablo2MpqData> {
+  static async load(basePath: string, log?: Logger, mpq = Diablo2Mpq): Promise<Diablo2MpqData> {
     if (!existsSync(path.join(basePath, 'data'))) {
       log?.error({ basePath: basePath }, 'No /data found, mpq needs to be extracted');
       throw new Error('Failed to init no MPQ data found');

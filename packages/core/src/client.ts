@@ -16,7 +16,7 @@ export class Diablo2Client {
   async init(path: string, logger: Logger, mpq = Diablo2Mpq): Promise<void> {
     logger.info({ path }, 'Reading game data');
     this.mpq = mpq;
-    await Diablo2MpqLoader.init(path, logger, mpq);
+    await Diablo2MpqLoader.load(path, logger, mpq);
   }
 
   startSession(log: Logger): Diablo2GameSession {

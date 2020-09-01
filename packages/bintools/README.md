@@ -6,13 +6,17 @@ This currently requires the MPQ to be extracted using something like `smpq` with
 
 
 ```typescript
-import {Diablo2Mpq} from '@diablo2/bintools'
+import {Diablo2MpqLoader} from '@diablo2/bintools'
 
-const mpq = await Diablo2Mpq.create('PathToExtractedMpq');
+const mpq = await Diablo2MpqLoader.load('Path/To/Extracted/Mpq');
 
 // Translate a translation key
 const lang = mpq.t('7cr') // "Phase blade"
 
 // Get information about a monster by id
-const mon = mpq.monster.get(0) // Skeleton
+const mon = mpq.monster.getMonsterName(0) // Skeleton
+
+// Get information about super uniques
+const mon = mpq.monster.getSuperUniqueName(3) // Rakanishu
+
 ```
