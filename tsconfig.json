@@ -1,8 +1,8 @@
 {
     "files": [],
     "references": [
-        { "path": "./packages/bintools" },
         { "path": "./packages/data" },
+        { "path": "./packages/bintools" },
         { "path": "./packages/huffman" },
         { "path": "./packages/packets" },
         { "path": "./packages/core" },

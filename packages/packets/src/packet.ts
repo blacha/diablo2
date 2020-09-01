@@ -60,8 +60,16 @@ export class Diablo2Packet<T extends Record<string, any>> {
     return `<Packet ${this.name}: ${this.idHex}>`;
   }
 
+  /** Create a packet from the buffer, first byte is packet id */
+  raw(bytes: Buffer | number[]): T {
+    return this.create(bytes).value;
+  }
+
+  /** Create a packet from the buffer, first byte is packet id */
   create(bytes: Buffer | number[]): { value: T; size: number } {
-    const ctx = { offset: 0, startOffset: 0 };
+    const ctx = { offset: 1, startOffset: 0 };
+    const packetId = bytes[0];
+    if (packetId !== this.id) throw new Error(`[${this.name}] Unable to create packet, invalid id: ${toHex(packetId)}`);
     const value = this.parse(bytes, ctx);
     return { value, size: ctx.offset };
   }

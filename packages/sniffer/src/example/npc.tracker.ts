@@ -6,12 +6,9 @@ import { Diablo2PacketSniffer } from '../sniffer';
 /** Track all NPCs that are being reported */
 export function sniffNpc(sniffer: Diablo2PacketSniffer): void {
   sniffer.onNewGame((game: Diablo2GameSession) => {
-    const mpq = game.client.mpq;
-
     game.parser.on(PacketsPod.server.NpcAssign, (npc) => {
-      const npcInfo = mpq.monsters.get(npc.code);
-      const monsterName = mpq.t(npcInfo?.nameLangId, 'Unknown');
-      console.log(c.red('Npc'), monsterName, `@ ${npc.x},${npc.y}`);
+      if (npc.flags == null) return;
+      console.log(c.red('Npc'), npc, `@ ${npc.x},${npc.y}`, npc.flags);
     });
   });
 }

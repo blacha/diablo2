@@ -1,11 +1,10 @@
-import { Diablo2Mpq, Logger } from '@diablo2/bintools';
-import { Diablo2PacketFactory } from '@diablo2/packets';
-import { PacketsPod } from '@diablo2/packets/build/packets-pod';
+import { Logger, Diablo2MpqLoader } from '@diablo2/bintools';
+import { Diablo2Mpq, Diablo2MpqData } from '@diablo2/data';
+import { Diablo2PacketFactory, PacketsPod } from '@diablo2/packets';
 import { Diablo2GameSession } from './game.state';
 
 export class Diablo2Client {
-  mpq: Diablo2Mpq;
-
+  mpq: Diablo2MpqData;
   clientToServer = new Diablo2PacketFactory();
   serverToClient = new Diablo2PacketFactory();
 
@@ -14,11 +13,10 @@ export class Diablo2Client {
     for (const packet of Object.values(PacketsPod.server)) this.serverToClient.register(packet);
   }
 
-  async init(path: string, logger: Logger): Promise<void> {
+  async init(path: string, logger: Logger, mpq = Diablo2Mpq): Promise<void> {
     logger.info({ path }, 'Reading game data');
-
-    this.mpq = new Diablo2Mpq(path);
-    await this.mpq.init(logger);
+    this.mpq = mpq;
+    await Diablo2MpqLoader.init(path, logger, mpq);
   }
 
   startSession(log: Logger): Diablo2GameSession {

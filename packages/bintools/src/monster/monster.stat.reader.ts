@@ -20,3 +20,19 @@ export const MonsterReader = bp.object('Monsters', {
   count: bp.variable('count', bp.lu32),
   monsters: bp.array('Monster', MonsterParser, 'count'),
 });
+
+const Monster2Parser = bp.object('Monster2', {
+  id: bp.lu32,
+  unk1: bp.lu32,
+  sizeX: bp.u8,
+  sizeY: bp.u8,
+  unk2: bp.skip(11),
+  /** This state is used to read the NpcAssign packet */
+  state: bp.array('MonsterState', bp.u8, 16),
+  unk100: bp.bytes(0x134 - 10 - 11 - 16),
+});
+/** MonStats2.bin */
+export const MonsterReader2 = bp.object('Monsters2', {
+  count: bp.variable('count', bp.lu32),
+  monsters: bp.array('Monster', Monster2Parser, 'count'),
+});

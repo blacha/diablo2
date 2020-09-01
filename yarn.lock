@@ -203,10 +203,10 @@ balanced-match@^1.0.0:
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
 
-binparse@^0.2.0:
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/binparse/-/binparse-0.2.0.tgz#0fe9109020bb4ddf3ae0dc5afde09dca9cff44a7"
-  integrity sha512-A8FwN2VBYvKRynTLM60iLWd+NuxNFw1syl1+y2biwqvNPusYpjFhnuy7N+brrVuf1cvK7C5EICChV5GsNfsGCg==
+binparse@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/binparse/-/binparse-0.3.0.tgz#28b06125181176491a03a9728970ee4625f84ed6"
+  integrity sha512-IeuabtEbJIS6Nj/OfWFH3UoscHEvO+teVzVpFLdre0hf+rOoRcR8xldpP9ujiDIN2o5fG6sEdi+Q0wIYwJ/rmw==
 
 brace-expansion@^1.1.7:
   version "1.1.11"

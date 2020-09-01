@@ -1,7 +1,8 @@
 import { Act, Attribute, Difficulty, PlayerClass, UnitType, WarpType } from '@diablo2/data';
-import { DataTypeItem } from '../item.parser';
+import { DataTypeItem } from '../parser.item';
 import { Diablo2Packet } from '../packet';
 import { bp } from 'binparse';
+import { DataTypeNpc } from '../parser.npc';
 
 const DataAct = bp.enum('Act', bp.u8, Act);
 const DataPlayerClass = bp.enum('PlayerClass', bp.u8, PlayerClass);
@@ -394,17 +395,7 @@ export const StateEnd = Diablo2Packet.create(0xa9, 'StateEnd', {
   unk1: bp.u8,
 });
 export const NpcHeal = Diablo2Packet.create(0xab, 'NpcHeal', { unitType: bp.u8, unitId: bp.lu32, unitLife: bp.u8 });
-export const NpcAssign = Diablo2Packet.create(0xac, 'NpcAssign', {
-  unitId: bp.lu32,
-  /** NpcId */
-  code: bp.lu16,
-  x: bp.lu16,
-  y: bp.lu16,
-  /** Health values are 0 - 128 */
-  life: bp.u8,
-  packetLength: bp.variable('count', bp.u8),
-  stateEffects: bp.array('StateEffects', bp.u8, 'count', true),
-});
+export const NpcAssign = new Diablo2Packet(0xac, 'NpcAssign', new DataTypeNpc());
 export const GameTerminated = Diablo2Packet.empty(0xb0, 'GameTerminated');
 export const GameBanIp = Diablo2Packet.create(0xb3, 'GameBanIp', { param: bp.lu32 });
 export const GameChatOverhead = Diablo2Packet.create(0xb5, 'GameChatOverhead', {

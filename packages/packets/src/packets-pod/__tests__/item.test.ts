@@ -1,7 +1,7 @@
 import 'source-map-support/register';
 import { ItemActionType, ItemCategory, ItemDestination, ItemQuality } from '@diablo2/data';
 import o from 'ospec';
-import { DataTypeItem } from '../../item.parser';
+import { DataTypeItem } from '../../parser.item';
 import { ItemActionWorld } from '../server';
 
 o.spec('ItemPacket', () => {

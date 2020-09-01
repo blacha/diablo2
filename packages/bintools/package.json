@@ -13,8 +13,9 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
+    "@diablo2/data": "^0.0.1",
     "ulid": "^2.3.0",
-    "binparse": "^0.2.0"
+    "binparse": "^0.3.0"
   },
   "publishConfig": {
     "access": "public"
