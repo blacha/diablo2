@@ -38,6 +38,7 @@ function bitScanReverse(mask: number): { index: number; mask: number } {
 
 export class DataTypeNpc implements StrutType<NpcInfo> {
   name = 'Npc';
+
   parse(bytes: Buffer, ctx: StrutParserContext): NpcInfo {
     const npc: Partial<NpcInfo> = {};
     const packetId = bytes[ctx.startOffset];
@@ -51,21 +52,26 @@ export class DataTypeNpc implements StrutType<NpcInfo> {
 
     const packetLength = bp.u8.parse(bytes, ctx);
 
-    npc.name = Diablo2Mpq.monsters.getMonsterName(npc.code) ?? 'Unknown';
+    const mon = Diablo2Mpq.monsters.monsters.get(npc.code);
+    npc.name = Diablo2Mpq.t(mon?.nameLangId) ?? 'Unknown';
 
-    const br = new BitStream(bytes, ctx.offset, ctx.offset + packetLength);
-    // console.log(Buffer.from(bytes.slice(ctx.startOffset, ctx.offset + packetLength)).toString('hex'));
+    const br = new BitStream(bytes, ctx.offset, ctx.startOffset + packetLength);
     ctx.offset = ctx.startOffset + packetLength;
+    if (mon == null) return npc as NpcInfo;
 
-    br.skip(4);
+    br.bits(4);
+    const npcStateFields = Diablo2Mpq.monsters.getState(mon.baseId);
 
-    const npcStateFields = Diablo2Mpq.monsters.getState(npc.code);
+    const hasState = br.bool();
     if (npcStateFields.length == 0) {
-      npc.isValid = false;
+      if (hasState) {
+        npc.isValid = false;
+        console.log('Npc', npc.code, npc.name, Buffer.from(bytes.slice(ctx.startOffset, ctx.offset)).toString('hex'));
+      }
       return npc as NpcInfo;
     }
 
-    if (br.bool()) {
+    if (hasState) {
       for (const fieldSize of npcStateFields) {
         const res = bitScanReverse(fieldSize - 1);
         if (res.mask !== 1) res.index = 0;
@@ -73,6 +79,7 @@ export class DataTypeNpc implements StrutType<NpcInfo> {
         br.bits(res.index + 1);
       }
     }
+
     const flags: NpcFlags = {};
     npc.flags = flags;
     if (br.bool()) {
@@ -88,8 +95,6 @@ export class DataTypeNpc implements StrutType<NpcInfo> {
       npc.name = Diablo2Mpq.monsters.getSuperUniqueName(superUniqueId);
     }
     if (Object.keys(flags).length == 0) delete npc.flags;
-
-    // console.log('Npc', br.remainingBits, br.remainingBits / 8);
 
     return npc as NpcInfo;
   }

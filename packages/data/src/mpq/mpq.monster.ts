@@ -1,5 +1,11 @@
 import { Diablo2MpqData } from './mpq';
 
+export interface Diablo2MpqMonster {
+  id: number;
+  baseId: number;
+  nameLangId: number;
+}
+
 export class Diablo2MpqMonsters {
   /** SuperUniqueId -> Name */
   superUniques: string[] = [
@@ -80,8 +86,8 @@ export class Diablo2MpqMonsters {
   ];
 
   /** MonsterId -> Monster translation string */
-  monsters: Map<number, number> = new Map();
-  /** MonsterId -> Monster state */
+  monsters: Map<number, Diablo2MpqMonster> = new Map();
+  /** baseMonsterId -> Monster state */
   state: Map<number, number[]> = new Map();
 
   mpq: Diablo2MpqData;
@@ -95,19 +101,22 @@ export class Diablo2MpqMonsters {
   }
 
   getMonsterName(monsterId: number): string | undefined {
-    return this.mpq.t(this.monsters.get(monsterId));
+    return this.mpq.t(this.monsters.get(monsterId)?.nameLangId);
   }
 
-  add(monsterId: number, nameId: number): void {
-    this.monsters.set(monsterId, nameId);
+  add(monsterId: number, mon: Diablo2MpqMonster): void {
+    this.monsters.set(monsterId, mon);
   }
 
-  getState(monsterId: number): number[] {
-    return this.state.get(monsterId) ?? [];
+  getState(baseMonsterId: number): number[] {
+    return this.state.get(baseMonsterId) ?? [];
   }
 
-  addState(monsterId: number, state: number[]): void {
-    if (!this.monsters.has(monsterId)) throw new Error(`Unable to add monster state missing monster ${monsterId}`);
-    this.state.set(monsterId, state);
+  addState(baseMonsterId: number, state: number[]): void {
+    if (!this.monsters.has(baseMonsterId)) {
+      throw new Error(`Unable to add monster state missing monster ${baseMonsterId}`);
+    }
+    // console.log('State', monsterId);
+    this.state.set(baseMonsterId, state);
   }
 }

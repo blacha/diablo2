@@ -1,4 +1,18 @@
 import { bp } from 'binparse';
+import { StrutTypeStringFixed } from 'binparse/build/src/string';
+import { StrutParserContext, StrutParserInput } from 'binparse/build/src/type';
+
+/**
+ * Generally item codes are its 3 letters plus a space eg `cap `
+ * Using ItemCode trims the text to just the three letters
+ */
+export class ItemCodeParser extends StrutTypeStringFixed {
+  parse(bytes: StrutParserInput, ctx: StrutParserContext): string {
+    const res = super.parse(bytes, ctx);
+    return res.trim();
+  }
+}
+const ItemCode = new ItemCodeParser(4);
 
 const Item = bp.object('Item', {
   name: bp.string(32),
@@ -7,11 +21,14 @@ const Item = bp.object('Item', {
     unique: bp.string(32),
     set: bp.string(32),
   }),
-  code: bp.string(4),
+  /**
+   *  2 letter code for the item
+   */
+  code: ItemCode,
   codes: bp.object('ItemCodes', {
-    normal: bp.string(4),
-    unique: bp.string(4),
-    set: bp.string(4),
+    normal: ItemCode,
+    unique: ItemCode,
+    set: ItemCode,
   }),
   altGfx: bp.string(4),
   unk1: bp.skip(40),
@@ -29,12 +46,13 @@ const Item = bp.object('Item', {
   maxStack: bp.lu32,
   spawnStack: bp.lu32,
   gemOffset: bp.lu32,
-  nameLang: bp.lu16,
+  /** Lang Id for the item name */
+  nameId: bp.lu16,
 
   unk2: bp.skip(220 - 13 * 4 - 2),
   upgrade: bp.object('ItemUpgrades', {
-    nightmare: bp.string(4),
-    hell: bp.string(4),
+    nightmare: ItemCode,
+    hell: ItemCode,
   }),
   unk3: bp.skip(4),
 });

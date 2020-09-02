@@ -23,7 +23,8 @@ export const MonsterReader = bp.object('Monsters', {
 
 const Monster2Parser = bp.object('Monster2', {
   id: bp.lu32,
-  unk1: bp.lu32,
+  unk1: bp.lu16,
+  unk1b: bp.lu16,
   sizeX: bp.u8,
   sizeY: bp.u8,
   unk2: bp.skip(11),

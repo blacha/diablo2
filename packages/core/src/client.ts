@@ -4,7 +4,7 @@ import { Diablo2PacketFactory, PacketsPod } from '@diablo2/packets';
 import { Diablo2GameSession } from './game.state';
 
 export class Diablo2Client {
-  mpq: Diablo2MpqData;
+  mpq: Diablo2MpqData = Diablo2Mpq;
   clientToServer = new Diablo2PacketFactory();
   serverToClient = new Diablo2PacketFactory();
 

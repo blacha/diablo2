@@ -16,7 +16,7 @@ export class Diablo2PacketFactory {
     this.packets.set(packet.id, packet);
   }
 
-  create(bytes: number[], offset: number): Diablo2ParsedPacket {
+  create(bytes: number[] | Buffer, offset: number): Diablo2ParsedPacket {
     const packetId = bytes[offset];
     const fact = this.packets.get(packetId);
     if (fact == null) throw new Error(`Invalid packet: ${toHex(packetId)}`);

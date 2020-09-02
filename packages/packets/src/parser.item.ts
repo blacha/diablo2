@@ -1,4 +1,4 @@
-import { ItemActionType, ItemCategory, ItemContainer, ItemDestination, ItemQuality } from '@diablo2/data';
+import { Diablo2Mpq, ItemActionType, ItemCategory, ItemContainer, ItemDestination, ItemQuality } from '@diablo2/data';
 import { BitStream, bp, StrutInfer, StrutParserContext, StrutType } from 'binparse';
 
 export interface Diablo2Item {
@@ -19,6 +19,8 @@ export interface Diablo2Item {
   y: number;
   /** Item code */
   code: string;
+  /** Item name (If MPQ Data is loaded) */
+  name?: string;
   container?: { id: ItemContainer; name: keyof typeof ItemContainer };
   // Number of open sockets
   sockets?: number;
@@ -119,10 +121,16 @@ export class DataTypeItem implements StrutType<Diablo2Item> {
     if (item.flags.isEar) return;
     item.code = bits.string(4).trim();
 
+    // Lookup item name
+    const mpqItem = Diablo2Mpq.items.byCode.get(item.code);
+    if (mpqItem) {
+      item.name = Diablo2Mpq.t(mpqItem.nameId);
+    }
+
     if (item.code == 'gld') {
       const goldItem = item as Diablo2ItemGold;
       let readSize = 12;
-      if (bits.bit()) readSize = 32;
+      if (bits.bool()) readSize = 32;
       goldItem.amount = bits.bits(readSize);
       return;
     }
@@ -136,9 +144,8 @@ export class DataTypeItem implements StrutType<Diablo2Item> {
     const qualityId = bits.bits(4);
     item.quality = { id: qualityId, name: ItemQuality[qualityId] } as any;
 
-    if (bits.bit()) bits.bits(3); // Has graphic
-
-    if (bits.bit()) bits.bits(11); // Has color
+    if (bits.bool()) bits.bits(3); // Has graphic
+    if (bits.bool()) bits.bits(11); // Has color
 
     this.parsePrefixSuffix(bits, item);
   }
@@ -166,8 +173,8 @@ export class DataTypeItem implements StrutType<Diablo2Item> {
         bits.bits(8);
         // Prefix/suffixes
         for (let i = 0; i < 3; i++) {
-          if (bits.bit()) bits.bits(11);
-          if (bits.bit()) bits.bits(11);
+          if (bits.bool()) bits.bits(11);
+          if (bits.bool()) bits.bits(11);
         }
         break;
       case ItemQuality.Set:

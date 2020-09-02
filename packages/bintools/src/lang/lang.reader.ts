@@ -13,7 +13,7 @@ const HashNode = bp.object('HashNode', {
   valueLength: bp.lu16,
 });
 
-const LangFileParser = bp.object('Lang', {
+export const LangReader = bp.object('Lang', {
   crc: bp.lu16,
   /** Number of records */
   count: bp.lu16,
@@ -34,14 +34,3 @@ const LangFileParser = bp.object('Lang', {
 });
 
 export type LangNode = StrutInfer<typeof HashNode>;
-
-export const LangReader = {
-  LangFiles: ['string.tbl', 'expansionstring.tbl', 'patchstring.tbl'],
-  parse(langBuffer: Buffer): StrutInfer<typeof HashNode>[] {
-    const tbl = LangFileParser.raw((langBuffer as unknown) as number[]);
-    if (tbl.fileSize !== langBuffer.byteLength) {
-      throw new Error('Failed to parse lang tbl header');
-    }
-    return tbl.hashTable;
-  },
-};

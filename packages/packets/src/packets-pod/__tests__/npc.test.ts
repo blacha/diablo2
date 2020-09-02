@@ -2,21 +2,25 @@ import { Diablo2Mpq } from '@diablo2/data';
 import o from 'ospec';
 import { NpcAssign } from '../server';
 
+const fakeMonster = (id: number) => {
+  return { id, nameLangId: id, baseId: id };
+};
+
 o.spec('NpcAssign', () => {
   o.beforeEach(() => {
     Diablo2Mpq.reset();
     // Hungry Dead
-    Diablo2Mpq.lang.add('Hungry', 6, 'Hungry Dead');
-    Diablo2Mpq.monsters.add(6, 6);
+    Diablo2Mpq.lang.classic.add('Hungry', 6, 'Hungry Dead');
+    Diablo2Mpq.monsters.add(6, fakeMonster(6));
     Diablo2Mpq.monsters.addState(6, [3, 3, 3, 3, 3, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0, 0]);
 
     // Fallen
-    Diablo2Mpq.lang.add('Fallen', 19, 'Fallen');
-    Diablo2Mpq.monsters.add(19, 19);
+    Diablo2Mpq.lang.classic.add('Fallen', 19, 'Fallen');
+    Diablo2Mpq.monsters.add(19, fakeMonster(19));
     Diablo2Mpq.monsters.addState(19, [0, 1, 0, 0, 0, 3, 0, 4, 2, 1, 0, 0, 0, 0, 0, 1]);
 
     // Rakanishu
-    Diablo2Mpq.monsters.add(20, 20);
+    Diablo2Mpq.monsters.add(20, fakeMonster(20));
     Diablo2Mpq.monsters.addState(20, [0, 1, 0, 0, 0, 3, 0, 4, 2, 1, 0, 0, 0, 0, 0, 1]);
     Diablo2Mpq.monsters.superUniques[3] = 'Rakanishu';
   });
@@ -55,4 +59,16 @@ o.spec('NpcAssign', () => {
     o(npc.name).equals('Rakanishu');
     o(npc.flags).deepEquals({ isSuperUnique: true, isUnique: true });
   });
+
+  // o('should parse super unique Griswold', () => {
+  //   const npc = NpcAssign.raw(Buffer.from('ac910000006d013b6236148017a129003828b00028e903', 'hex'));
+  // });
+
+  // o('should parse unique hell bovine', () => {
+  //   const npc = NpcAssign.raw(Buffer.from('acf800000087017762df168016110440b1610000dc0d', 'hex'));
+  // });
+
+  // o.only('should parse a vile archer', () => {
+  //   const npc = NpcAssign.raw(Buffer.from('ac2700000065027d0ee21300121c15aa0000', 'hex'));
+  // });
 });
