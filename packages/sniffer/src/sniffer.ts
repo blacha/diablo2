@@ -26,7 +26,7 @@ export interface PacketLine {
   bytes: string;
 }
 
-export class Diablo2PacketSniffer extends EventEmitter {
+export class Diablo2PacketSniffer {
   networkAdapter: string;
   localIps: { address: string; interface: string }[];
   session: pcap.PcapSession;
@@ -41,8 +41,9 @@ export class Diablo2PacketSniffer extends EventEmitter {
   isWriteDump = false;
   gamePath: string;
 
+  events = new EventEmitter();
+
   constructor(networkAdapter: string, gamePath: string) {
-    super();
     this.networkAdapter = networkAdapter;
     this.localIps = findLocalIps();
     this.tcpTracker = new pcap.TCPTracker();
@@ -63,10 +64,10 @@ export class Diablo2PacketSniffer extends EventEmitter {
 
   /** When a new game session is started */
   onNewGame(cb: (game: Diablo2GameSession) => void): EventEmitter {
-    return this.on('session', cb);
+    return this.events.on('session', cb);
   }
 
-  private onData(direction: 'in' | 'out', data: Buffer, session: Diablo2GameSession, log: LogType): void {
+  onData(direction: 'in' | 'out', data: Buffer, session: Diablo2GameSession, log: LogType): void {
     const inputId = session.parser.inPacketRawCount;
     if (this.isWriteDump) {
       const logLine: PacketLine = { direction, bytes: data.toString('hex'), time: Date.now() };
@@ -94,7 +95,7 @@ export class Diablo2PacketSniffer extends EventEmitter {
       }
 
       const gameSession = this.client.startSession(log);
-      this.emit('session', gameSession);
+      this.events.emit('session', gameSession);
 
       const directions: { send: 'in' | 'out'; recv: 'in' | 'out' } = { send: 'in', recv: 'out' };
       /** is session.src really the source? */

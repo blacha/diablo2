@@ -80,7 +80,7 @@ export class Diablo2PacketParser {
         this.events.emit(res.packet.name, res);
       }
     } catch (e) {
-      console.log(e, 'FailedToParse');
+      console.log(e, 'FailedToParse:Server');
     }
 
     // More than one compressed packet was delivered
@@ -90,8 +90,23 @@ export class Diablo2PacketParser {
     }
   }
 
-  onPacketOut(/*packets: Buffer*/): void {
-    // TODO
+  onPacketOut(packets: Buffer): void {
+    this.outPacketRawCount++;
+    let offset = 0;
+    try {
+      while (offset < packets.length) {
+        // TODO can we handle this packet?
+        if (packets[offset] == 0x2b) return;
+
+        const res = this.client.clientToServer.create(packets, offset);
+        this.outPacketParsedCount++;
+        offset += res.packet.size;
+        this.events.emit('*', res);
+        this.events.emit(res.packet.name, res);
+      }
+    } catch (e) {
+      console.log(e, 'FailedToParse:Client');
+    }
   }
 
   /** On all packets being emitted */

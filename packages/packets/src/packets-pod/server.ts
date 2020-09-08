@@ -1,17 +1,8 @@
-import { Act, Attribute, Difficulty, PlayerClass, UnitType, WarpType } from '@diablo2/data';
 import { DataTypeItem } from '../parser.item';
 import { Diablo2Packet } from '../packet';
 import { bp } from 'binparse';
 import { DataTypeNpc } from '../parser.npc';
-
-const DataAct = bp.enum('Act', bp.u8, Act);
-const DataPlayerClass = bp.enum('PlayerClass', bp.u8, PlayerClass);
-const DataDifficulty = bp.enum('Difficulty', bp.u8, Difficulty);
-// const DataGameObjectMode = bp.enum('GameObjectMode', bp.u8, GameObjectMode);
-// const DataGameObjectInteraction = bp.enum('GameObjectInteraction', bp.u8, GameObjectInteraction);
-const DataWarp = bp.enum('Warp', bp.u8, WarpType);
-const DataUnitType = bp.enum('UnitType', bp.u8, UnitType);
-const DataAttribute = bp.enum('Attribute', bp.u8, Attribute);
+import { DataDifficulty, DataAct, DataUnitType, DataWarp, DataAttribute, DataPlayerClass } from './data';
 
 export const GameLoading = Diablo2Packet.empty(0x00, 'GameLoading');
 export const GameLogonReceipt = Diablo2Packet.create(0x01, 'GameLogonReceipt', {

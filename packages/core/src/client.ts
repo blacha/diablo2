@@ -5,8 +5,8 @@ import { Diablo2GameSession } from './game.state';
 
 export class Diablo2Client {
   mpq: Diablo2MpqData = Diablo2Mpq;
-  clientToServer = new Diablo2PacketFactory();
-  serverToClient = new Diablo2PacketFactory();
+  clientToServer = new Diablo2PacketFactory('ClientServer');
+  serverToClient = new Diablo2PacketFactory('ServerClient');
 
   constructor() {
     for (const packet of Object.values(PacketsPod.client)) this.clientToServer.register(packet);

@@ -1,14 +1,20 @@
 import { toHex } from './factory';
 import { bp, StrutAny, StrutInfer, StrutParserContext, StrutType } from 'binparse';
 
+export type Diablo2PacketDirection = 'ClientServer' | 'ServerClient';
+
 export interface Diablo2ParsedPacketInfo {
   packet: {
+    /** Direction the packet goes */
+    direction: Diablo2PacketDirection;
     /** PacketId */
     id: number;
     /** Human friend name of packet */
     name: string;
     /** Number of bytes needed to read in packet */
     size: number;
+    /** Raw buffer used to create the packet */
+    bytes: number[] | Buffer;
   };
 }
 export interface Diablo2Packets {

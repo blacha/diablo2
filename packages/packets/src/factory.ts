@@ -1,4 +1,4 @@
-import { Diablo2Packet, Diablo2ParsedPacket } from './packet';
+import { Diablo2Packet, Diablo2PacketDirection, Diablo2ParsedPacket } from './packet';
 import { StrutParserContext } from 'binparse';
 
 export function toHex(num: number, padding = 2): string {
@@ -7,6 +7,11 @@ export function toHex(num: number, padding = 2): string {
 
 export class Diablo2PacketFactory {
   packets: Map<number, Diablo2Packet<any>> = new Map();
+  direction: Diablo2PacketDirection;
+
+  constructor(direction: Diablo2PacketDirection) {
+    this.direction = direction;
+  }
 
   register(packet: Diablo2Packet<any>): void {
     if (this.packets.has(packet.id)) {
@@ -29,6 +34,8 @@ export class Diablo2PacketFactory {
 
     res.packet = packet;
     res.packet.size = ctx.offset - offset;
+    res.packet.bytes = bytes.slice(ctx.startOffset, ctx.offset);
+    res.packet.direction = this.direction;
     return res;
   }
 }
