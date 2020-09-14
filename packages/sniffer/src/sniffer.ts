@@ -38,7 +38,7 @@ export class Diablo2PacketSniffer {
   exitPromiseResolve: () => void;
   client: Diablo2Client;
 
-  isWriteDump = false;
+  isWriteDump = true;
   gamePath: string;
 
   events = new EventEmitter();

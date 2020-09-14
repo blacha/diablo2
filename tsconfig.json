@@ -7,5 +7,6 @@
         { "path": "./packages/packets" },
         { "path": "./packages/core" },
         { "path": "./packages/sniffer" },
+        { "path": "./packages/map" },
     ]
 }
