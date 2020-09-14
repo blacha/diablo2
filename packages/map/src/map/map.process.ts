@@ -107,8 +107,6 @@ export class Diablo2MapProcess {
   async command(cmd: 'seed' | 'difficulty', value: number, log: LogType): Promise<void> {
     if (this.process == null) await this.start(log);
     const command = `$${cmd} ${value}\n`;
-
-    console.log('SendCommand', command);
     const res = await this.once<MapGenMessageInfo>('info', () => this.process?.stdin?.write(command));
     if (res[cmd] != value)
       throw new Error(`Failed to set ${cmd}=${value} (output: ${JSON.stringify(res)}: ${command})`);

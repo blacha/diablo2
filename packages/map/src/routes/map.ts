@@ -3,8 +3,16 @@ import { Diablo2Map } from '../map/map';
 import { MapProcess } from '../map/map.process';
 import { HttpError, Request, Route } from '../route';
 
-// const isInLevelRange = (levelCode: number): boolean => levelCode > 0 && levelCode < 150;
 const isInSeedRange = (seed: number): boolean => seed > 0 && seed < 0xffffffff;
+
+function getDifficulty(res: string): Difficulty | null {
+  const resIsNumber = parseInt(res);
+  if (isNaN(resIsNumber)) {
+    return Difficulty[res as any] as any;
+  }
+  if (resIsNumber in Difficulty) return resIsNumber;
+  return null;
+}
 
 export interface MapRouteResponse {
   id: string;
@@ -24,14 +32,10 @@ export class MapRoute implements Route {
 
   static async validateParams(req: Request): Promise<{ seed: number; difficulty: number }> {
     const seed = parseInt(req.params.seed, 10);
-    if (isNaN(seed) || !isInSeedRange(seed)) {
-      throw new HttpError(422, 'Invalid seed');
-    }
+    if (isNaN(seed) || !isInSeedRange(seed)) throw new HttpError(422, 'Invalid seed');
 
-    const difficulty = req.params.difficulty as any;
-    if (Difficulty[difficulty] == null) {
-      throw new HttpError(422, 'Invalid difficulty');
-    }
+    const difficulty = getDifficulty(req.params.difficulty);
+    if (difficulty == null) throw new HttpError(422, 'Invalid difficulty');
 
     return { seed, difficulty };
   }
