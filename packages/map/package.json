@@ -1,0 +1,33 @@
+{
+  "name": "@diablo2/map",
+  "version": "0.0.1",
+  "private": "true",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blacha/diablo2.git",
+    "directory": "packages/map"
+  },
+  "license": "MIT",
+  "main": "./build/index.js",
+  "types": "./build/index.d.ts",
+  "scripts": {
+    "test": "ospec --globs 'build/**/*.test.js'",
+    "bundle": "esbuild src/index.ts --platform=node --target=node10 --bundle --outdir=dist"
+  },
+  "dependencies": {
+    "@types/p-limit": "^2.2.0",
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "p-limit": "^3.0.2",
+    "pino": "^6.6.1",
+    "ulid": "^2.3.0"
+  },
+  "files": [
+    "build/"
+  ],
+  "devDependencies": {
+    "@types/cors": "^2.8.7",
+    "@types/express": "^4.17.8",
+    "@types/node": "^14.10.1"
+  }
+}
