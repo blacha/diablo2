@@ -1,6 +1,6 @@
 {
   "name": "@diablo2/bintools",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/blacha/diablo2.git",
@@ -13,9 +13,9 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "@diablo2/data": "^0.0.1",
-    "ulid": "^2.3.0",
-    "binparse": "^0.3.0"
+    "@diablo2/data": "^0.1.0",
+    "binparse": "^0.3.0",
+    "ulid": "^2.3.0"
   },
   "publishConfig": {
     "access": "public"

@@ -1,6 +1,6 @@
 {
   "name": "@diablo2/core",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/blacha/diablo2.git",
@@ -13,9 +13,9 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "@diablo2/bintools": "0.0.1",
-    "@diablo2/huffman": "0.0.1",
-    "@diablo2/packets": "0.0.1",
+    "@diablo2/bintools": "^0.1.0",
+    "@diablo2/huffman": "^0.1.0",
+    "@diablo2/packets": "^0.1.0",
     "ansi-colors": "^4.1.1",
     "ulid": "^2.3.0"
   },
