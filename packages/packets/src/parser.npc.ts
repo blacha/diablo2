@@ -1,5 +1,5 @@
-import { BitStream, bp, StrutBase, StrutParserContext, StrutType, toHex } from 'binparse';
 import { Diablo2Mpq } from '@diablo2/data';
+import { BitStream, bp, StrutBase, StrutParserContext, toHex } from 'binparse';
 
 export interface NpcInfo {
   unitId: number;
