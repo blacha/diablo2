@@ -80,9 +80,18 @@ export class Diablo2PacketSniffer {
     }
   }
 
-  async start(log: LogType): Promise<void> {
-    await this.client.init(this.gamePath, log);
+  _initPromise: Promise<void> | null = null;
+  init(log: LogType): Promise<void> {
+    if (this._initPromise == null) {
+      this._initPromise = new Promise((resolve, reject) => {
+        this.client.init(this.gamePath, log).then(resolve).catch(reject);
+      });
+    }
+    return this._initPromise;
+  }
 
+  async start(log: LogType): Promise<void> {
+    await this.init(log);
     this.session = pcap.createSession(this.networkAdapter, { filter: `port 4000`, buffer_timeout: 0 });
 
     this.tcpTracker.on('session', (session: any) => {
