@@ -1,4 +1,4 @@
-import { BitStream, bp, StrutParserContext, StrutType, toHex } from 'binparse';
+import { BitStream, bp, StrutBase, StrutParserContext, StrutType, toHex } from 'binparse';
 import { Diablo2Mpq } from '@diablo2/data';
 
 export interface NpcInfo {
@@ -36,8 +36,10 @@ function bitScanReverse(mask: number): { index: number; mask: number } {
   return { index, mask };
 }
 
-export class DataTypeNpc implements StrutType<NpcInfo> {
-  name = 'Npc';
+export class DataTypeNpc extends StrutBase<NpcInfo> {
+  constructor() {
+    super('Diablo2:Packet:Npc');
+  }
 
   parse(bytes: Buffer, ctx: StrutParserContext): NpcInfo {
     const npc: Partial<NpcInfo> = {};

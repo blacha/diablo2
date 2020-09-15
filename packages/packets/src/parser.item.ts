@@ -1,5 +1,5 @@
 import { Diablo2Mpq, ItemActionType, ItemCategory, ItemContainer, ItemDestination, ItemQuality } from '@diablo2/data';
-import { BitStream, bp, StrutInfer, StrutParserContext, StrutType } from 'binparse';
+import { BitStream, bp, StrutBase, StrutInfer, StrutParserContext } from 'binparse';
 
 export interface Diablo2Item {
   /** Game unique id for item */
@@ -71,8 +71,10 @@ const ItemFlags = bp.flags('ItemFlags', bp.lu32, {
   isRuneWord: 0x4000000,
 });
 
-export class DataTypeItem implements StrutType<Diablo2Item> {
-  name = 'Item';
+export class DataTypeItem extends StrutBase<Diablo2Item> {
+  constructor() {
+    super('Diablo2:Packet:Item');
+  }
   parse(bytes: Buffer, ctx: StrutParserContext): Diablo2Item {
     const item: Partial<Diablo2Item> = {};
     const packetId = bytes[ctx.startOffset];
