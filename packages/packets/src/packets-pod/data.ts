@@ -8,4 +8,4 @@ export const DataDifficulty = bp.enum('Difficulty', bp.u8, Difficulty);
 // export  const DataGameObjectInteraction = bp.enum('GameObjectInteraction', bp.u8, GameObjectInteraction);
 export const DataWarp = bp.enum('Warp', bp.u8, WarpType);
 export const DataUnitType = bp.enum('UnitType', bp.u8, UnitType);
-export const DataAttribute = bp.enum('Attribute', bp.u8, Attribute);
+export const DataAttribute = bp.lookup('Attribute', bp.u8, (id) => Attribute[id] ?? 'Unknown');
