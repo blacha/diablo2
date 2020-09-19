@@ -16,6 +16,7 @@ export enum MpqFlags {
   Implode = 0x00000100,
   Compressed = 0x00000200,
   Encrypted = 0x00010000,
+  EncryptionFix = 0x00020000,
   SingleUnit = 0x01000000,
   Crc = 0x04000000,
   Exists = 0x80000000,
