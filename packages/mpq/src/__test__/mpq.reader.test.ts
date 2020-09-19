@@ -21,6 +21,7 @@ o.spec('MpqReader', () => {
       o(mpq.hash('(listfile)', MpqHashType.HashB).toString(16)).equals('4e9b98a7');
 
       o(mpq.hash('data\\local\\LNG\\ENG\\expansionstring.tbl', MpqHashType.HashA).toString(16)).equals('aaf47edd');
+      o(mpq.hash('data/local/LNG/ENG/expansionstring.tbl', MpqHashType.HashA).toString(16)).equals('aaf47edd');
     });
   });
 
