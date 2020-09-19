@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@diablo2/data": "^0.2.1",
+    "@diablo2/mpq": "^0.2.1",
     "binparse": "^1.0.1",
     "ulid": "^2.3.0"
   },
