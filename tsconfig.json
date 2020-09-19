@@ -1,6 +1,7 @@
 {
     "files": [],
     "references": [
+        { "path": "./packages/mpq" },
         { "path": "./packages/data" },
         { "path": "./packages/bintools" },
         { "path": "./packages/huffman" },

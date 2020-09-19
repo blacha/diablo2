@@ -1,0 +1,25 @@
+{
+    "name": "@diablo2/mpq",
+    "version": "0.1.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/blacha/diablo2.git",
+        "directory": "packages/mpq"
+    },
+    "license": "MIT",
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "scripts": {
+        "test": "ospec --globs 'build/**/*.test.js'"
+    },
+    "dependencies": {
+        "binparse": "^1.0.1",
+        "implode-decoder": "^1.0.1"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "files": [
+        "build/"
+    ]
+}

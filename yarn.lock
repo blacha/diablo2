@@ -1473,10 +1473,10 @@ before-after-hook@^2.0.0:
   resolved "https://registry.yarnpkg.com/before-after-hook/-/before-after-hook-2.1.0.tgz#b6c03487f44e24200dd30ca5e6a1979c5d2fb635"
   integrity sha512-IWIbu7pMqyw3EAJHzzHbWa85b6oud/yfKYg5rqB5hNE8CeMi3nX+2C2sj0HswfblST86hpVEOAb9x34NZd6P7A==
 
-binparse@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/binparse/-/binparse-1.0.0.tgz#cc4fa3b2bb2105eec6d8a94f6e4c5104a10ff573"
-  integrity sha512-iTjHiX/sVScSyt1OWybiTIOhn0dJAR4OM+K/w0Kgjc7bO79Z+lsmS0v09lF4b+opQkkY05ZfC9XcJPbxxME6eQ==
+binparse@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/binparse/-/binparse-1.0.1.tgz#ffa0d7b85ff884924a834f71cd13c0ffa3bfc52f"
+  integrity sha512-ZeQAYdG1VK6vpX+zVsb/ym+9wqhzs/F46CPwT5dJU2J9tSMnXVVkcJjxRmzsgCvdIjGPhkNbhKE0txrerH13Dg==
 
 bluebird@^3.5.1, bluebird@^3.5.3, bluebird@^3.5.5:
   version "3.7.2"
@@ -3248,6 +3248,13 @@ ignore@^5.1.4:
   version "5.1.8"
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-5.1.8.tgz#f150a8b50a34289b33e22f5889abd4d8016f0e57"
   integrity sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==
+
+implode-decoder@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/implode-decoder/-/implode-decoder-1.0.1.tgz#6b10d1db3eb54e26d5b9fd95fabce603c94c18af"
+  integrity sha1-axDR2z61TibVuf2V+rzmA8lMGK8=
+  dependencies:
+    inherits "^2.0.1"
 
 import-fresh@^2.0.0:
   version "2.0.0"
