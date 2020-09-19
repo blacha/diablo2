@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.2.0](https://github.com/blacha/diablo2/compare/v0.1.0...v0.2.0) (2020-09-19)
+
+
+### Bug Fixes
+
+* **packets:** correct typings for binary parser for npc/item packets ([9665ee6](https://github.com/blacha/diablo2/commit/9665ee6945e9b5cf590af3ae8d6e74b58aabe800))
+* **packets:** dont error if we do not know the attribute name ([14a3bbd](https://github.com/blacha/diablo2/commit/14a3bbd2871c5187a362681e78b11cceac847361))
+
+
+### Features
+
+* **mpq:** mpq reader that can extract files from patch_d2.mpq ([#2](https://github.com/blacha/diablo2/issues/2)) ([e4ee39b](https://github.com/blacha/diablo2/commit/e4ee39bd63bd3f6f29c8df4de01aaa9970df234d))
+
+
+
+
+
 # 0.1.0 (2020-09-14)
 
 
