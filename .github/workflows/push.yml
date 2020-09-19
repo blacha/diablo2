@@ -12,6 +12,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: 12.x
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install pcap
         run: sudo apt-get install libpcap-dev  -y 
@@ -31,7 +32,7 @@ jobs:
       - name: Test
         run: yarn run test
 
-      - name: (Prod) Publish NPM
+      - name: Publish NPM
         if: startsWith(github.ref, 'refs/tags/v')
         run: npx lerna publish from-git --yes
         env:
