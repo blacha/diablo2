@@ -163,6 +163,8 @@ export abstract class Mpq {
    * @param type MPQ hash type to use
    */
   hash(str: string, type: MpqHashType): number {
+    // Allow the use of '/' as a path separator
+    if (str.includes('/') && !str.includes('\\')) str = str.replace(/\//g, '\\');
     let seed1 = BigInt(0x7fed7fed);
     let seed2 = BigInt(0xeeeeeeee);
     for (let i = 0; i < str.length; i++) {
