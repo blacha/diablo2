@@ -7,6 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -b",
+    "bump": "npx lerna version --conventional-commits --no-push --sign-git-commit --sign-git-tag -m 'release: %s'",
     "lint": "eslint 'packages/*/src/**/*.ts' --quiet --fix --report-unused-disable-directives",
     "clean": "tsc -b --clean && rimraf 'packages/*/build'",
     "test": "yarn workspaces run test"
