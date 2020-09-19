@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import { FileHandle } from 'fs/promises';
 import { decompressSector } from './compression';
 import { MpqFlags, MpqFormatVersion, MpqHashType } from './const';
+import { MpqEncryptionTable } from './encryption';
 import {
   MpqBlockEntry,
   MpqBlockTableEntry,
@@ -10,7 +11,6 @@ import {
   MpqHeader,
   MpqHeaderReader,
 } from './header';
-import { MpqEncryptionTable } from './encryption';
 
 // Common big ints used during decompression
 const x0b = BigInt(0x0b);
@@ -106,15 +106,26 @@ export abstract class Mpq {
     if (hashEntry == null) return null;
 
     const blockEntry = this.blockTable[hashEntry.blockTableIndex];
-    if ((blockEntry.flags & MpqFlags.Exists) == 0) return null;
-    // Empty File
+
+    if (blockEntry == null) return null;
+    if ((blockEntry.flags & MpqFlags.Exists) == MpqFlags.Exists) return null;
     if (blockEntry.archivedSize == 0) return Buffer.alloc(0);
 
+    const isEncrypted = (blockEntry.flags & MpqFlags.Encrypted) == MpqFlags.Encrypted;
+    const isEncryptionFix = (blockEntry.flags & MpqFlags.EncryptionFix) == MpqFlags.EncryptionFix;
+
     // TODO Should really handle these flags
-    if (blockEntry.flags & MpqFlags.Encrypted) throw new Error('MPQ flag:Encrypted not supported');
     if (blockEntry.flags & MpqFlags.SingleUnit) throw new Error('MPQ flag:SingleUnit not supported');
     if (blockEntry.flags & MpqFlags.Crc) throw new Error('MPQ flag:Crc not supported');
 
+    let decryptionKey = -1;
+    if (isEncrypted) {
+      decryptionKey = this.decryptionKey(fileName);
+      if (isEncryptionFix) {
+        const fileKey = (BigInt(decryptionKey) + BigInt(blockEntry.offset)) ^ BigInt(blockEntry.size);
+        decryptionKey = Number(fileKey);
+      }
+    }
     // const isCompressed = (blockEntry.flags & MpqFlags.Compressed) == MpqFlags.Compressed;
     // const isImplode = (blockEntry.flags & MpqFlags.Implode) == MpqFlags.Implode;
     // const isCrcEmbedded = (blockEntry.flags & MpqFlags.Crc) == MpqFlags.Crc;
@@ -123,40 +134,45 @@ export abstract class Mpq {
     const sectors = Math.ceil(blockEntry.size / sectorSize);
 
     const fileData = await this.read(blockEntry.offset, blockEntry.archivedSize);
+    if (isEncrypted) this.decrypt(fileData, decryptionKey - 1, 0, (sectors + 1) * 4);
 
-    const sectorIndexes = [];
-    let offset = 0;
-    let lastIndex = 0;
-    for (let i = 0; i < sectors + 1; i++) {
-      const sectorIndex = fileData.readUInt32LE(offset);
-      if (sectorIndex < lastIndex) throw new Error('Failed to read MPQ invalid sectors detected');
-      const currentSectorSize = sectorIndex - lastIndex;
+    const outputBuffer = Buffer.allocUnsafe(blockEntry.size);
+    for (let i = 0; i < sectors; i++) {
+      const currentOffset = fileData.readUInt32LE(i * 4);
+      const nextOffset = fileData.readUInt32LE(i * 4 + 4);
+      if (nextOffset < currentOffset) throw new Error('Failed to read MPQ invalid sectors detected');
+
+      const currentSectorSize = nextOffset - currentOffset;
       if (currentSectorSize > sectorSize) throw new Error('Failed to read MPQ invalid sectors detected');
+      if (currentOffset > blockEntry.archivedSize) throw new Error('Failed to read MPQ invalid sector overflow');
 
-      if (offset > blockEntry.archivedSize) throw new Error('Failed to read MPQ invalid sector overflow');
-      lastIndex = sectorIndex;
-      offset += 4;
-      sectorIndexes.push(sectorIndex);
-    }
-
-    const outputBuffer = Buffer.alloc(blockEntry.size);
-    for (let i = 0; i < sectorIndexes.length - 1; i++) {
-      const readOffset = sectorIndexes[i];
-      const readBytes = sectorIndexes[i + 1] - readOffset;
+      // Decrypt the sector if needed
+      if (isEncrypted) this.decrypt(fileData, decryptionKey + i, currentOffset, currentSectorSize);
 
       // If the sector is not compressed just copy it
-      if (readBytes == sectorSize) {
-        fileData.copy(outputBuffer, i * sectorSize, readOffset, readOffset + sectorSize);
+      if (currentSectorSize == sectorSize) {
+        fileData.copy(outputBuffer, i * sectorSize, currentOffset, currentOffset + sectorSize);
         continue;
       }
 
-      const decompressedBytes = await decompressSector(fileData, readOffset, readBytes);
+      const decompressedBytes = await decompressSector(fileData, currentOffset, currentSectorSize);
       decompressedBytes.copy(outputBuffer, i * sectorSize, 0, decompressedBytes.length);
     }
 
+    // Since we have decrypted it in place these blocks are no longer encrypted
+    blockEntry.flags = blockEntry.flags & ~MpqFlags.Encrypted;
     return outputBuffer;
   }
 
+  decryptionKey(str: string): number {
+    let lastIndex = str.length - 1;
+    for (; lastIndex >= 0; lastIndex--) {
+      const ch = str.charAt(lastIndex);
+      if (ch == '\\') break;
+      if (ch == '/') break;
+    }
+    return this.hash(str.slice(lastIndex + 1), MpqHashType.Table);
+  }
   /**
    * Create a MPQ hash of a string using the given mpq hash type
    * @param str String to hash
@@ -184,25 +200,25 @@ export abstract class Mpq {
    * @param data buffer of data needing to be decrypted
    * @param key key to use to decrypt the buffer
    */
-  decrypt(data: Buffer, key: number): void {
+  decrypt(data: Buffer, key: number, offset = 0, size = data.length): void {
     let seed1 = BigInt(key);
     let seed2 = BigInt(0xeeeeeeee);
 
-    const itLen = Math.floor(data.length / 4);
+    const itLen = Math.floor(size / 4);
     for (let i = 0; i < itLen; i++) {
       const encValue = MpqEncryptionTable.get(Number(x400 + (seed1 & xff)));
       if (encValue == null) throw new Error('MPQ Unable to decrypt char: ' + Number(x400 + (seed1 & xff)));
       seed2 += encValue;
       seed2 &= xffffffff;
 
-      let bufValue = BigInt(data.readUInt32LE(i * 4));
+      let bufValue = BigInt(data.readUInt32LE(offset + i * 4));
       bufValue = (bufValue ^ (seed1 + seed2)) & xffffffff;
 
       seed1 = ((~seed1 << x15) + x11111111) | (seed1 >> x0b);
       seed1 &= xffffffff;
 
       seed2 = (bufValue + seed2 + (seed2 << x5) + x3) & xffffffff;
-      data.writeUInt32LE(Number(bufValue), i * 4);
+      data.writeUInt32LE(Number(bufValue), offset + i * 4);
     }
   }
 }
