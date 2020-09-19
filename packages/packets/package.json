@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@diablo2/data": "^0.1.0",
-    "binparse": "^1.0.0"
+    "binparse": "^1.0.1"
   },
   "publishConfig": {
     "access": "public"
