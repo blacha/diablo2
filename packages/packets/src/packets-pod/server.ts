@@ -385,6 +385,14 @@ export const StateEnd = Diablo2Packet.create(0xa9, 'StateEnd', {
   // POD Specific?
   unk1: bp.u8,
 });
+
+export const StateAdd = Diablo2Packet.create(0xaa, 'StateAdd', {
+  unitType: bp.u8,
+  unitId: bp.lu32,
+  packetLength: bp.variable('count', bp.u8),
+  stateEffects: bp.array('StateEffects', bp.u8, 'count', true),
+});
+
 export const NpcHeal = Diablo2Packet.create(0xab, 'NpcHeal', { unitType: bp.u8, unitId: bp.lu32, unitLife: bp.u8 });
 export const NpcAssign = new Diablo2Packet(0xac, 'NpcAssign', new DataTypeNpc());
 export const GameTerminated = Diablo2Packet.empty(0xb0, 'GameTerminated');
@@ -554,6 +562,7 @@ export const ServerPacketsPod = {
   StateDelayed,
   StateSet,
   StateEnd,
+  StateAdd,
   NpcHeal,
   NpcAssign,
   GameTerminated,
