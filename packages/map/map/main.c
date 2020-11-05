@@ -20,45 +20,6 @@ bool starts_with(const char *prefix, const char *search_string) {
     return 0;
 }
 
-/** Get the correct Act for a level */
-int get_act(int levelCode) {
-    if (levelCode < 40) return 0;
-    if (levelCode < 75) return 1;
-    if (levelCode < 103) return 2;
-    if (levelCode < 109) return 3;
-    if (levelCode < 200) return 4;
-    return -1;
-}
-
-void dump_map(int seed, int difficulty, int levelCode) {
-    switch (levelCode) {
-        // Why are levels broken?
-        case 20:
-        case 59:
-        case 63:
-        case 99:
-            return;
-    }
-    int actId = get_act(levelCode);
-    Act *pAct = D2COMMON_LoadAct(actId, seed, TRUE, FALSE, difficulty, (DWORD)NULL, 1, D2CLIENT_LoadAct_1, D2CLIENT_LoadAct_2);
-    ;
-    if (!pAct) return;
-
-    LevelTxt *levelData = D2COMMON_GetLevelText(levelCode);
-    if (!levelData) return;
-
-    if (d2_dump_map(pAct, levelCode) == 1) printf("\tFailedToDump level:%d \n", levelCode);
-}
-
-/**
- * Dump all maps for a given map seed and difficulty
- * if a map code is provided only dump that code 
- */
-void dump_all_maps(int seed, int difficulty) {
-    // init_acts(seed, difficulty);
-    for (int levelCode = 0; levelCode < 200; levelCode++) dump_map(seed, difficulty, levelCode);
-}
-
 char *CliUsage = "d2-map.exe [D2 Game Path] [--seed :MapSeed] [--difficulty :difficulty] [--level :levelCode]";
 
 int main(int argc, char *argv[]) {
@@ -80,6 +41,8 @@ int main(int argc, char *argv[]) {
         } else {
             gameFolder = argv[i];
         }
+
+        printf("%d - %s\n", i, argv[i]);
     }
     if (!gameFolder) {
         printf(CliUsage);
@@ -101,9 +64,10 @@ int main(int argc, char *argv[]) {
         json_end();
 
         if (argLevelCode > -1) {
-            dump_map(argSeed, argDifficulty, argLevelCode);
+            d2_dump_map(argSeed, argDifficulty, argLevelCode);
         } else {
-            dump_all_maps(argSeed, argDifficulty);
+            for (int levelCode = 0; levelCode < 200; levelCode++) d2_dump_map(argSeed, argDifficulty, levelCode);
+
         }
         return 0;
     }
@@ -124,7 +88,7 @@ int main(int argc, char *argv[]) {
         if (starts_with(buffer, COMMAND_EXIT) == 1) return 0;
 
         if (starts_with(buffer, COMMAND_MAP) == 1) {
-            dump_all_maps(seed, difficulty);
+            for (int levelCode = 0; levelCode < 200; levelCode++) d2_dump_map(seed, difficulty, levelCode);
             json_start();
             json_key_value("type", "done");
             json_end();

@@ -19,9 +19,9 @@ export interface Diablo2ParsedPacketInfo {
 }
 export interface Diablo2Packets {
   /** Packets going client -> server */
-  client: Diablo2Packet<any>[];
+  client: Record<string, Diablo2Packet<any>>;
   /** Packets going server -> client */
-  server: Diablo2Packet<any>[];
+  server: Record<string, Diablo2Packet<any>>;
 }
 
 export type Diablo2ParsedPacket<T = Record<string, unknown>> = Diablo2ParsedPacketInfo & T;

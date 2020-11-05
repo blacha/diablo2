@@ -1,3 +1,4 @@
+import { Diablo2Version } from '@diablo2/data';
 import * as fs from 'fs';
 import * as path from 'path';
 import 'source-map-support/register';
@@ -12,7 +13,7 @@ if (fs.existsSync(packetPath)) {
 
   FullGamePackets.sort((a, b) => a.seqno - b.seqno);
 
-  const client = new Diablo2Client();
+  const client = new Diablo2Client(Diablo2Version.PathOfDiablo);
 
   // client.on(WalkVerify, (pkt, index) => console.log(index, pkt.x, pkt.y));
   console.time('ParseAllPackets');

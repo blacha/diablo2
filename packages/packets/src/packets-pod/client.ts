@@ -183,7 +183,7 @@ const ClientGameExit = Diablo2Packet.empty(0x69, 'ClientGameExit');
 const ClientGameEnter = Diablo2Packet.empty(0x6b, 'ClientGameEnter');
 const ClientPing = Diablo2Packet.create(0x6d, 'ClientPing', { count: bp.lu32, delay: bp.lu32, warden: bp.lu32 });
 
-export const ClientPackets = {
+export const ClientPacketsPod = {
   ClientTp,
   ClientMercInteract,
   ClientMercMove,

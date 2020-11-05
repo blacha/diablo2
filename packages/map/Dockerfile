@@ -27,7 +27,7 @@ VOLUME [ "/app/game" ]
 
 RUN chown xclient:xusers -R /app
 
-USER xclient
+# USER xclient
 WORKDIR /app
 ADD dist/ /app/
 CMD ["node", "index.js"]

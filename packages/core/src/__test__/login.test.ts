@@ -1,3 +1,4 @@
+import { Diablo2Version } from '@diablo2/data';
 import o from 'ospec';
 import 'source-map-support/register';
 import { Diablo2Client } from '../client';
@@ -11,7 +12,7 @@ const GamePackets = [
 
 o.spec('LoginTest', () => {
   o('should handle game init', () => {
-    const client = new Diablo2Client();
+    const client = new Diablo2Client(Diablo2Version.PathOfDiablo);
     const session = client.startSession(console);
 
     const allPackets: number[] = [];

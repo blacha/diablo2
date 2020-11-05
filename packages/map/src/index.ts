@@ -74,5 +74,6 @@ export const MapServer = new Diablo2MapServer();
 MapServer.bind(new HealthRoute());
 MapServer.bind(new MapRoute());
 MapServer.init().catch((e) => {
+  console.log(e);
   Log.fatal({ error: e }, 'Uncaught Exception');
 });

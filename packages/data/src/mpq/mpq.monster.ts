@@ -116,7 +116,6 @@ export class Diablo2MpqMonsters {
     if (!this.monsters.has(baseMonsterId)) {
       throw new Error(`Unable to add monster state missing monster ${baseMonsterId}`);
     }
-    // console.log('State', monsterId);
     this.state.set(baseMonsterId, state);
   }
 }

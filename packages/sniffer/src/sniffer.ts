@@ -1,4 +1,5 @@
 import { Diablo2Client, Diablo2GameSession } from '@diablo2/core';
+import { Diablo2Version, getDiabloVersion } from '@diablo2/data';
 import { EventEmitter } from 'events';
 import { networkInterfaces } from 'os';
 import * as pcap from 'pcap';
@@ -42,12 +43,14 @@ export class Diablo2PacketSniffer {
   gamePath: string;
 
   events = new EventEmitter();
+  version: Diablo2Version;
 
   constructor(networkAdapter: string, gamePath: string) {
     this.networkAdapter = networkAdapter;
     this.localIps = findLocalIps();
     this.tcpTracker = new pcap.TCPTracker();
-    this.client = new Diablo2Client();
+    this.version = getDiabloVersion(gamePath);
+    this.client = new Diablo2Client(this.version);
     this.gamePath = gamePath;
   }
 

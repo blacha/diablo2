@@ -1,13 +1,15 @@
 import { ChildProcess, spawn, spawnSync } from 'child_process';
 import { EventEmitter } from 'events';
+import { existsSync } from 'fs';
 import PLimit from 'p-limit';
+import * as path from 'path';
 import { createInterface } from 'readline';
 import { Log, LogType } from '../logger';
 import { LruCache } from './lru';
 import { Diablo2Map, Diablo2MapGenMessage, MapGenMessageInfo, MapGenMessageMap } from './map';
 
 export const MapCommand = './bin/d2-map.exe';
-export const Diablo2Path = './game/Path of Diablo';
+export const Diablo2Path = './game';
 export const WineCommand = 'wine';
 
 /** Wait at most 10 seconds for things to work */
@@ -52,6 +54,16 @@ export class Diablo2MapProcess {
     return version;
   }
 
+  async getGamePath(): Promise<string> {
+    const podPath = path.join(Diablo2Path, 'Path of Diablo');
+    if (existsSync(podPath)) return podPath;
+
+    const pd2Path = path.join(Diablo2Path, 'ProjectD2');
+    if (existsSync(pd2Path)) return pd2Path;
+
+    throw new Error('Neither Path of diablo or PD2 Found');
+  }
+
   /** Start the map process waiting for the `init` event before allowing anything to continue */
   async start(log: LogType): Promise<void> {
     if (this.process != null) {
@@ -59,7 +71,9 @@ export class Diablo2MapProcess {
       return;
     }
     this.generatedCount = 0;
-    const args = [MapCommand, Diablo2Path];
+
+    const gamePath = await this.getGamePath();
+    const args = [MapCommand, gamePath];
     log.info({ wineArgs: args }, 'Starting MapProcess');
 
     return new Promise(async (resolve) => {

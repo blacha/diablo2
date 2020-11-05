@@ -6,6 +6,6 @@ import { Log } from '../logger';
 export function sniffNpc(game: Diablo2GameSession): void {
   game.parser.on(PacketsPod.server.NpcAssign, (npc) => {
     if (npc.flags == null) return;
-    Log.warn({ npc: npc.name, code: npc.code, x: npc.x, y: npc.y, ...npc.flags }, 'Npc');
+    Log.debug({ npc: npc.name, code: npc.code, x: npc.x, y: npc.y, ...npc.flags }, 'Npc');
   });
 }

@@ -69,18 +69,25 @@ export class Diablo2PacketParser {
 
     const packets = Huffman.decompress(bytes);
     let offset = 0;
+
+    const toEmit: Diablo2ParsedPacket<unknown>[] = [];
     try {
       while (offset < packets.length) {
         // TODO can we handle this packet?
         if (packets[offset] == 0x2b) break;
+
         const res = this.client.serverToClient.create(packets, offset);
         this.inPacketParsedCount++;
         offset += res.packet.size;
-        this.events.emit('*', res);
-        this.events.emit(res.packet.name, res);
+        toEmit.push(res);
+      }
+
+      for (const emit of toEmit) {
+        this.events.emit('*', emit);
+        this.events.emit(emit.packet.name, emit);
       }
     } catch (e) {
-      console.log(e, 'FailedToParse:Server');
+      console.log('Failed', { left: toEmit.length }, e);
     }
 
     // More than one compressed packet was delivered
@@ -101,7 +108,7 @@ export class Diablo2PacketParser {
         const res = this.client.clientToServer.create(packets, offset);
         this.outPacketParsedCount++;
         offset += res.packet.size;
-        this.events.emit('*', res);
+        // this.events.emit('*', res);
         this.events.emit(res.packet.name, res);
       }
     } catch (e) {
