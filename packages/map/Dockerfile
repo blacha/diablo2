@@ -13,21 +13,23 @@ WORKDIR /build
 RUN ./build.mapgen.sh
 
 # Make a run environment with nodejs and wine
-FROM suchja/wine
-USER root
+FROM tianon/wine
 
 RUN apt-get update -yq \
     && apt-get install curl gnupg -yq \
     && curl -sL https://deb.nodesource.com/setup_12.x | bash \
     && apt-get install nodejs -yq
 
+ENV WINEARCH=win32
+ENV WINEDEBUG=-all
+
 COPY --from=build /build/bin/d2-map.exe /app/bin/d2-map.exe
 
 VOLUME [ "/app/game" ]
 
-RUN chown xclient:xusers -R /app
-
-# USER xclient
 WORKDIR /app
 ADD dist/ /app/
+
+# Make sure InstallPath exists inside the registry
+COPY d2.install.reg /app/
 CMD ["node", "index.js"]

@@ -74,7 +74,9 @@ export class Diablo2PacketParser {
     try {
       while (offset < packets.length) {
         // TODO can we handle this packet?
-        if (packets[offset] == 0x2b) break;
+        if (packets[offset] == 0x2b) {
+          console.log('Skip 0x2b');
+        }
 
         const res = this.client.serverToClient.create(packets, offset);
         this.inPacketParsedCount++;
@@ -100,19 +102,30 @@ export class Diablo2PacketParser {
   onPacketOut(packets: Buffer): void {
     this.outPacketRawCount++;
     let offset = 0;
+    const toEmit: Diablo2ParsedPacket<unknown>[] = [];
+
     try {
       while (offset < packets.length) {
         // TODO can we handle this packet?
-        if (packets[offset] == 0x2b) return;
+        if (packets[offset] == 0x2b) {
+          console.log('Skip 0x2b');
+        }
 
         const res = this.client.clientToServer.create(packets, offset);
         this.outPacketParsedCount++;
         offset += res.packet.size;
+        toEmit.push(res);
+
         // this.events.emit('*', res);
-        this.events.emit(res.packet.name, res);
+        // this.events.emit(res.packet.name, res);
+      }
+      for (const emit of toEmit) {
+        this.events.emit('*', emit);
+        this.events.emit(emit.packet.name, emit);
       }
     } catch (e) {
-      console.log(e, 'FailedToParse:Client');
+      console.log(toEmit, packets);
+      console.log(e, 'FailedToParse:Client', { left: toEmit.length });
     }
   }
 

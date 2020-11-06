@@ -1,20 +1,25 @@
 import { ChildProcess, spawn, spawnSync } from 'child_process';
 import { EventEmitter } from 'events';
-import { existsSync } from 'fs';
 import PLimit from 'p-limit';
-import * as path from 'path';
 import { createInterface } from 'readline';
 import { Log, LogType } from '../logger';
 import { LruCache } from './lru';
 import { Diablo2Map, Diablo2MapGenMessage, MapGenMessageInfo, MapGenMessageMap } from './map';
 
 export const MapCommand = './bin/d2-map.exe';
-export const Diablo2Path = './game';
+export const Diablo2Path = '/app/game';
+export const RegistryPath = '/app/d2.install.reg';
 export const WineCommand = 'wine';
 
 /** Wait at most 10 seconds for things to work */
 const ProcessTimeout = 10000;
 const MaxMapsToGenerate = 10;
+
+interface LogMessage {
+  time: number;
+  level: number;
+  msg: string;
+}
 
 async function timeOut(message: string, timeout: number): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -54,15 +59,15 @@ export class Diablo2MapProcess {
     return version;
   }
 
-  async getGamePath(): Promise<string> {
-    const podPath = path.join(Diablo2Path, 'Path of Diablo');
-    if (existsSync(podPath)) return podPath;
+  // async getGamePath(): Promise<string> {
+  //   const podPath = path.join(Diablo2Path, 'Path of Diablo');
+  //   if (existsSync(podPath)) return podPath;
 
-    const pd2Path = path.join(Diablo2Path, 'ProjectD2');
-    if (existsSync(pd2Path)) return pd2Path;
+  //   const pd2Path = path.join(Diablo2Path, 'ProjectD2');
+  //   if (existsSync(pd2Path)) return pd2Path;
 
-    throw new Error('Neither Path of diablo or PD2 Found');
-  }
+  //   throw new Error('Neither Path of diablo or PD2 Found');
+  // }
 
   /** Start the map process waiting for the `init` event before allowing anything to continue */
   async start(log: LogType): Promise<void> {
@@ -72,8 +77,11 @@ export class Diablo2MapProcess {
     }
     this.generatedCount = 0;
 
-    const gamePath = await this.getGamePath();
-    const args = [MapCommand, gamePath];
+    const res = spawnSync(WineCommand, ['regedit', RegistryPath]);
+    log.info({ data: res.stdout.toString() }, 'RegistryUpdate');
+
+    // const gamePath = await this.getGamePath();
+    const args = [MapCommand, Diablo2Path];
     log.info({ wineArgs: args }, 'Starting MapProcess');
 
     return new Promise(async (resolve) => {
@@ -96,9 +104,12 @@ export class Diablo2MapProcess {
 
       log.info({ pid: process.pid }, 'MapProcessStarted');
       const inter = createInterface(process.stdout).on('line', (line) => {
-        const json = getJson<Diablo2MapGenMessage>(line);
+        const json = getJson<Diablo2MapGenMessage | LogMessage>(line);
         if (json == null) return;
-        if (json.type) this.events.emit(json.type, json);
+        if ('time' in json) {
+          if (json.level < 30) return;
+          Log.info({ ...json, log: json.msg }, 'SubProcess');
+        } else if (json.type) this.events.emit(json.type, json);
       });
       await this.once('init');
       resolve();
@@ -124,6 +135,7 @@ export class Diablo2MapProcess {
 
   async command(cmd: 'seed' | 'difficulty', value: number, log: LogType): Promise<void> {
     if (this.process == null) await this.start(log);
+    log.info({ cmd, value }, 'Command');
     const command = `$${cmd} ${value}\n`;
     const res = await this.once<MapGenMessageInfo>('info', () => this.process?.stdin?.write(command));
     if (res[cmd] != value)

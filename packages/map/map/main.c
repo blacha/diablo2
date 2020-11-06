@@ -41,8 +41,6 @@ int main(int argc, char *argv[]) {
         } else {
             gameFolder = argv[i];
         }
-
-        printf("%d - %s\n", i, argv[i]);
     }
     if (!gameFolder) {
         printf(CliUsage);
@@ -53,11 +51,6 @@ int main(int argc, char *argv[]) {
 
     /** Seed/Diff has been passed in just generate the map that is required */
     if (argSeed > 0 && argDifficulty != -1) {
-        fprintf(stderr, "Dumping Levels Seed: 0x%x Difficulty: %d", argSeed, argDifficulty);
-        if (argLevelCode > -1) {
-            fprintf(stderr, " level: %d", argLevelCode);
-        }
-        fprintf(stderr, "\n");
         json_start();
         json_key_value("seed", argSeed);
         json_key_value("diff", argDifficulty);
@@ -67,13 +60,12 @@ int main(int argc, char *argv[]) {
             d2_dump_map(argSeed, argDifficulty, argLevelCode);
         } else {
             for (int levelCode = 0; levelCode < 200; levelCode++) d2_dump_map(argSeed, argDifficulty, levelCode);
-
         }
+        printf("\n");
         return 0;
     }
 
     /** Init the D2 client using the provided path */
-
     json_start();
     json_key_value("type", "init");
     json_end();
@@ -107,6 +99,7 @@ int main(int argc, char *argv[]) {
             json_key_value("difficulty", difficulty);
             json_end();
         }
+        printf("\n");
     }
 
     return 0;

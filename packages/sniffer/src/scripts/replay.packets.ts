@@ -36,7 +36,7 @@ async function main(): Promise<void> {
 
   for await (const line of reader) {
     const json = JSON.parse(line) as PacketLine;
-    if (json.direction == 'out') continue;
+    // if (json.direction == 'out') continue;
     session.onPacket(json.direction, Buffer.from(json.bytes, 'hex'));
   }
 
