@@ -76,6 +76,7 @@ export class Diablo2PacketParser {
         // TODO can we handle this packet?
         if (packets[offset] == 0x2b) {
           console.log('Skip 0x2b');
+          break;
         }
 
         const res = this.client.serverToClient.create(packets, offset);
@@ -89,7 +90,7 @@ export class Diablo2PacketParser {
         this.events.emit(emit.packet.name, emit);
       }
     } catch (e) {
-      console.log('Failed', { left: toEmit.length }, e);
+      console.log('Failed', { left: toEmit.length, packets: toEmit.map((c) => c.packet) }, e);
     }
 
     // More than one compressed packet was delivered
@@ -109,6 +110,7 @@ export class Diablo2PacketParser {
         // TODO can we handle this packet?
         if (packets[offset] == 0x2b) {
           console.log('Skip 0x2b');
+          break;
         }
 
         const res = this.client.clientToServer.create(packets, offset);
@@ -124,8 +126,7 @@ export class Diablo2PacketParser {
         this.events.emit(emit.packet.name, emit);
       }
     } catch (e) {
-      console.log(toEmit, packets);
-      console.log(e, 'FailedToParse:Client', { left: toEmit.length });
+      console.log(e, 'FailedToParse:Client', { left: toEmit.length, packets: toEmit.map((c) => c.packet) });
     }
   }
 
