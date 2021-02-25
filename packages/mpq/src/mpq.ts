@@ -128,7 +128,7 @@ export abstract class Mpq {
         decryptionKey = Number(fileKey);
       }
     }
-    // const isCompressed = (blockEntry.flags & MpqFlags.Compressed) == MpqFlags.Compressed;
+    const isCompressed = (blockEntry.flags & MpqFlags.Compressed) == MpqFlags.Compressed;
     // const isImplode = (blockEntry.flags & MpqFlags.Implode) == MpqFlags.Implode;
     // const isCrcEmbedded = (blockEntry.flags & MpqFlags.Crc) == MpqFlags.Crc;
 
@@ -152,11 +152,13 @@ export abstract class Mpq {
       if (isEncrypted) this.decrypt(fileData, decryptionKey + i, currentOffset, currentSectorSize);
 
       // If the sector is not compressed just copy it
-      if (currentSectorSize == sectorSize) {
-        fileData.copy(outputBuffer, i * sectorSize, currentOffset, currentOffset + sectorSize);
+      if (currentSectorSize <= sectorSize) {
+        const readBytes = Math.min(currentSectorSize, sectorSize);
+        fileData.copy(outputBuffer, i * sectorSize, currentOffset, currentOffset + readBytes);
         continue;
       }
 
+      if (isCompressed == false) throw new Error(`Failed to read file ${fileName} decompression failed`);
       const decompressedBytes = await decompressSector(fileData, currentOffset, currentSectorSize);
       decompressedBytes.copy(outputBuffer, i * sectorSize, 0, decompressedBytes.length);
     }
