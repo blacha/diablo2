@@ -91,9 +91,11 @@ export abstract class Mpq {
    * Does a file exist inside the MPQ
    * @param fileName file tlookup
    */
-  async exists(fileName: string): Promise<boolean> {
-    return this.getFileEntry(fileName) != null;
+  async has(fileName: string): Promise<boolean> {
+    return this.getFileEntry(fileName).then((c) => c != null);
   }
+  /** Alias for has(fileName) */
+  exists = this.has;
 
   /**
    * Extract a file from the MPQ
