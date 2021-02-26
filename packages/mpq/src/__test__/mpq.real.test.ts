@@ -12,7 +12,7 @@ o.spec('Mpq.PatchD2', () => {
   const buffer = readFileSync('./patch_d2.mpq');
   const hash = createHash('sha3-224').update(buffer).digest('hex');
 
-  if (hash != 'e20a72b4a8e33ad846d77388bd13a50555a7eaa641d0882d4f2aef26') {
+  if (hash !== 'e20a72b4a8e33ad846d77388bd13a50555a7eaa641d0882d4f2aef26') {
     console.log('Mpq.PatchD2: Skipping invalid file found ' + hash);
     return;
   }

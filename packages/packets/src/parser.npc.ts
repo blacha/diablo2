@@ -65,7 +65,7 @@ export class DataTypeNpc extends StrutBase<NpcInfo> {
     const npcStateFields = Diablo2Mpq.monsters.getState(mon.baseId);
 
     const hasState = br.bool();
-    if (npcStateFields.length == 0) {
+    if (npcStateFields.length === 0) {
       if (hasState) {
         npc.isValid = false;
         console.log('Npc', npc.code, npc.name, Buffer.from(bytes.slice(ctx.startOffset, ctx.offset)).toString('hex'));
@@ -77,7 +77,7 @@ export class DataTypeNpc extends StrutBase<NpcInfo> {
       for (const fieldSize of npcStateFields) {
         const res = bitScanReverse(fieldSize - 1);
         if (res.mask !== 1) res.index = 0;
-        if (res.index == 31) res.index = 0;
+        if (res.index === 31) res.index = 0;
         br.bits(res.index + 1);
       }
     }
@@ -96,7 +96,7 @@ export class DataTypeNpc extends StrutBase<NpcInfo> {
       const superUniqueId = br.bits(16);
       npc.name = Diablo2Mpq.monsters.getSuperUniqueName(superUniqueId);
     }
-    if (Object.keys(flags).length == 0) delete npc.flags;
+    if (Object.keys(flags).length === 0) delete npc.flags;
 
     return npc as NpcInfo;
   }

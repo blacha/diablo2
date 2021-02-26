@@ -26,7 +26,7 @@ async function main(): Promise<void> {
   if (isWriteDump > -1) args.splice(isWriteDump, 1);
 
   const localNetworks = findLocalIps();
-  const networkAdapterIndex = args.findIndex((arg) => localNetworks.find((iface) => iface.interface == arg));
+  const networkAdapterIndex = args.findIndex((arg) => localNetworks.find((iface) => iface.interface === arg));
 
   if (networkAdapterIndex == null) {
     return usage('Cannot find network adapter');

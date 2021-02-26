@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import { FileHandle } from 'fs/promises';
 import { decompressSector } from './compression';
 import { decompressPkWare } from './compression/compress.pkware';
-import { MpqCompressionType, MpqFlags, MpqFormatVersion, MpqHashType } from './const';
+import { MpqFlags, MpqFormatVersion, MpqHashType } from './const';
 import { MpqEncryptionTable } from './encryption';
 import {
   MpqBlockEntry,
@@ -44,7 +44,7 @@ export abstract class Mpq {
     const headerBuf = await this.read(0, 32);
     const header = MpqHeaderReader.raw(headerBuf);
 
-    if (header.magic != 'MPQ\x1a') throw new Error('Only MPQ.magic 0x1a is supported');
+    if (header.magic !== 'MPQ\x1a') throw new Error('Only MPQ.magic 0x1a is supported');
     if (header.formatVersion !== MpqFormatVersion.Version1) throw new Error('Only MPQ.format 0x00 is supported');
 
     const hashTableSize = header.hashTableEntries * 16;
@@ -111,11 +111,11 @@ export abstract class Mpq {
     const blockEntry = this.blockTable[hashEntry.blockTableIndex];
 
     if (blockEntry == null) return null;
-    if ((blockEntry.flags & MpqFlags.Exists) == MpqFlags.Exists) return null;
-    if (blockEntry.archivedSize == 0) return Buffer.alloc(0);
+    if ((blockEntry.flags & MpqFlags.Exists) === MpqFlags.Exists) return null;
+    if (blockEntry.archivedSize === 0) return Buffer.alloc(0);
 
-    const isEncrypted = (blockEntry.flags & MpqFlags.Encrypted) == MpqFlags.Encrypted;
-    const isEncryptionFix = (blockEntry.flags & MpqFlags.EncryptionFix) == MpqFlags.EncryptionFix;
+    const isEncrypted = (blockEntry.flags & MpqFlags.Encrypted) === MpqFlags.Encrypted;
+    const isEncryptionFix = (blockEntry.flags & MpqFlags.EncryptionFix) === MpqFlags.EncryptionFix;
 
     // TODO Should really handle these flags
     if (blockEntry.flags & MpqFlags.SingleUnit) throw new Error('MPQ flag:SingleUnit not supported');
@@ -129,9 +129,9 @@ export abstract class Mpq {
         decryptionKey = Number(fileKey);
       }
     }
-    // const isCompressed = (blockEntry.flags & MpqFlags.Compressed) == MpqFlags.Compressed;
-    const isImplode = (blockEntry.flags & MpqFlags.Implode) == MpqFlags.Implode;
-    // const isCrcEmbedded = (blockEntry.flags & MpqFlags.Crc) == MpqFlags.Crc;
+    // const isCompressed = (blockEntry.flags & MpqFlags.Compressed) === MpqFlags.Compressed;
+    const isImplode = (blockEntry.flags & MpqFlags.Implode) === MpqFlags.Implode;
+    // const isCrcEmbedded = (blockEntry.flags & MpqFlags.Crc) === MpqFlags.Crc;
 
     const sectorSize = 512 << header.sectorSizeShift;
     const sectors = Math.ceil(blockEntry.size / sectorSize);
@@ -153,7 +153,7 @@ export abstract class Mpq {
       if (isEncrypted) this.decrypt(fileData, decryptionKey + i, currentOffset, currentSectorSize);
 
       // If the sector is not compressed just copy it
-      if (currentSectorSize == sectorSize) {
+      if (currentSectorSize === sectorSize) {
         fileData.copy(outputBuffer, i * sectorSize, currentOffset, currentOffset + sectorSize);
         continue;
       }
@@ -169,7 +169,7 @@ export abstract class Mpq {
 
     // Since we have decrypted it in place these blocks are no longer encrypted
     blockEntry.flags = blockEntry.flags & ~MpqFlags.Encrypted;
-    if (outputBuffer.length != blockEntry.size) {
+    if (outputBuffer.length !== blockEntry.size) {
       throw new Error(`Failed to decode file:"${fileName}", file size missmatch`);
     }
     return outputBuffer;
@@ -179,8 +179,8 @@ export abstract class Mpq {
     let lastIndex = str.length - 1;
     for (; lastIndex >= 0; lastIndex--) {
       const ch = str.charAt(lastIndex);
-      if (ch == '\\') break;
-      if (ch == '/') break;
+      if (ch === '\\') break;
+      if (ch === '/') break;
     }
     return this.hash(str.slice(lastIndex + 1), MpqHashType.Table);
   }

@@ -10,7 +10,7 @@ export function sniffItems(game: Diablo2GameSession): void {
     // Ignore items being moved around
     if (item.action.id !== ItemActionType.AddToGround) return;
     // Ignore gold
-    if (item.code == 'gld') return;
+    if (item.code === 'gld') return;
     // Ignore things like scrolls/ health potion
     if (item.flags.isSimpleItem) return;
 

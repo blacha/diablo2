@@ -12,7 +12,7 @@ export function findLocalIps(): { address: string; interface: string }[] {
   for (const [name, iFace] of Object.entries(iFaces)) {
     if (iFace == null) continue;
     for (const ifa of iFace) {
-      if (ifa.family !== 'IPv4' || ifa.internal != false) {
+      if (ifa.family !== 'IPv4' || ifa.internal !== false) {
         // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
         continue;
       }
@@ -101,7 +101,7 @@ export class Diablo2PacketSniffer {
       const [, dstPort] = session.dst.split(':');
       const [srcHost, srcPort] = session.src.split(':');
 
-      if (dstPort != '4000' && srcPort != '4000') {
+      if (dstPort !== '4000' && srcPort !== '4000') {
         log.warn({ src: session.src, dst: session.dst }, 'Skipping unknown session');
         return;
       }
@@ -111,7 +111,7 @@ export class Diablo2PacketSniffer {
 
       const directions: { send: 'in' | 'out'; recv: 'in' | 'out' } = { send: 'in', recv: 'out' };
       /** is session.src really the source? */
-      if (this.localIps.find((iface) => iface.address == srcHost)) {
+      if (this.localIps.find((iface) => iface.address === srcHost)) {
         directions.send = 'out';
         directions.recv = 'in';
       }

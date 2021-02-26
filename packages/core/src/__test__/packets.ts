@@ -23,13 +23,13 @@ if (fs.existsSync(packetPath)) {
   const packets = new Map();
 
   for (const pkt of FullGamePackets) {
-    if (pkt.direction == 'out') continue;
+    if (pkt.direction === 'out') continue;
     if (packets.has(pkt.seqno)) console.error('Dupe ' + pkt.seqno);
     packets.set(pkt.seqno, pkt);
   }
 
   while (true) {
-    const firstStream = FullGamePackets.find((f) => f.direction == 'in' && !packetsUsed.has(f.seqno));
+    const firstStream = FullGamePackets.find((f) => f.direction === 'in' && !packetsUsed.has(f.seqno));
     if (firstStream == null) break;
     let expectedNext = firstStream.seqno;
     const currentStream = [];
@@ -53,7 +53,7 @@ if (fs.existsSync(packetPath)) {
     console.log('StartStream', stream.length);
 
     for (const pkt of stream) {
-      if (pkt.direction == 'in') {
+      if (pkt.direction === 'in') {
         // console.log(pkt.seqno, pkt.data);
         session.parser.onPacketIn(pkt.data);
       } else {

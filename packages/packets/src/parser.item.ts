@@ -86,7 +86,7 @@ export class DataTypeItem extends StrutBase<Diablo2Item> {
     item.category = StrutItemCategory.parse(bytes, ctx);
     item.id = bp.lu32.parse(bytes, ctx);
 
-    if (packetId == 0x9d) ctx.offset += 5;
+    if (packetId === 0x9d) ctx.offset += 5;
 
     item.flags = ItemFlags.parse(bytes, ctx);
     item.version = bp.u8.parse(bytes, ctx);
@@ -109,7 +109,7 @@ export class DataTypeItem extends StrutBase<Diablo2Item> {
     const destination = bits.bits(3);
     item.destination = { id: destination, name: ItemDestination[destination] as any };
 
-    if (destination == ItemDestination.Ground) {
+    if (destination === ItemDestination.Ground) {
       item.x = bits.bits(16);
       item.y = bits.bits(16);
     } else {
@@ -129,7 +129,7 @@ export class DataTypeItem extends StrutBase<Diablo2Item> {
       item.name = Diablo2Mpq.t(mpqItem.nameId);
     }
 
-    if (item.code == 'gld') {
+    if (item.code === 'gld') {
       const goldItem = item as Diablo2ItemGold;
       let readSize = 12;
       if (bits.bool()) readSize = 32;
@@ -189,7 +189,7 @@ export class DataTypeItem extends StrutBase<Diablo2Item> {
     }
 
     if (item.flags.isPersonalized) bits.string();
-    if (item.category.id == ItemCategory.Armor) item.defense = bits.bits(11) - 10; // TODO why -10?
+    if (item.category.id === ItemCategory.Armor) item.defense = bits.bits(11) - 10; // TODO why -10?
 
     // TODO do we care about throwables, how do we figure out if they are throwable
     // if (throwable) {
@@ -197,8 +197,8 @@ export class DataTypeItem extends StrutBase<Diablo2Item> {
     //   bits.bits(17);
     // }
 
-    // if (item.code == '7cr') bits.bits(8); // Why are phase blades different
-    if (item.category.id == ItemCategory.Armor || item.category.id == ItemCategory.Weapon) {
+    // if (item.code ===  '7cr') bits.bits(8); // Why are phase blades different
+    if (item.category.id === ItemCategory.Armor || item.category.id === ItemCategory.Weapon) {
       item.durability = { max: bits.bits(8), current: bits.bits(8) };
       bits.bit();
     }
@@ -213,7 +213,7 @@ export class DataTypeItem extends StrutBase<Diablo2Item> {
    */
   create(bytes: Buffer): Diablo2Item {
     const packetId = bytes[0];
-    if (packetId !== 0x9d && packetId != 0x9c) throw new Error('Invalid packet');
+    if (packetId !== 0x9d && packetId !== 0x9c) throw new Error('Invalid packet');
     return this.parse(bytes, { startOffset: 0, offset: 1 });
   }
 }

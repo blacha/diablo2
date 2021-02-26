@@ -53,8 +53,8 @@ export class Diablo2PacketParser {
     this.inPacketRawCount++;
 
     // Ignore this packet
-    if (inBytes[0] == 0xaf && inBytes[1] == 0x01) {
-      if (inBytes.length == 2) return;
+    if (inBytes[0] === 0xaf && inBytes[1] === 0x01) {
+      if (inBytes.length === 2) return;
       inBytes = inBytes.slice(2);
     }
 
@@ -74,7 +74,7 @@ export class Diablo2PacketParser {
     try {
       while (offset < packets.length) {
         // TODO can we handle this packet?
-        if (packets[offset] == 0x2b) {
+        if (packets[offset] === 0x2b) {
           console.log('Skip 0x2b');
           break;
         }
@@ -108,7 +108,7 @@ export class Diablo2PacketParser {
     try {
       while (offset < packets.length) {
         // TODO can we handle this packet?
-        if (packets[offset] == 0x2b) {
+        if (packets[offset] === 0x2b) {
           console.log('Skip 0x2b');
           break;
         }

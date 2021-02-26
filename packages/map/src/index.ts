@@ -60,7 +60,7 @@ class Diablo2MapServer {
   async init(): Promise<void> {
     await MapProcess.version(Log);
     await MapProcess.start(Log);
-    await new Promise((resolve) => {
+    await new Promise<void>((resolve) => {
       this.server.listen(this.port, () => {
         Log.info({ port: this.port }, 'Server started...');
         resolve();

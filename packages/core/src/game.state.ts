@@ -17,7 +17,7 @@ export class Diablo2GameSession {
   }
 
   onPacket(direction: 'in' | 'out', bytes: Buffer): void {
-    if (direction == 'in') return this.parser.onPacketIn(bytes);
+    if (direction === 'in') return this.parser.onPacketIn(bytes);
     return this.parser.onPacketOut(bytes);
   }
 }

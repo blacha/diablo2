@@ -38,7 +38,7 @@ export class Diablo2Packet<T extends Record<string, any>> {
   }
 
   is(pkt: Diablo2ParsedPacket): pkt is Diablo2ParsedPacket<T> {
-    return pkt.packet.id == this.id;
+    return pkt.packet.id === this.id;
   }
 
   static create<T extends Record<string, StrutAny>>(

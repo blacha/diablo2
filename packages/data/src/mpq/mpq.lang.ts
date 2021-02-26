@@ -13,11 +13,11 @@ export class Diablo2MpqLangTbl {
   add(key: string, index: number, value: string): void {
     this.byIndex[index] = value;
 
-    if (key == 'x' || key == 'X') return;
-    if (value.trim() == '') return;
+    if (key === 'x' || key === 'X') return;
+    if (value.trim() === '') return;
     const existingKey = this.byKey.get(key);
     if (existingKey) {
-      if (existingKey.trim() == value.trim()) return;
+      if (existingKey.trim() === value.trim()) return;
     }
     this.byKey.set(key, value);
   }
@@ -40,7 +40,7 @@ export class Diablo2MpqLang {
 
   getByIndex(index: number): string | undefined {
     // This is a commonly used bad key?
-    if (index == 5382) return undefined;
+    if (index === 5382) return undefined;
     if (index >= ExpansionOffset) return this.expansion.get(index - ExpansionOffset);
     if (index >= PatchOffset) return this.patch.get(index - PatchOffset);
     return this.classic.get(index);

@@ -2,7 +2,7 @@ import { Diablo2Mpq } from '@diablo2/data';
 import o from 'ospec';
 import { NpcAssign } from '../server';
 
-const fakeMonster = (id: number) => {
+const fakeMonster = (id: number): { id: number; nameLangId: number; baseId: number } => {
   return { id, nameLangId: id, baseId: id };
 };
 

@@ -99,6 +99,7 @@ export class Diablo2MapProcess {
       process.on('close', (exitCode) => {
         inter.close();
         this.process = null;
+        if (exitCode == null) return;
         if (exitCode > 0) log.fatal({ exitCode }, 'ProcessClosed');
       });
 
@@ -138,7 +139,7 @@ export class Diablo2MapProcess {
     log.info({ cmd, value }, 'Command');
     const command = `$${cmd} ${value}\n`;
     const res = await this.once<MapGenMessageInfo>('info', () => this.process?.stdin?.write(command));
-    if (res[cmd] != value)
+    if (res[cmd] !== value)
       throw new Error(`Failed to set ${cmd}=${value} (output: ${JSON.stringify(res)}: ${command})`);
   }
 
