@@ -1,7 +1,8 @@
 import { promises as fs } from 'fs';
 import { FileHandle } from 'fs/promises';
 import { decompressSector } from './compression';
-import { MpqFlags, MpqFormatVersion, MpqHashType } from './const';
+import { decompressPkWare } from './compression/compress.pkware';
+import { MpqCompressionType, MpqFlags, MpqFormatVersion, MpqHashType } from './const';
 import { MpqEncryptionTable } from './encryption';
 import {
   MpqBlockEntry,
@@ -128,8 +129,8 @@ export abstract class Mpq {
         decryptionKey = Number(fileKey);
       }
     }
-    const isCompressed = (blockEntry.flags & MpqFlags.Compressed) == MpqFlags.Compressed;
-    // const isImplode = (blockEntry.flags & MpqFlags.Implode) == MpqFlags.Implode;
+    // const isCompressed = (blockEntry.flags & MpqFlags.Compressed) == MpqFlags.Compressed;
+    const isImplode = (blockEntry.flags & MpqFlags.Implode) == MpqFlags.Implode;
     // const isCrcEmbedded = (blockEntry.flags & MpqFlags.Crc) == MpqFlags.Crc;
 
     const sectorSize = 512 << header.sectorSizeShift;
@@ -152,19 +153,25 @@ export abstract class Mpq {
       if (isEncrypted) this.decrypt(fileData, decryptionKey + i, currentOffset, currentSectorSize);
 
       // If the sector is not compressed just copy it
-      if (currentSectorSize <= sectorSize) {
-        const readBytes = Math.min(currentSectorSize, sectorSize);
-        fileData.copy(outputBuffer, i * sectorSize, currentOffset, currentOffset + readBytes);
+      if (currentSectorSize == sectorSize) {
+        fileData.copy(outputBuffer, i * sectorSize, currentOffset, currentOffset + sectorSize);
         continue;
       }
 
-      if (isCompressed == false) throw new Error(`Failed to read file ${fileName} decompression failed`);
-      const decompressedBytes = await decompressSector(fileData, currentOffset, currentSectorSize);
-      decompressedBytes.copy(outputBuffer, i * sectorSize, 0, decompressedBytes.length);
+      if (isImplode) {
+        const decompressedBytes = await decompressPkWare(fileData, currentOffset, currentSectorSize);
+        decompressedBytes.copy(outputBuffer, i * sectorSize, 0, decompressedBytes.length);
+      } else {
+        const decompressedBytes = await decompressSector(fileData, currentOffset, currentSectorSize);
+        decompressedBytes.copy(outputBuffer, i * sectorSize, 0, decompressedBytes.length);
+      }
     }
 
     // Since we have decrypted it in place these blocks are no longer encrypted
     blockEntry.flags = blockEntry.flags & ~MpqFlags.Encrypted;
+    if (outputBuffer.length != blockEntry.size) {
+      throw new Error(`Failed to decode file:"${fileName}", file size missmatch`);
+    }
     return outputBuffer;
   }
 
