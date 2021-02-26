@@ -6,7 +6,7 @@ Binary file parsers for some of the `.bin` and `.tbl` files
 ```typescript
 import {Diablo2MpqLoader} from '@diablo2/bintools'
 
-const mpq = await Diablo2MpqLoader.load('patch_d2.mpq');
+const mpq = await Diablo2MpqLoader.load('/home/blacha/diablo2');
 
 // Translate a translation key
 const lang = mpq.t('7cr') // "Phase blade"
