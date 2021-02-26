@@ -34,7 +34,7 @@ export abstract class Mpq {
 
   /** Create a new instance of a MPQ Reader */
   static load(file: Buffer | string): Mpq {
-    if (typeof file == 'string') return new MpqFile(file);
+    if (typeof file === 'string') return new MpqFile(file);
     return new MpqBuffer(file);
   }
 

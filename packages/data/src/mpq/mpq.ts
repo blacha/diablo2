@@ -22,7 +22,7 @@ export class Diablo2MpqData {
   /** Translate a key */
   t(key?: number | string): string | undefined {
     if (key == null) return undefined;
-    if (typeof key == 'number') return this.lang.getByIndex(key);
+    if (typeof key === 'number') return this.lang.getByIndex(key);
     return this.lang.getByKey(key);
   }
 }
