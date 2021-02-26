@@ -1,7 +1,12 @@
+import { createHash } from 'crypto';
 import o from 'ospec';
 import { MpqHashType } from '../const';
 import { Mpq } from '../mpq';
 import { MpqDecryptionTests } from './mpq.encryption.data';
+
+const TestFiles = {
+  Pd2: 'strings/pd2/patchstring.tbl',
+};
 
 o.spec('MpqReader', () => {
   const mpq = Mpq.load('foo.mpq');
@@ -30,6 +35,40 @@ o.spec('MpqReader', () => {
       o(mpq.decryptionKey(`data\\global\\excel\\monstats.bin`)).equals(0xdee9de0b);
       o(mpq.decryptionKey(`data\\global\\excel\\Armor.bin`)).equals(0xfd7285c8);
       o(mpq.decryptionKey(`data\\global\\excel\\armor.bin`)).equals(0xfd7285c8);
+    });
+  });
+
+  o.spec('decompress', () => {
+    o('should read implode compressed data', async () => {
+      const implode = Mpq.load('./data/test-implode.mpq');
+      const header = await implode.header;
+      o(header.magic).equals('MPQ\x1A');
+      o(header.headerSize).equals(32);
+      o(header.archivedSize).equals(59335);
+
+      const hasPatchString = await implode.has(TestFiles.Pd2);
+      o(hasPatchString).equals(true);
+      const bytes = await implode.extract(TestFiles.Pd2);
+      o(bytes?.length).equals(61650);
+      const hash = createHash('sha256').update(bytes!).digest('hex');
+      o(hash).equals('3867b6f6bc92c4c2895d9cec970e6e499c2d3a9e647cc43cae4449e695b1a2c8');
+      await implode.close();
+    });
+
+    o('should read pkware compressed data', async () => {
+      const pkware = Mpq.load('./data/test-pkware.mpq');
+      const header = await pkware.header;
+      o(header.magic).equals('MPQ\x1A');
+      o(header.headerSize).equals(32);
+      o(header.archivedSize).equals(59364);
+
+      const hasPatchString = await pkware.has(TestFiles.Pd2);
+      o(hasPatchString).equals(true);
+      const bytes = await pkware.extract(TestFiles.Pd2);
+      o(bytes?.length).equals(61650);
+      const hash = createHash('sha256').update(bytes!).digest('hex');
+      o(hash).equals('3867b6f6bc92c4c2895d9cec970e6e499c2d3a9e647cc43cae4449e695b1a2c8');
+      await pkware.close();
     });
   });
 

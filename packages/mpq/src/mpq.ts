@@ -39,6 +39,8 @@ export abstract class Mpq {
   }
 
   abstract read(offset: number, byteCount: number): Promise<Buffer>;
+  /** Close the file if it has been opened */
+  abstract close(): Promise<void>;
 
   private async readHeader(): Promise<MpqHeader> {
     const headerBuf = await this.read(0, 32);
@@ -248,10 +250,12 @@ export class MpqFile extends Mpq {
 
   _fd: Promise<FileHandle>;
   get fd(): Promise<FileHandle> {
-    if (this._fd == null) {
-      this._fd = fs.open(this.fileName, 'r');
-    }
+    if (this._fd == null) this._fd = fs.open(this.fileName, 'r');
     return this._fd;
+  }
+
+  async close(): Promise<void> {
+    if (this._fd) return this._fd.then((c) => c.close());
   }
 
   async read(offset: number, byteCount: number): Promise<Buffer> {
@@ -271,6 +275,10 @@ export class MpqBuffer extends Mpq {
   constructor(buffer: Buffer) {
     super();
     this.buffer = buffer;
+  }
+
+  async close(): Promise<void> {
+    // Noop
   }
 
   async read(offset: number, byteCount: number): Promise<Buffer> {
