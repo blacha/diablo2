@@ -16,9 +16,9 @@ const HashNode = bp.object('HashNode', {
 export const LangReader = bp.object('Lang', {
   crc: bp.lu16,
   /** Number of records */
-  count: bp.lu16,
+  count: bp.variable('indexCount', bp.lu16),
   /** Number of records in hash table */
-  countHash: bp.variable('hash', bp.lu32),
+  countHash: bp.variable('hashCount', bp.lu32),
   /** Table version generally 0 */
   version: bp.u8,
   /** Offset to the first data record */
@@ -28,9 +28,9 @@ export const LangReader = bp.object('Lang', {
   /** File size in bytes */
   fileSize: bp.lu32,
   /** Hash table index */
-  indexes: bp.array('HashIndex', bp.lu16, 'hash'),
+  indexes: bp.array('HashIndex', bp.lu16, 'indexCount'),
   /** Hash table containing all the key value pairs */
-  hashTable: bp.array('HashTable', HashNode, 'hash'),
+  hashTable: bp.array('HashTable', HashNode, 'hashCount'),
 });
 
 export type LangNode = StrutInfer<typeof HashNode>;
