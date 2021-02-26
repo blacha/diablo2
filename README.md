@@ -10,3 +10,18 @@ Tools to work with diablo2
 - [mpq](./packages/mpq) - MPQ reader / extractor
 - [map](./packages/map) - Diablo2 map generation api (Docker based)
 - [sniffer](./packages/sniffer) - Diablo2 network sniffer
+
+
+## Building
+
+`libpcap-dev` is required to build ,
+
+```
+sudo apt install libpcap-dev
+```
+
+Building with yarn
+```
+yarn
+yarn build
+```
