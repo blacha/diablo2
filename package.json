@@ -2,8 +2,11 @@
   "name": "@diablo2/core",
   "version": "0.0.1",
   "private": true,
-  "repository": "git@github.com:blacha/diablo2.git",
-  "author": {},
+  "repository": "https://github.com/blacha/diablo2.git",
+  "author": {
+    "name": "Blayne Chard",
+    "email": "blayne@chard.com"
+  },
   "license": "MIT",
   "scripts": {
     "build": "tsc -b",
