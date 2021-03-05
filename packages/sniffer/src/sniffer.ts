@@ -132,7 +132,7 @@ export class Diablo2PacketSniffer {
       });
     });
 
-    this.session.on('packet', (rawPacket) => {
+    this.session.on('packet', (rawPacket: unknown) => {
       const packet = pcap.decode.packet(rawPacket);
       this.tcpTracker.track_packet(packet);
     });

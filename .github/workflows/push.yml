@@ -14,9 +14,6 @@ jobs:
           node-version: 12.x
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install pcap
-        run: sudo apt-get install libpcap-dev  -y 
-
       - name: Install
         run: yarn  --frozen-lockfile --check-files
 
