@@ -7,6 +7,10 @@
     "url": "https://github.com/blacha/diablo2.git",
     "directory": "packages/map"
   },
+  "author": {
+    "name": "Blayne Chard",
+    "email": "blayne@chard.com"
+  },
   "license": "MIT",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
