@@ -32,7 +32,7 @@ export interface PacketLine {
 export class Diablo2PacketSniffer {
   networkAdapter: string;
   localIps: { address: string; interface: string }[];
-  session: pcap.PcapSession;
+  session: any;
   // No typings exist for this?
   tcpTracker: any;
 
