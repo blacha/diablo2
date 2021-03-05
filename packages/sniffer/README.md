@@ -6,6 +6,16 @@ This sniffer reads the `.bin` files to lookup item and monster information direc
 
 It currently requires the `patch_d2.mpq` to be extracted to work
 
+## PCAP
+`pcap` is needed to run the sniffer, but is not included by default due to the complexity of building it
+
+`libpcap-dev` is required to build ,
+
+```
+sudo apt install libpcap-dev
+yarn add pcap
+```
+
 
 ## Examples
 
