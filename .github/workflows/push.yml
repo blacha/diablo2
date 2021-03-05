@@ -4,21 +4,49 @@ on: [push]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
-
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest,  windows-latest, ubuntu-latest]
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js 12.x
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v2
         with:
-          node-version: 12.x
-          registry-url: 'https://registry.npmjs.org'
-
-      - name: Install pcap
-        run: sudo apt-get install libpcap-dev  -y 
+          fetch-depth: 0
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v2.1.4
+        with:
+          node-version: "14.x"
+          registry-url: https://registry.npmjs.org
 
       - name: Install
         run: yarn  --frozen-lockfile --check-files
+
+      - name: Build
+        run: yarn run build
+
+      - name: Lint
+        run: yarn run lint
+
+      - name: Check Formatting
+        run: git diff --exit-code
+
+      - name: Test
+        run: yarn run test
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v1
+      - name: Use Node.js 14.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install
+        run: yarn --frozen-lockfile --check-files
 
       - name: Lint
         run: yarn run lint
@@ -33,7 +61,6 @@ jobs:
         run: yarn run test
 
       - name: Publish NPM
-        if: startsWith(github.ref, 'refs/tags/v')
         run: npx lerna publish from-git --yes
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

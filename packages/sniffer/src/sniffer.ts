@@ -2,9 +2,11 @@ import { Diablo2Client, Diablo2GameSession } from '@diablo2/core';
 import { Diablo2Version, getDiabloVersion } from '@diablo2/data';
 import { EventEmitter } from 'events';
 import { networkInterfaces } from 'os';
-import * as pcap from 'pcap';
 import { LogType } from './logger';
 import { AutoClosingStream } from './replay.tracker';
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const pcap = require('pcap');
 
 export function findLocalIps(): { address: string; interface: string }[] {
   const output: { address: string; interface: string }[] = [];
@@ -30,7 +32,7 @@ export interface PacketLine {
 export class Diablo2PacketSniffer {
   networkAdapter: string;
   localIps: { address: string; interface: string }[];
-  session: pcap.PcapSession;
+  session: any;
   // No typings exist for this?
   tcpTracker: any;
 
@@ -132,7 +134,7 @@ export class Diablo2PacketSniffer {
       });
     });
 
-    this.session.on('packet', (rawPacket) => {
+    this.session.on('packet', (rawPacket: unknown) => {
       const packet = pcap.decode.packet(rawPacket);
       this.tcpTracker.track_packet(packet);
     });

@@ -14,11 +14,6 @@ Tools to work with diablo2
 
 ## Building
 
-`libpcap-dev` is required to build ,
-
-```
-sudo apt install libpcap-dev
-```
 
 Building with yarn
 ```
