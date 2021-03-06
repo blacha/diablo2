@@ -34,6 +34,7 @@ export enum ItemActionType {
   WeaponSwitch = 0x17,
 
   Unknown3 = 129,
+  Unknown4 = 129,
 }
 
 export enum ItemCategory {

@@ -56,6 +56,7 @@ export class Diablo2State {
     if (this.player.id == null) {
       this.player.id = id;
       this.player.name = name;
+      this.dirty();
     }
   }
 
@@ -75,7 +76,16 @@ export class Diablo2State {
       this.item.set(itm.id, itm);
     }
     existing.updatedAt = Date.now();
-    console.log('TraceItem', itm);
+    this.dirty();
+  }
+
+  trackNpc(npc: NpcJson): void {
+    let existing = this.npc.get(npc.id);
+    if (existing == null) {
+      existing = npc;
+      this.npc.set(npc.id, npc);
+    }
+    existing.updatedAt = Date.now();
     this.dirty();
   }
 
@@ -83,11 +93,17 @@ export class Diablo2State {
     if (this.isMe(id)) this.player.level = level;
   }
 
-  move(id: number, x: number, y: number): void {
+  move(id: number, x: number, y: number, life = -1): void {
     if (this.isMe(id)) {
       this.player.updatedAt = Date.now();
       this.player.x = x;
       this.player.y = y;
+      return;
+    }
+    if (life === 0) {
+      if (!this.npc.has(id)) return;
+      this.npc.delete(id);
+      this.dirty();
       return;
     }
 
@@ -107,6 +123,7 @@ export class Diablo2State {
     npc.x = x;
     npc.y = y;
     npc.updatedAt = Date.now();
+    this.dirty();
   }
 
   moveMaybe(x: number, y: number): void {

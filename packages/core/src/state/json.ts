@@ -1,4 +1,4 @@
-import { Act, Difficulty, ItemCategory, ItemQuality } from '@diablo2/data';
+import { Act, Difficulty, ItemCategory, ItemQuality, NpcFlags } from '@diablo2/data';
 
 export interface GameStateJson {
   createdAt: number;
@@ -31,13 +31,7 @@ export interface MercenaryJson {
 export interface NpcJson extends BaseGameJson {
   code: number;
   uniqueName?: string;
-  flags: {
-    isChampion?: boolean;
-    isMinion?: boolean;
-    isUnique?: boolean;
-    isSuperUnique?: boolean;
-    isGhostly?: boolean;
-  };
+  flags: NpcFlags;
 }
 
 export interface ItemJson extends BaseGameJson {
