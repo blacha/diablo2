@@ -32,6 +32,8 @@ export enum ItemActionType {
   UpdateStats = 0x15, // put item in socket; for each potion that drops in belt when lower one is removed...
   UNKNOWN2 = 0x16,
   WeaponSwitch = 0x17,
+
+  Unknown3 = 129,
 }
 
 export enum ItemCategory {

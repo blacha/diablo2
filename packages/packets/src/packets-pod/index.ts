@@ -1,8 +1,7 @@
-import { Diablo2Packets } from '../packet';
 import { ClientPacketsPod } from './client';
 import { ServerPacketsPod } from './server';
 
-export const PacketsPod: Diablo2Packets = {
+export const PacketsPod = {
   client: ClientPacketsPod,
   server: ServerPacketsPod,
 };

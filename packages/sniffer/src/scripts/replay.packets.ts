@@ -20,10 +20,11 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (process.env['DIABLO2_PATH']) await Diablo2MpqLoader.load(process.env['DIABLO2_PATH'], Log);
+  if (process.env['DIABLO2_PATH']) await Diablo2MpqLoader.load(process.env['DIABLO2_PATH'], Log, Diablo2Mpq);
 
   Log.info('Process Packets');
 
+  if (Diablo2Mpq.basePath == null) throw new Error('No $DIABLO2_PATH set');
   const version = getDiabloVersion(Diablo2Mpq.basePath);
   const client = new Diablo2Client(version);
   const session = client.startSession(Log);

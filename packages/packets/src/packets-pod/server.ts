@@ -281,7 +281,7 @@ export const PlayerCorpse = Diablo2Packet.create(0x74, 'PlayerCorpse', {
 export const PlayerAbout = Diablo2Packet.create(0x75, 'PlayerAbout', {
   unitId: bp.lu32,
   partyId: bp.lu16,
-  charLvl: bp.lu16,
+  level: bp.lu16,
   relationship: bp.lu16,
   inYourParty: bp.lu16,
 });
