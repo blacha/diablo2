@@ -54,20 +54,10 @@ export class Diablo2MapProcess {
   /** Get the version of WINE that is being used */
   async version(log: LogType): Promise<string> {
     const versionResponse = spawnSync(WineCommand, ['--version']);
-    const version = versionResponse.stdout.toString();
+    const version = versionResponse.stdout.toString().trim();
     log.info({ version, command: WineCommand }, 'WineVersion');
     return version;
   }
-
-  // async getGamePath(): Promise<string> {
-  //   const podPath = path.join(Diablo2Path, 'Path of Diablo');
-  //   if (existsSync(podPath)) return podPath;
-
-  //   const pd2Path = path.join(Diablo2Path, 'ProjectD2');
-  //   if (existsSync(pd2Path)) return pd2Path;
-
-  //   throw new Error('Neither Path of diablo or PD2 Found');
-  // }
 
   /** Start the map process waiting for the `init` event before allowing anything to continue */
   async start(log: LogType): Promise<void> {
@@ -108,7 +98,7 @@ export class Diablo2MapProcess {
         const json = getJson<Diablo2MapGenMessage | LogMessage>(line);
         if (json == null) return;
         if ('time' in json) {
-          if (json.level < 30) return;
+          if (json.level < 10) return;
           Log.info({ ...json, log: json.msg }, 'SubProcess');
         } else if (json.type) this.events.emit(json.type, json);
       });
