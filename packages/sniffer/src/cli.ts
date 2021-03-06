@@ -43,12 +43,6 @@ async function main(): Promise<void> {
   const sniffer = new Diablo2PacketSniffer(networkAdapter, gamePath);
   sniffer.isWriteDump = isWriteDump > 0;
 
-  sniffer.onNewGame((game: Diablo2GameSession) => {
-    sniffItems(game);
-    sniffNpc(game);
-  });
-  // Track items being dropped onto the ground
-
   await sniffer.start(Log);
 }
 

@@ -3,6 +3,7 @@ import { Diablo2Version, getDiabloVersion } from '@diablo2/data';
 import { EventEmitter } from 'events';
 import { networkInterfaces } from 'os';
 import { LogType } from './logger';
+import { PacketLine } from './packet.line';
 import { AutoClosingStream } from './replay.tracker';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -22,11 +23,6 @@ export function findLocalIps(): { address: string; interface: string }[] {
     }
   }
   return output;
-}
-export interface PacketLine {
-  direction: 'in' | 'out';
-  time: number;
-  bytes: string;
 }
 
 export class Diablo2PacketSniffer {

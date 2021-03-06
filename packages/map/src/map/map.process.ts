@@ -98,7 +98,7 @@ export class Diablo2MapProcess {
         const json = getJson<Diablo2MapGenMessage | LogMessage>(line);
         if (json == null) return;
         if ('time' in json) {
-          if (json.level < 10) return;
+          if (json.level < 30) return;
           Log.info({ ...json, log: json.msg }, 'SubProcess');
         } else if (json.type) this.events.emit(json.type, json);
       });

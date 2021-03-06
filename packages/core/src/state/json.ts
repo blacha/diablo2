@@ -30,6 +30,7 @@ export interface MercenaryJson {
 
 export interface NpcJson extends BaseGameJson {
   code: number;
+  life: number;
   uniqueName?: string;
   flags: NpcFlags;
 }

@@ -45,14 +45,13 @@ export class Diablo2State {
   }
 
   isMe(id: number): boolean {
-    if (this.player.id === -1) {
-      this.player.id = 1;
-    }
+    if (this.player.id === -1) this.player.id = 1;
     if (this.player.id === id || id == null) return true;
     return false;
   }
 
   addPlayer(id: number, name: string): void {
+    console.log('---AddPlayer', { id, name });
     if (this.player.id == null) {
       this.player.id = id;
       this.player.name = name;
@@ -98,8 +97,10 @@ export class Diablo2State {
       this.player.updatedAt = Date.now();
       this.player.x = x;
       this.player.y = y;
+      this.dirty();
       return;
     }
+
     if (life === 0) {
       if (!this.npc.has(id)) return;
       this.npc.delete(id);
@@ -114,6 +115,7 @@ export class Diablo2State {
         updatedAt: Date.now(),
         x,
         y,
+        life: -1,
         code: -1,
         name: 'Unknown',
         flags: {},
@@ -126,11 +128,12 @@ export class Diablo2State {
     this.dirty();
   }
 
-  moveMaybe(x: number, y: number): void {
+  moveTo(x: number, y: number): void {
     const diff = Math.abs(this.player.updatedAt - Date.now());
-    if (diff > 2000) {
+    if (diff > 500) {
       this.player.x = x;
       this.player.y = y;
+      this.dirty();
     }
   }
 

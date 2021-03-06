@@ -249,7 +249,7 @@ export const NpcUpdate = Diablo2Packet.create(0x69, 'NpcUpdate', {
   state: bp.u8,
   x: bp.lu16,
   y: bp.lu16,
-  unitLife: bp.u8,
+  life: bp.u8,
   unk1: bp.u8,
 });
 export const NpcAction = Diablo2Packet.create(0x6b, 'NpcAction', {
@@ -271,7 +271,7 @@ export const NpcStop = Diablo2Packet.create(0x6d, 'NpcStop', {
   unitId: bp.lu32,
   x: bp.lu16,
   y: bp.lu16,
-  unitLife: bp.u8,
+  life: bp.u8,
 });
 export const PlayerCorpse = Diablo2Packet.create(0x74, 'PlayerCorpse', {
   assign: bp.u8,

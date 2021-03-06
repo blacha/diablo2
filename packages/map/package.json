@@ -16,7 +16,8 @@
   "types": "./build/index.d.ts",
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
-    "bundle": "esbuild src/index.ts --platform=node --target=node10 --bundle --outdir=dist"
+    "bundle": "esbuild src/index.ts --platform=node --target=node10 --bundle --outdir=dist",
+    "build-docker": "yarn bundle && docker build . -t diablo2/map"
   },
   "dependencies": {
     "@types/p-limit": "^2.2.0",

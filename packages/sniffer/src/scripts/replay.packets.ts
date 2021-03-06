@@ -7,11 +7,7 @@ import { sniffItems } from '../example/item.tracker';
 import { sniffNpc } from '../example/npc.tracker';
 // import { sniffAll } from '../example/packet.tracker';
 import { Log } from '../logger';
-
-interface PacketLine {
-  direction: 'in' | 'out';
-  bytes: string;
-}
+import { PacketLine } from '../packet.line';
 
 async function main(): Promise<void> {
   const packetFile = process.argv.pop();

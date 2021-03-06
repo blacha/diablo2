@@ -6,25 +6,33 @@ import { Diablo2Client } from './client';
 import { Diablo2PacketParser } from './packet.parser';
 import { Diablo2State } from './state/game';
 
+const { client, server } = PacketsPod;
+
 const PacketIgnore: Set<string> = new Set([
-  PacketsPod.server.GameLoading.name,
-  PacketsPod.server.GameObjectAssign.name,
-  PacketsPod.server.ItemContainerUpdate.name,
-  PacketsPod.server.MapAdd.name,
-  PacketsPod.server.MapRemove.name,
-  PacketsPod.server.NpcGetHit.name,
-  PacketsPod.server.NpcHeal.name,
-  PacketsPod.server.ObjectRemove.name,
-  PacketsPod.server.Pong.name,
-  PacketsPod.server.Relator1.name,
-  PacketsPod.server.Relator2.name,
-  PacketsPod.server.StateDelayed.name,
-  PacketsPod.server.StateEnd.name,
-  PacketsPod.server.PlaySound.name,
-  PacketsPod.server.WarpAssign.name,
-  PacketsPod.server.GameObjectState.name,
-  PacketsPod.server.UnitUseSkillOnTarget.name,
+  server.GameLoading.name,
+  server.GameObjectAssign.name,
+  server.ItemContainerUpdate.name,
+  server.MapAdd.name,
+  server.MapRemove.name,
+  server.NpcGetHit.name,
+  server.NpcHeal.name,
+  server.ObjectRemove.name,
+  server.Pong.name,
+  server.Relator1.name,
+  server.Relator2.name,
+  server.StateDelayed.name,
+  server.StateEnd.name,
+  server.PlaySound.name,
+  server.WarpAssign.name,
+  server.GameObjectState.name,
+  server.UnitUseSkillOnTarget.name,
+  server.StateSet.name,
+  server.PlayerCursorClear.name,
+  server.MercExperienceByte.name,
+  server.MercExperienceWord.name,
 ]);
+
+const PacketInteresting: Set<string> = new Set([]);
 
 export class Diablo2GameSession {
   id: string = ulid().toLowerCase();
@@ -50,56 +58,60 @@ export class Diablo2GameSession {
     'pk3',
   ]);
 
-  constructor(client: Diablo2Client, log: Logger) {
+  constructor(d2: Diablo2Client, log: Logger) {
     this.log = log;
-    this.client = client;
-    this.parser = new Diablo2PacketParser(client);
+    this.client = d2;
+    this.parser = new Diablo2PacketParser(d2);
     this.state = new Diablo2State(this.id);
 
-    this.parser.on(PacketsPod.client.ClientRunToCoOrd, (pkt) => this.state.moveMaybe(pkt.x, pkt.y));
-    // this.parser.on(PacketsPod.client.ClientSkillRight, pkt => {})
+    this.parser.on(client.ClientRunToCoOrd, (pkt) => {
+      this.state.moveTo(pkt.x, pkt.y);
+    });
+    this.parser.on(client.ClientWalkToCoOrd, (pkt) => this.state.moveTo(pkt.x, pkt.y));
 
-    this.parser.on(PacketsPod.server.GameLogonReceipt, (pkt) => {
+    this.parser.on(server.GameLogonReceipt, (pkt) => {
       this.state.map.difficulty = pkt.difficulty.id;
       this.state.map.isHardcore = pkt.isHardcore > 0;
+      this.log.debug({ difficulty: pkt.difficulty.name }, pkt.packet.name);
       this.state.dirty();
     });
 
-    this.parser.on(PacketsPod.server.GameActLoad, (pkt) => {
+    this.parser.on(server.GameActLoad, (pkt) => {
       this.state.map.id = pkt.mapId;
       this.state.map.act = pkt.act.id;
+      this.log.debug({ id: pkt.mapId, act: pkt.act.name }, pkt.packet.name);
       this.state.npc.clear();
       this.state.object.clear();
       this.state.dirty();
     });
 
-    this.parser.on(PacketsPod.server.GameUnloadDone, () => this.state.close());
+    this.parser.on(server.GameUnloadDone, () => this.state.close());
 
-    this.parser.on(PacketsPod.server.ExperienceByte, (pkt) => this.state.trackXp(pkt.amount));
-    this.parser.on(PacketsPod.server.ExperienceWord, (pkt) => this.state.trackXp(pkt.amount));
-    this.parser.on(PacketsPod.server.ExperienceDWord, (pkt) => this.state.trackXp(pkt.amount, true));
+    this.parser.on(server.ExperienceByte, (pkt) => this.state.trackXp(pkt.amount));
+    this.parser.on(server.ExperienceWord, (pkt) => this.state.trackXp(pkt.amount));
+    this.parser.on(server.ExperienceDWord, (pkt) => this.state.trackXp(pkt.amount, true));
 
-    this.parser.on(PacketsPod.server.WalkVerify, (pkt) => this.state.move(this.state.player.id, pkt.x, pkt.y));
-    this.parser.on(PacketsPod.server.PlayerStop, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(PacketsPod.server.PlayerReassign, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(PacketsPod.server.PlayerMove, (pkt) => this.state.move(pkt.unitId, pkt.currentX, pkt.currentY));
-    this.parser.on(PacketsPod.server.PlayerLifeChange, (pkt) => this.state.move(this.state.player.id, pkt.x, pkt.y));
+    this.parser.on(server.WalkVerify, (pkt) => this.state.move(this.state.player.id, pkt.x, pkt.y));
+    this.parser.on(server.PlayerStop, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.PlayerReassign, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.PlayerMove, (pkt) => this.state.move(pkt.unitId, pkt.currentX, pkt.currentY));
+    this.parser.on(server.PlayerLifeChange, (pkt) => this.state.move(this.state.player.id, pkt.x, pkt.y));
 
-    this.parser.on(PacketsPod.server.PlayerInGame, (pkt) => {
+    this.parser.on(server.PlayerInGame, (pkt) => {
       this.state.player.level = pkt.level;
       this.state.player.name = pkt.name;
       this.log.error({ player: this.state.player }, 'PlayerInGame');
       this.state.dirty();
     });
 
-    this.parser.on(PacketsPod.server.PlayerAbout, (pkt) => {
+    this.parser.on(server.PlayerAbout, (pkt) => {
       if (pkt.unitId === this.state.player.id) {
         this.state.player.level = pkt.level;
         this.state.dirty();
       }
     });
 
-    this.parser.on(PacketsPod.server.ItemActionWorld, (pkt) => {
+    this.parser.on(server.ItemActionWorld, (pkt) => {
       if (pkt.code === 'gld') return; // Ignore gold
 
       if (pkt.action.name === 'AddToGround' || pkt.action.name === 'DropToGround' || pkt.action.name === 'OnGround') {
@@ -111,29 +123,38 @@ export class Diablo2GameSession {
     });
 
     // Handle NPC Movement
-    this.parser.on(PacketsPod.server.NpcMove, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(PacketsPod.server.NpcAttack, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(PacketsPod.server.NpcMoveToTarget, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(PacketsPod.server.NpcUpdate, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y, pkt.unitLife));
+    this.parser.on(server.NpcMove, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.NpcAttack, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.NpcMoveToTarget, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.NpcUpdate, (pkt) => {
+      // TODO why are state 8 & 9 = dead?
+      if (pkt.state === 0x09 || pkt.state === 0x08) pkt.life = 0;
 
-    this.parser.on(PacketsPod.server.NpcAction, () => {
+      // console.log('NpcUpdate', pkt.unitId, pkt.unitLife);
+      this.state.move(pkt.unitId, pkt.x, pkt.y, pkt.life);
+    });
+
+    this.parser.on(server.NpcAction, () => {
       // ignore for now
       //this.state.move(pkt.unitId, pkt.x, pkt.y)
     });
-    this.parser.on(PacketsPod.server.NpcStop, () => {
+    this.parser.on(server.NpcStop, (pkt) => {
       // ignore for now
       //this.state.move(pkt.unitId, pkt.x, pkt.y)
     });
 
-    this.parser.on(PacketsPod.server.PlayerAssign, (pkt) => {
+    this.parser.on(server.PlayerAssign, (pkt) => {
       this.state.addPlayer(pkt.unitId, pkt.name);
       this.state.move(pkt.unitId, pkt.x, pkt.y);
     });
 
-    this.parser.on(PacketsPod.server.NpcAssign, (pkt) => {
+    this.parser.on(server.NpcAssign, (pkt) => {
+      if (pkt.name === 'an evil force') return;
+      // console.log(pkt.name);
       this.state.trackNpc({
         id: pkt.unitId,
         name: pkt.name,
+        life: pkt.life,
         x: pkt.x,
         y: pkt.y,
         code: pkt.code,
@@ -144,8 +165,11 @@ export class Diablo2GameSession {
     this.parser.all((pkt) => {
       if (pkt.packet.direction === 'ClientServer') return;
       if (PacketIgnore.has(pkt.packet.name)) return;
-      if (this.parser.events.listenerCount(pkt.packet.name) === 0) {
-        this.log.trace({ packet: pkt.packet.name, id: pkt.packet.id }, 'NoListeners');
+      if (this.parser.events.listenerCount(pkt.packet.name) !== 0) return;
+      if (PacketInteresting.has(pkt.packet.name)) {
+        this.log.trace({ packet: pkt.packet.name, id: pkt.packet.id }, 'Packet');
+      } else {
+        this.log.trace({ packet: pkt.packet.name, id: pkt.packet.id }, 'Packet');
       }
     });
   }

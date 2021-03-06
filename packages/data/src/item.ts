@@ -28,13 +28,13 @@ export enum ItemActionType {
   AutoUnEquip = 0x11,
   RemoveFromHireling = 0x12, // sent along with a 9d 08 packet... Also Item on cursor when entering game ?? MiscToCursor??
   ItemInSocket = 0x13,
-  UNKNOWN1 = 0x14,
+  Unknown1 = 0x14,
   UpdateStats = 0x15, // put item in socket; for each potion that drops in belt when lower one is removed...
-  UNKNOWN2 = 0x16,
+  Unknown2 = 0x16,
   WeaponSwitch = 0x17,
 
   Unknown3 = 129,
-  Unknown4 = 129,
+  Unknown4 = 130,
 }
 
 export enum ItemCategory {
@@ -46,6 +46,8 @@ export enum ItemCategory {
   Weapon2 = 6,
   /** Shields can some sometimes be Weapon2... */
   Shield = 7,
+
+  Unknown1 = 8,
   /** Class specific items !? */
   Special = 10,
   /** BaseMiscItems and gloves, boots... */

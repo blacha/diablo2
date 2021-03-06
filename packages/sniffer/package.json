@@ -22,6 +22,7 @@
     "@diablo2/packets": "^0.4.0",
     "@types/pino": "^6.3.0",
     "ansi-colors": "^4.1.1",
+    "pcap": "^3.1.0",
     "pino": "^6.5.1",
     "pretty-json-log": "^0.3.1"
   },
