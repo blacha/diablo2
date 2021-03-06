@@ -170,6 +170,7 @@ export class Diablo2MapProcess {
       }, ProcessTimeout);
       this.events.on('map', newMap);
       this.events.on('done', () => {
+        this.events.off('map', newMap);
         clearTimeout(failedTimer);
         log.trace({ count: Object.keys(maps).length }, 'MapsGenerated');
         resolve(maps);
