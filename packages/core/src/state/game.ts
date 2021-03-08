@@ -3,6 +3,8 @@ import { GameStateJson, ItemJson, MapJson, NpcJson, ObjectJson, PlayerJson } fro
 export class Diablo2State {
   player: PlayerJson;
 
+  players = new Map<number, { id: number; name: string; updatedAt: number }>();
+
   createdAt: number = Date.now();
   updatedAt: number;
 
@@ -51,12 +53,17 @@ export class Diablo2State {
   }
 
   addPlayer(id: number, name: string): void {
-    console.log('---AddPlayer', { id, name });
-    if (this.player.id == null) {
+    if (this.player.id === -1 || this.player.id === id) {
       this.player.id = id;
       this.player.name = name;
+      this.player.updatedAt = Date.now();
       this.dirty();
     }
+
+    this.player.updatedAt = Date.now();
+    this.players.set(id, { id, name, updatedAt: Date.now() });
+
+    console.log('Players', [...this.players.values()]);
   }
 
   trackXp(num: number, isSet = false): void {
@@ -124,13 +131,14 @@ export class Diablo2State {
     }
     npc.x = x;
     npc.y = y;
+    npc.life = life;
     npc.updatedAt = Date.now();
     this.dirty();
   }
 
   moveTo(x: number, y: number): void {
     const diff = Math.abs(this.player.updatedAt - Date.now());
-    if (diff > 500) {
+    if (diff > 1500) {
       this.player.x = x;
       this.player.y = y;
       this.dirty();

@@ -95,7 +95,7 @@ export class DataTypeItem extends StrutBase<Diablo2Item> {
     try {
       this.parseItemBits(bits, item as Diablo2Item);
     } catch (e) {
-      console.log('FailedToParseItem', item, e); // Ignore
+      console.log('FailedToParseItem:' + item.id, e); // Ignore
     }
 
     // const endOffset = ctx.startOffset + packetLength;

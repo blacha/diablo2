@@ -19,7 +19,7 @@ o.spec('LoginTest', () => {
     session.parser.all((pkt) => allPackets.push(pkt.packet.id));
 
     for (const pkt of GamePackets) {
-      session.onPacket('in', Buffer.from(pkt.data));
+      session.onPacket('in', Buffer.from(pkt.data), console);
     }
 
     o(allPackets).deepEquals([1, 143, 2]);

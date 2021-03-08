@@ -1,8 +1,5 @@
-import { Diablo2GameSession } from '@diablo2/core';
 import { existsSync } from 'fs';
 import 'source-map-support/register';
-import { sniffItems } from './example/item.tracker';
-import { sniffNpc } from './example/npc.tracker';
 import { Log } from './logger';
 import { Diablo2PacketSniffer, findLocalIps } from './sniffer';
 

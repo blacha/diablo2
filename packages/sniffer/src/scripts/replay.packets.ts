@@ -3,9 +3,7 @@ import { Diablo2Client } from '@diablo2/core';
 import { Diablo2Mpq, getDiabloVersion } from '@diablo2/data';
 import { createReadStream, existsSync } from 'fs';
 import * as readline from 'readline';
-import { sniffItems } from '../example/item.tracker';
-import { sniffNpc } from '../example/npc.tracker';
-// import { sniffAll } from '../example/packet.tracker';
+import { SniffExample } from '../example/index';
 import { Log } from '../logger';
 import { PacketLine } from '../packet.line';
 
@@ -25,19 +23,30 @@ async function main(): Promise<void> {
   const client = new Diablo2Client(version);
   const session = client.startSession(Log);
 
-  sniffItems(session);
-  sniffNpc(session);
-  // sniffAll(session);
+  SniffExample.item(session);
+  SniffExample.npc(session);
+
+  const PacketByName = new Map<string, number>();
+  session.parser.all((pkt) => {
+    const pktName = pkt.packet.direction + ':' + pkt.packet.name;
+    PacketByName.set(pktName, (PacketByName.get(pktName) ?? 0) + 1);
+  });
 
   const reader = readline.createInterface({ input: createReadStream(packetFile), crlfDelay: Infinity });
 
   for await (const line of reader) {
     const json = JSON.parse(line) as PacketLine;
     // if (json.direction ===  'out') continue;
-    session.onPacket(json.direction, Buffer.from(json.bytes, 'hex'));
+    session.onPacket(json.direction, Buffer.from(json.bytes, 'hex'), Log);
   }
 
-  console.log('Packets', session.parser.inPacketParsedCount);
+  Log.info({ packetsIn: session.parser.inPacketParsedCount, packetsOut: session.parser.outPacketParsedCount }, 'Done');
+
+  const packetStats = [...PacketByName.entries()].sort((a, b) => b[1] - a[1]);
+  Log.debug('PacketStats');
+  for (const [pktName, count] of packetStats) {
+    Log.debug({ count }, pktName);
+  }
 }
 
 main();

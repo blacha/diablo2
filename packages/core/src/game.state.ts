@@ -126,6 +126,8 @@ export class Diablo2GameSession {
     this.parser.on(server.NpcMove, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
     this.parser.on(server.NpcAttack, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
     this.parser.on(server.NpcMoveToTarget, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.NpcStop, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y, pkt.life));
+
     this.parser.on(server.NpcUpdate, (pkt) => {
       // TODO why are state 8 & 9 = dead?
       if (pkt.state === 0x09 || pkt.state === 0x08) pkt.life = 0;
@@ -135,10 +137,6 @@ export class Diablo2GameSession {
     });
 
     this.parser.on(server.NpcAction, () => {
-      // ignore for now
-      //this.state.move(pkt.unitId, pkt.x, pkt.y)
-    });
-    this.parser.on(server.NpcStop, (pkt) => {
       // ignore for now
       //this.state.move(pkt.unitId, pkt.x, pkt.y)
     });
@@ -187,8 +185,8 @@ export class Diablo2GameSession {
     return false;
   }
 
-  onPacket(direction: 'in' | 'out', bytes: Buffer): void {
-    if (direction === 'in') return this.parser.onPacketIn(bytes);
-    return this.parser.onPacketOut(bytes);
+  onPacket(direction: 'in' | 'out', bytes: Buffer, log: Logger): void {
+    if (direction === 'in') return this.parser.onPacketIn(bytes, log);
+    return this.parser.onPacketOut(bytes, log);
   }
 }

@@ -1,3 +1,4 @@
+import { Logger } from '@diablo2/bintools';
 import { Huffman } from '@diablo2/huffman';
 import { Diablo2Packet, Diablo2ParsedPacket } from '@diablo2/packets';
 import { EventEmitter } from 'events';
@@ -49,7 +50,7 @@ export class Diablo2PacketParser {
     this.client = client;
   }
 
-  onPacketIn(inBytes: Buffer, parseCount = 0): void {
+  onPacketIn(inBytes: Buffer, log: Logger, parseCount = 0): void {
     this.inPacketRawCount++;
 
     // Ignore this packet
@@ -75,7 +76,7 @@ export class Diablo2PacketParser {
       while (offset < packets.length) {
         // TODO can we handle this packet?
         if (packets[offset] === 0x2b) {
-          console.log('Skip 0x2b');
+          log.trace({ packet: 0x2b }, 'SkipPacket');
           break;
         }
 
@@ -90,43 +91,34 @@ export class Diablo2PacketParser {
         this.events.emit(emit.packet.name, emit);
       }
     } catch (e) {
-      console.log('Failed', { left: toEmit.length, packets: toEmit.map((c) => c.packet) }, e);
+      log.warn({ left: toEmit.length, packets: toEmit.map((c) => c.packet.name) }, 'Packet:Failed:ServerClient');
     }
 
     // More than one compressed packet was delivered
     if (packetSize < bytes.length) {
       const extraBytes = bytes.slice(packetSize);
-      this.onPacketIn(extraBytes, parseCount + 1);
+      this.onPacketIn(extraBytes, log, parseCount + 1);
     }
   }
 
-  onPacketOut(packets: Buffer): void {
+  onPacketOut(packets: Buffer, log: Logger): void {
     this.outPacketRawCount++;
     let offset = 0;
     const toEmit: Diablo2ParsedPacket<unknown>[] = [];
 
     try {
       while (offset < packets.length) {
-        // TODO can we handle this packet?
-        if (packets[offset] === 0x2b) {
-          console.log('Skip 0x2b');
-          break;
-        }
-
         const res = this.client.clientToServer.create(packets, offset);
         this.outPacketParsedCount++;
         offset += res.packet.size;
         toEmit.push(res);
-
-        // this.events.emit('*', res);
-        // this.events.emit(res.packet.name, res);
       }
       for (const emit of toEmit) {
         this.events.emit('*', emit);
         this.events.emit(emit.packet.name, emit);
       }
     } catch (e) {
-      console.log(e, 'FailedToParse:Client', { left: toEmit.length, packets: toEmit.map((c) => c.packet) });
+      log.warn({ left: toEmit.length, packets: toEmit.map((c) => c.packet.name) }, 'Packet:Failed:ClientServer');
     }
   }
 
