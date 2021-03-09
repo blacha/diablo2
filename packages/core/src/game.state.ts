@@ -62,12 +62,10 @@ export class Diablo2GameSession {
     this.log = log;
     this.client = d2;
     this.parser = new Diablo2PacketParser(d2);
-    this.state = new Diablo2State(this.id);
+    this.state = new Diablo2State(this.id, log);
 
-    this.parser.on(client.ClientRunToCoOrd, (pkt) => {
-      this.state.moveTo(pkt.x, pkt.y);
-    });
-    this.parser.on(client.ClientWalkToCoOrd, (pkt) => this.state.moveTo(pkt.x, pkt.y));
+    this.parser.on(client.ClientRunToCoOrd, (pkt) => this.state.moveTo(pkt, pkt.x, pkt.y));
+    this.parser.on(client.ClientWalkToCoOrd, (pkt) => this.state.moveTo(pkt, pkt.x, pkt.y));
 
     this.parser.on(server.GameLogonReceipt, (pkt) => {
       this.state.map.difficulty = pkt.difficulty.id;
@@ -79,9 +77,8 @@ export class Diablo2GameSession {
     this.parser.on(server.GameActLoad, (pkt) => {
       this.state.map.id = pkt.mapId;
       this.state.map.act = pkt.act.id;
-      this.log.debug({ id: pkt.mapId, act: pkt.act.name }, pkt.packet.name);
-      this.state.npc.clear();
-      this.state.object.clear();
+      this.log.info({ id: pkt.mapId, act: pkt.act.name }, pkt.packet.name);
+      this.state.objects.clear();
       this.state.dirty();
     });
 
@@ -91,65 +88,57 @@ export class Diablo2GameSession {
     this.parser.on(server.ExperienceWord, (pkt) => this.state.trackXp(pkt.amount));
     this.parser.on(server.ExperienceDWord, (pkt) => this.state.trackXp(pkt.amount, true));
 
-    this.parser.on(server.WalkVerify, (pkt) => this.state.move(this.state.player.id, pkt.x, pkt.y));
-    this.parser.on(server.PlayerStop, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(server.PlayerReassign, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(server.PlayerMove, (pkt) => this.state.move(pkt.unitId, pkt.currentX, pkt.currentY));
-    this.parser.on(server.PlayerLifeChange, (pkt) => this.state.move(this.state.player.id, pkt.x, pkt.y));
+    this.parser.on(server.WalkVerify, (pkt) => this.state.movePlayer(pkt, this.state.player.id, pkt.x, pkt.y));
+    this.parser.on(server.PlayerStop, (pkt) => this.state.movePlayer(pkt, pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.PlayerReassign, (pkt) => this.state.movePlayer(pkt, pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.PlayerMove, (pkt) => this.state.movePlayer(pkt, pkt.unitId, pkt.currentX, pkt.currentY));
 
     this.parser.on(server.PlayerInGame, (pkt) => {
-      this.state.player.level = pkt.level;
-      this.state.player.name = pkt.name;
-      this.log.error({ player: this.state.player }, 'PlayerInGame');
-      this.state.dirty();
+      this.state.setPlayerLevel(pkt.unitId, pkt.level);
+      this.state.addPlayer(pkt.unitId, pkt.name);
+      this.log.info({ player: this.state.units.get(pkt.unitId), pkt: pkt.name }, 'PlayerInGame');
     });
 
-    this.parser.on(server.PlayerAbout, (pkt) => {
-      if (pkt.unitId === this.state.player.id) {
-        this.state.player.level = pkt.level;
-        this.state.dirty();
-      }
-    });
+    this.parser.on(server.PlayerAbout, (pkt) => this.state.setPlayerLevel(pkt.unitId, pkt.level));
 
     this.parser.on(server.ItemActionWorld, (pkt) => {
       if (pkt.code === 'gld') return; // Ignore gold
 
       if (pkt.action.name === 'AddToGround' || pkt.action.name === 'DropToGround' || pkt.action.name === 'OnGround') {
         if (this.isGoodItem(pkt.code, pkt.quality?.id)) {
-          this.log.warn({ code: pkt.code, x: pkt.x, y: pkt.y, item: pkt.name }, 'ItemDropped');
+          this.log.warn({ code: pkt.code, x: pkt.x, y: pkt.y, item: pkt.name, action: pkt.action.name }, 'ItemDropped');
           this.state.trackItem({ ...pkt, updatedAt: Date.now(), name: pkt.name ?? 'Unknown' });
         }
       }
     });
 
     // Handle NPC Movement
-    this.parser.on(server.NpcMove, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(server.NpcAttack, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(server.NpcMoveToTarget, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(server.NpcStop, (pkt) => this.state.move(pkt.unitId, pkt.x, pkt.y, pkt.life));
+    this.parser.on(server.NpcMove, (pkt) => this.state.moveNpc(pkt, pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.NpcAttack, (pkt) => this.state.moveNpc(pkt, pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.NpcMoveToTarget, (pkt) => this.state.moveNpc(pkt, pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.NpcStop, (pkt) => this.state.moveNpc(pkt, pkt.unitId, pkt.x, pkt.y, pkt.life));
 
     this.parser.on(server.NpcUpdate, (pkt) => {
       // TODO why are state 8 & 9 = dead?
       if (pkt.state === 0x09 || pkt.state === 0x08) pkt.life = 0;
 
       // console.log('NpcUpdate', pkt.unitId, pkt.unitLife);
-      this.state.move(pkt.unitId, pkt.x, pkt.y, pkt.life);
+      this.state.moveNpc(pkt, pkt.unitId, pkt.x, pkt.y, pkt.life);
     });
 
-    this.parser.on(server.NpcAction, () => {
-      // ignore for now
-      //this.state.move(pkt.unitId, pkt.x, pkt.y)
-    });
+    // this.parser.on(server.NpcAction, (pkt) => {
+    //   // ignore for now
+    //   //this.state.move(pkt.unitId, pkt.x, pkt.y)
+    //   console.log('Action', pkt);
+    // });
 
-    this.parser.on(server.PlayerAssign, (pkt) => {
-      this.state.addPlayer(pkt.unitId, pkt.name);
-      this.state.move(pkt.unitId, pkt.x, pkt.y);
-    });
+    this.parser.on(server.PlayerAssign, (pkt) => this.state.addPlayer(pkt.unitId, pkt.name, pkt.x, pkt.y));
 
     this.parser.on(server.NpcAssign, (pkt) => {
       if (pkt.name === 'an evil force') return;
       // console.log(pkt.name);
       this.state.trackNpc({
+        type: 'npc',
         id: pkt.unitId,
         name: pkt.name,
         life: pkt.life,
@@ -163,12 +152,12 @@ export class Diablo2GameSession {
     this.parser.all((pkt) => {
       if (pkt.packet.direction === 'ClientServer') return;
       if (PacketIgnore.has(pkt.packet.name)) return;
-      if (this.parser.events.listenerCount(pkt.packet.name) !== 0) return;
       if (PacketInteresting.has(pkt.packet.name)) {
         this.log.trace({ packet: pkt.packet.name, id: pkt.packet.id }, 'Packet');
-      } else {
-        this.log.trace({ packet: pkt.packet.name, id: pkt.packet.id }, 'Packet');
       }
+      if (this.parser.events.listenerCount(pkt.packet.name) !== 0) return;
+      // this.log.trace({ packet: pkt.packet.name, id: pkt.packet.id }, 'Packet');
+      // }
     });
   }
 

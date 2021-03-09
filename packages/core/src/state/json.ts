@@ -1,13 +1,14 @@
 import { Act, Difficulty, ItemCategory, ItemQuality, NpcFlags } from '@diablo2/data';
 
 export interface GameStateJson {
+  id: string;
   createdAt: number;
   endedAt?: number;
-  npc: NpcJson[];
-  player: PlayerJson;
   map: MapJson;
-  item: ItemJson[];
-  object: ObjectJson[];
+  player: PlayerJson;
+  units: UnitJson[];
+  items: ItemJson[];
+  objects: ObjectJson[];
 }
 
 export interface BaseGameJson {
@@ -18,17 +19,22 @@ export interface BaseGameJson {
   name: string;
 }
 
-export interface PlayerJson extends BaseGameJson {
-  level: number;
-  mercenary: MercenaryJson;
-  xp: { current: number; start: number };
-}
 export interface MercenaryJson {
   id: number;
   xp: { current: number; start: number };
 }
 
+export type UnitJson = PlayerJson | NpcJson;
+export interface PlayerJson extends BaseGameJson {
+  type: 'player';
+  level: number;
+  mercenary?: MercenaryJson;
+  xp: { current: number; start: number };
+  life: number;
+}
+
 export interface NpcJson extends BaseGameJson {
+  type: 'npc';
   code: number;
   life: number;
   uniqueName?: string;

@@ -40,12 +40,18 @@ async function main(): Promise<void> {
     session.onPacket(json.direction, Buffer.from(json.bytes, 'hex'), Log);
   }
 
+  // for (const unit of session.state.units.values()) {
+  //   if (unit.type === 'player') console.log(unit);
+  // }
+  // console.log(session.state.player);
   Log.info({ packetsIn: session.parser.inPacketParsedCount, packetsOut: session.parser.outPacketParsedCount }, 'Done');
 
-  const packetStats = [...PacketByName.entries()].sort((a, b) => b[1] - a[1]);
-  Log.debug('PacketStats');
-  for (const [pktName, count] of packetStats) {
-    Log.debug({ count }, pktName);
+  if (process.argv.includes('--stats')) {
+    const packetStats = [...PacketByName.entries()].sort((a, b) => b[1] - a[1]);
+    Log.debug('PacketStats');
+    for (const [pktName, count] of packetStats) {
+      Log.debug({ count }, pktName);
+    }
   }
 }
 

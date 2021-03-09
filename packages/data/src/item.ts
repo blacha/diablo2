@@ -47,9 +47,15 @@ export enum ItemCategory {
   /** Shields can some sometimes be Weapon2... */
   Shield = 7,
 
-  Unknown1 = 8,
+  Unknown8 = 8,
   /** Class specific items !? */
   Special = 10,
+
+  Unknown11 = 11,
+  Unknown12 = 12,
+  Unknown13 = 13,
+  Unknown14 = 14,
+
   /** BaseMiscItems and gloves, boots... */
   Misc = 16,
 }

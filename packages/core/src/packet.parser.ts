@@ -91,6 +91,7 @@ export class Diablo2PacketParser {
         this.events.emit(emit.packet.name, emit);
       }
     } catch (e) {
+      console.log(e);
       log.warn({ left: toEmit.length, packets: toEmit.map((c) => c.packet.name) }, 'Packet:Failed:ServerClient');
     }
 
