@@ -5,6 +5,11 @@ export function toHex(num: number, padding = 2): string {
   return `0x${num.toString(16).padStart(padding, '0')}`;
 }
 
+function isEmpty(bytes: number[] | Buffer, offset: number): boolean {
+  for (let i = offset; i < bytes.length; i++) if (bytes[i] !== 0) return false;
+  return true;
+}
+
 export class Diablo2PacketFactory {
   packets: Map<number, Diablo2Packet<any>> = new Map();
   direction: Diablo2PacketDirection;
@@ -24,7 +29,21 @@ export class Diablo2PacketFactory {
   create(bytes: number[] | Buffer, offset: number): Diablo2ParsedPacket {
     const packetId = bytes[offset];
     const fact = this.packets.get(packetId);
-    if (fact == null) throw new Error(`Invalid packet: ${toHex(packetId)}`);
+    if (fact == null) {
+      // If there are just empty bytes left just swallow them up
+      if (isEmpty(bytes, offset)) {
+        return {
+          packet: {
+            id: bytes[offset],
+            name: 'Empty',
+            size: bytes.length - offset,
+            direction: this.direction,
+            bytes: bytes.slice(offset),
+          },
+        };
+      }
+      throw new Error(`Invalid packet: ${toHex(packetId)}`);
+    }
 
     const startOffset = offset;
     const ctx: StrutParserContext = { startOffset, offset: offset + 1 };

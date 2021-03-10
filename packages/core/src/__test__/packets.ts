@@ -55,7 +55,7 @@ if (fs.existsSync(packetPath)) {
     for (const pkt of stream) {
       if (pkt.direction === 'in') {
         // console.log(pkt.seqno, pkt.data);
-        session.parser.onPacketIn(pkt.data);
+        session.parser.onPacketIn(pkt.data, console);
       } else {
         // console.log(pkt.direction);
         // client.onPacketOut(pkt.data);

@@ -1,8 +1,5 @@
-import { Diablo2GameSession } from '@diablo2/core';
 import { existsSync } from 'fs';
 import 'source-map-support/register';
-import { sniffItems } from './example/item.tracker';
-import { sniffNpc } from './example/npc.tracker';
 import { Log } from './logger';
 import { Diablo2PacketSniffer, findLocalIps } from './sniffer';
 
@@ -42,12 +39,6 @@ async function main(): Promise<void> {
 
   const sniffer = new Diablo2PacketSniffer(networkAdapter, gamePath);
   sniffer.isWriteDump = isWriteDump > 0;
-
-  sniffer.onNewGame((game: Diablo2GameSession) => {
-    sniffItems(game);
-    sniffNpc(game);
-  });
-  // Track items being dropped onto the ground
 
   await sniffer.start(Log);
 }

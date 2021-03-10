@@ -3,6 +3,7 @@ import { Diablo2Version, getDiabloVersion } from '@diablo2/data';
 import { EventEmitter } from 'events';
 import { networkInterfaces } from 'os';
 import { LogType } from './logger';
+import { PacketLine } from './packet.line';
 import { AutoClosingStream } from './replay.tracker';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -22,11 +23,6 @@ export function findLocalIps(): { address: string; interface: string }[] {
     }
   }
   return output;
-}
-export interface PacketLine {
-  direction: 'in' | 'out';
-  time: number;
-  bytes: string;
 }
 
 export class Diablo2PacketSniffer {
@@ -79,7 +75,7 @@ export class Diablo2PacketSniffer {
       this.getTraceStream(session.id).write(logLine);
     }
     try {
-      session.onPacket(direction, data);
+      session.onPacket(direction, data, log);
     } catch (e) {
       log.error({ inputId, outputId: session.parser.inPacketRawCount, err: e }, 'FailedToParse');
     }
@@ -87,11 +83,7 @@ export class Diablo2PacketSniffer {
 
   _initPromise: Promise<void> | null = null;
   init(log: LogType): Promise<void> {
-    if (this._initPromise == null) {
-      this._initPromise = new Promise((resolve, reject) => {
-        this.client.init(this.gamePath, log).then(resolve).catch(reject);
-      });
-    }
+    if (this._initPromise == null) this._initPromise = this.client.init(this.gamePath, log);
     return this._initPromise;
   }
 

@@ -1,4 +1,4 @@
-import { Diablo2Mpq } from '@diablo2/data';
+import { Diablo2Mpq, NpcFlags } from '@diablo2/data';
 import { BitStream, bp, StrutBase, StrutParserContext, toHex } from 'binparse';
 
 export interface NpcInfo {
@@ -16,14 +16,6 @@ export interface NpcInfo {
 
   /** Was the NPC parsed successfully */
   isValid: boolean;
-}
-
-export interface NpcFlags {
-  isChampion?: boolean;
-  isUnique?: boolean;
-  isSuperUnique?: boolean;
-  isMinion?: boolean;
-  isGhostly?: boolean;
 }
 
 // TODO stolen (where from?)
