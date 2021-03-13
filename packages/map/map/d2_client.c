@@ -347,6 +347,12 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
             case 99:
                 return 1;
         }
+    } 
+    if (isProjectDiablo2) {
+        switch(levelCode) {
+            case 150:
+                return 1;
+        }
     }
 
     int actId = get_act(levelCode);
@@ -379,7 +385,7 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
     int mapWidth = pLevel->dwSizeX * 5;
     int mapHeight = pLevel->dwSizeY * 5;
 
-    log_info("MapLoaded", lk_i("act", actId), lk_i("mapId", levelCode), lk_s("mapName", levelData->szName), lk_i("originY", originY), lk_i("originX", originX), lk_i("width", mapWidth), lk_i("height", mapHeight));
+    log_info("MapInit", lk_i("act", actId), lk_i("mapId", levelCode), lk_s("mapName", levelData->szName), lk_i("originY", originY), lk_i("originX", originX), lk_i("width", mapWidth), lk_i("height", mapHeight));
     map_reset();
 
     // Start JSON DUMP
