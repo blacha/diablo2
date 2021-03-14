@@ -192,34 +192,35 @@ export class Diablo2State {
   }
 
   toJSON(): GameStateJson {
-    const player = this.player;
-    const toDelete: number[] = [];
-    for (const unit of this.units.values()) {
-      const timeDiff = Date.now() - unit.updatedAt;
-      if (timeDiff < 60_000) continue;
-      if (
-        timeDiff > MaxAgeMs ||
-        Math.abs(unit.x - player.x) > MaxDistance ||
-        Math.abs(unit.y - player.y) > MaxDistance
-      ) {
-        toDelete.push(unit.id);
-      }
-    }
-    for (const id of toDelete) this.units.delete(id);
-    if (toDelete.length > 1) this.log.info({ count: toDelete.length }, 'NpcCleanup');
+    this.filterOld(this.units);
+    this.filterOld(this.items);
     return {
       id: this.id,
       createdAt: this.createdAt,
       endedAt: this.endedAt,
-      player,
+      player: this.player,
       map: this.map,
       objects: [...this.objects.values()],
       units: [...this.units.values()],
       items: [...this.items.values()].sort(latestUpdated),
     };
   }
+  filterOld(items: Map<unknown, BaseGameJson>): void {
+    const player = this.player;
+
+    const timeNow = Date.now();
+    const toDelete: number[] = [];
+    for (const item of items.values()) {
+      const timeDiff = timeNow - item.updatedAt;
+      if (timeDiff < 60_000) continue;
+      if (timeDiff > MaxAgeMs) toDelete.push(item.id);
+      else if (Math.abs(item.x - player.x) > MaxDistance) toDelete.push(item.id);
+      else if (Math.abs(item.y - player.y) > MaxDistance) toDelete.push(item.id);
+    }
+    for (const id of toDelete) items.delete(id);
+  }
 }
 
 function latestUpdated(a: BaseGameJson, b: BaseGameJson): number {
-  return a.updatedAt - b.updatedAt;
+  return b.updatedAt - a.updatedAt;
 }
