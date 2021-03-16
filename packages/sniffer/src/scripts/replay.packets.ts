@@ -40,10 +40,6 @@ async function main(): Promise<void> {
     session.onPacket(json.direction, Buffer.from(json.bytes, 'hex'), Log);
   }
 
-  // for (const unit of session.state.units.values()) {
-  //   if (unit.type === 'player') console.log(unit);
-  // }
-  // console.log(session.state.player);
   Log.info({ packetsIn: session.parser.inPacketParsedCount, packetsOut: session.parser.outPacketParsedCount }, 'Done');
 
   if (process.argv.includes('--stats')) {
@@ -51,6 +47,15 @@ async function main(): Promise<void> {
     Log.debug('PacketStats');
     for (const [pktName, count] of packetStats) {
       Log.debug({ count }, pktName);
+    }
+  }
+
+  if (process.argv.includes('--kills')) {
+    const kills = session.state.toJSON().kills.sort((a, b) => b.total - a.total);
+    for (const kill of kills) {
+      const name = kill.name;
+      delete (kill as any).name;
+      Log.debug(kill, `KillCount:${name}`);
     }
   }
 }

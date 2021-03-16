@@ -1,7 +1,7 @@
 import { Logger } from '@diablo2/bintools';
 import { Difficulty } from '@diablo2/data';
 import { Diablo2ParsedPacket } from '@diablo2/packets';
-import { BaseGameJson, GameStateJson, ItemJson, MapJson, NpcJson, ObjectJson, PlayerJson, UnitJson } from './json';
+import * as GameJson from './json';
 
 type OnCloseEvent = (game: Diablo2State) => void;
 const MaxAgeMs = 5 * 60_000;
@@ -13,12 +13,14 @@ export class Diablo2State {
   endedAt?: number;
 
   playerId = -1;
-  players: Map<number, PlayerJson> = new Map();
-  units: Map<number, UnitJson> = new Map();
-  objects: Map<number, ObjectJson> = new Map();
-  items: Map<number, ItemJson> = new Map();
+  players: Map<number, GameJson.PlayerJson> = new Map();
+  units: Map<number, GameJson.UnitJson> = new Map();
+  objects: Map<number, GameJson.ObjectJson> = new Map();
+  items: Map<number, GameJson.ItemJson> = new Map();
 
-  map: MapJson = { id: -1, act: -1, difficulty: -1, isHardcore: false };
+  map: GameJson.MapJson = { id: -1, act: -1, difficulty: -1, isHardcore: false };
+
+  kills: Map<number, GameJson.KillJson> = new Map();
 
   onChange?: () => void;
   id: string;
@@ -56,7 +58,7 @@ export class Diablo2State {
     if (this.endedAt == null) return -1;
     return this.endedAt - this.createdAt;
   }
-  get player(): PlayerJson {
+  get player(): GameJson.PlayerJson {
     const player = this.players.get(this.playerId);
     if (player) return player;
 
@@ -71,7 +73,7 @@ export class Diablo2State {
       updatedAt: Date.now(),
       life: -1,
       xp: { current: -1, start: -1 },
-    } as PlayerJson;
+    } as GameJson.PlayerJson;
     this.players.set(this.playerId, resetPlayer);
     return resetPlayer;
   }
@@ -95,7 +97,7 @@ export class Diablo2State {
         updatedAt: Date.now(),
         life: -1,
         xp: { current: -1, start: -1, diff: 0 },
-      } as PlayerJson;
+      } as GameJson.PlayerJson;
     }
     if (x !== -1) {
       existing.x = x;
@@ -115,7 +117,7 @@ export class Diablo2State {
     this.dirty();
   }
 
-  trackItem(itm: ItemJson): void {
+  trackItem(itm: GameJson.ItemJson): void {
     let existing = this.items.get(itm.id);
     if (existing == null) {
       existing = itm;
@@ -125,7 +127,7 @@ export class Diablo2State {
     this.dirty();
   }
 
-  trackNpc(npc: NpcJson | PlayerJson): void {
+  trackNpc(npc: GameJson.NpcJson | GameJson.PlayerJson): void {
     let existing = this.units.get(npc.id);
     if (existing == null) {
       existing = npc;
@@ -152,17 +154,45 @@ export class Diablo2State {
     player.updatedAt = Date.now();
     this.dirty();
   }
+  trackKill(u: GameJson.NpcJson): void {
+    if (u.code === -1) return;
+    let kill = this.kills.get(u.code);
+    if (kill == null) {
+      kill = {
+        name: u.name,
+        code: u.code,
+        total: 0,
+      };
+      this.kills.set(u.code, kill);
+    }
+    kill.total += 1;
+    if (u.flags.isMinion) kill.isMinion = (kill.isMinion || 0) + 1;
+    if (u.flags.isChampion) kill.isChampion = (kill.isChampion || 0) + 1;
+    if (u.flags.isSuperUnique) kill.isSuperUnique = (kill.isSuperUnique || 0) + 1;
+    if (u.flags.isGhostly) kill.isGhostly = (kill.isGhostly || 0) + 1;
+    if (u.flags.isSuperUnique) {
+      kill.special = kill.special ?? [];
+      kill.special.push(u.name);
+      return;
+    }
+
+    if (u.name !== kill.name) {
+      this.log.warn({ kill, unit: u.name }, 'Kill:Name:missmatch');
+    }
+  }
 
   moveNpc(pkt: Diablo2ParsedPacket<unknown>, id: number, x: number, y: number, life = -1): void {
     if (x === 0 || y === 0) return;
+    let unit = this.units.get(id);
+
     if (life === 0) {
-      if (!this.units.has(id)) return;
+      if (unit == null) return;
+      if (unit.type === 'npc') this.trackKill(unit);
       this.units.delete(id);
       this.dirty();
       return;
     }
 
-    let unit = this.units.get(id);
     if (unit == null) {
       unit = {
         type: 'npc',
@@ -211,7 +241,7 @@ export class Diablo2State {
     return this.endedAt != null;
   }
 
-  toJSON(): GameStateJson {
+  toJSON(): GameJson.GameStateJson {
     const unitRemove = this.filterOld(this.units);
     if (unitRemove > 0) this.log.info({ units: unitRemove }, 'CleanUp');
     return {
@@ -223,9 +253,10 @@ export class Diablo2State {
       objects: [...this.objects.values()],
       units: [...this.units.values()],
       items: [...this.items.values()].sort(latestUpdated).slice(0, 25),
+      kills: [...this.kills.values()],
     };
   }
-  filterOld(items: Map<unknown, BaseGameJson>): number {
+  filterOld(items: Map<unknown, GameJson.BaseGameJson>): number {
     const player = this.player;
 
     const timeNow = Date.now();
@@ -242,6 +273,6 @@ export class Diablo2State {
   }
 }
 
-function latestUpdated(a: BaseGameJson, b: BaseGameJson): number {
+function latestUpdated(a: GameJson.BaseGameJson, b: GameJson.BaseGameJson): number {
   return b.updatedAt - a.updatedAt;
 }

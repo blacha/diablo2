@@ -9,6 +9,7 @@ export interface GameStateJson {
   units: UnitJson[];
   items: ItemJson[];
   objects: ObjectJson[];
+  kills: KillJson[];
 }
 
 export interface BaseGameJson {
@@ -62,4 +63,16 @@ export interface XpStateJson {
   start: number;
   current: number;
   diff: number;
+}
+
+export interface KillJson {
+  code: number;
+  name: string;
+  total: number;
+  special?: string[];
+  isChampion?: number;
+  isUnique?: number;
+  isSuperUnique?: number;
+  isMinion?: number;
+  isGhostly?: number;
 }
