@@ -7,7 +7,10 @@ const ClientSkillLeftOnEntity = Diablo2Packet.create(0x06, 'ClientSkillLeftOnEnt
   entityId: bp.lu32,
 });
 
+export const Unknown0x56 = Diablo2Packet.create(0x56, 'Unknown0x56', { bytes: bp.bytes(64) });
+
 export const ClientPacketsPd2 = {
   ...ClientPacketsPod,
   ClientSkillLeftOnEntity,
+  Unknown0x56,
 };
