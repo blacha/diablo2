@@ -21,7 +21,7 @@ export interface BaseGameJson {
 
 export interface MercenaryJson {
   id: number;
-  xp: { current: number; start: number };
+  xp: XpStateJson;
 }
 
 export type UnitJson = PlayerJson | NpcJson;
@@ -29,7 +29,7 @@ export interface PlayerJson extends BaseGameJson {
   type: 'player';
   level: number;
   mercenary?: MercenaryJson;
-  xp: { current: number; start: number };
+  xp: XpStateJson;
   life: number;
 }
 

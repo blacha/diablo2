@@ -1,7 +1,9 @@
 import { Logger } from '@diablo2/bintools';
+import { Difficulty } from '@diablo2/data';
 import { Diablo2ParsedPacket } from '@diablo2/packets';
 import { BaseGameJson, GameStateJson, ItemJson, MapJson, NpcJson, ObjectJson, PlayerJson, UnitJson } from './json';
 
+type OnCloseEvent = (game: Diablo2State) => void;
 const MaxAgeMs = 5 * 60_000;
 const MaxDistance = 5_000;
 export class Diablo2State {
@@ -22,6 +24,12 @@ export class Diablo2State {
   id: string;
   log: Logger;
 
+  get gameId(): string | null {
+    if (this.player.name == null) return null;
+    if (this.map.id === -1) return null;
+    return `${this.id}-${this.player.name}-${Difficulty[this.map.difficulty]}-${this.map.id}`;
+  }
+
   constructor(id: string, log: Logger) {
     this.id = id;
     this.log = log;
@@ -39,6 +47,15 @@ export class Diablo2State {
     }
   }
 
+  onCloseListeners: OnCloseEvent[] = [];
+  onClose(cb: OnCloseEvent): void {
+    this.onCloseListeners.push(cb);
+  }
+
+  get duration(): number {
+    if (this.endedAt == null) return -1;
+    return this.endedAt - this.createdAt;
+  }
   get player(): PlayerJson {
     const player = this.players.get(this.playerId);
     if (player) return player;
@@ -66,7 +83,6 @@ export class Diablo2State {
 
   addPlayer(id: number, name: string, x = -1, y = -1): void {
     if (this.playerId === -1) this.playerId = id;
-    console.log('AddPlayer', id, name);
 
     let existing = this.players.get(id);
     if (existing == null || existing.name !== name || existing.type !== 'player') {
@@ -78,7 +94,7 @@ export class Diablo2State {
         y,
         updatedAt: Date.now(),
         life: -1,
-        xp: { current: -1, start: -1 },
+        xp: { current: -1, start: -1, diff: 0 },
       } as PlayerJson;
     }
     if (x !== -1) {
@@ -90,10 +106,12 @@ export class Diablo2State {
   }
 
   trackXp(num: number, isSet = false): void {
-    if (this.player.xp.current === -1 || isSet) this.player.xp.current = num;
-    else this.player.xp.current += num;
-    if (this.player.xp.start === -1) this.player.xp.start = this.player.xp.current;
+    const xp = this.player.xp;
+    if (xp.current === -1 || isSet) xp.current = num;
+    else xp.current += num;
+    if (xp.start === -1) xp.start = xp.current;
 
+    xp.diff = xp.current - xp.start;
     this.dirty();
   }
 
@@ -123,11 +141,12 @@ export class Diablo2State {
   }
 
   movePlayer(pkt: Diablo2ParsedPacket<unknown>, id: number, x: number, y: number): void {
-    this.log.debug({ packet: pkt.packet.name, id, x, y }, 'Player:Move');
     // console.log('MovePlayer', pkt.packet.name, id, x, y);
     if (x === 0 || y === 0) return;
     const player = this.players.get(id);
     if (player == null) return;
+    this.log.debug({ packet: pkt.packet.name, player: player.name, id, x, y }, 'Player:Move');
+
     player.x = x;
     player.y = y;
     player.updatedAt = Date.now();
@@ -173,8 +192,10 @@ export class Diablo2State {
   }
 
   close(): void {
+    const isAlreadyClosed = this.isClosed;
     this.endedAt = Date.now();
     this.objects.clear();
+    if (isAlreadyClosed === false) this.onCloseListeners.forEach((cb) => cb(this));
   }
 
   /** Remove all the NPCs from the unit list */
@@ -184,7 +205,6 @@ export class Diablo2State {
     for (const unit of units.values()) {
       if (unit.type === 'player') this.units.set(unit.id, unit);
     }
-    console.log(this.units);
   }
 
   get isClosed(): boolean {
@@ -192,8 +212,8 @@ export class Diablo2State {
   }
 
   toJSON(): GameStateJson {
-    this.filterOld(this.units);
-    this.filterOld(this.items);
+    const unitRemove = this.filterOld(this.units);
+    if (unitRemove > 0) this.log.info({ units: unitRemove }, 'CleanUp');
     return {
       id: this.id,
       createdAt: this.createdAt,
@@ -202,10 +222,10 @@ export class Diablo2State {
       map: this.map,
       objects: [...this.objects.values()],
       units: [...this.units.values()],
-      items: [...this.items.values()].sort(latestUpdated),
+      items: [...this.items.values()].sort(latestUpdated).slice(0, 25),
     };
   }
-  filterOld(items: Map<unknown, BaseGameJson>): void {
+  filterOld(items: Map<unknown, BaseGameJson>): number {
     const player = this.player;
 
     const timeNow = Date.now();
@@ -218,6 +238,7 @@ export class Diablo2State {
       else if (Math.abs(item.y - player.y) > MaxDistance) toDelete.push(item.id);
     }
     for (const id of toDelete) items.delete(id);
+    return toDelete.length;
   }
 }
 
