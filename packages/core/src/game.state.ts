@@ -5,6 +5,7 @@ import { ulid } from 'ulid';
 import { Diablo2Client } from './client';
 import { Diablo2PacketParser } from './packet.parser';
 import { Diablo2State } from './state/game';
+import { ItemJson } from './state/json';
 
 const { client, server } = PacketsPod;
 
@@ -107,7 +108,19 @@ export class Diablo2GameSession {
       if (pkt.action.name === 'AddToGround' || pkt.action.name === 'DropToGround' || pkt.action.name === 'OnGround') {
         if (this.isGoodItem(pkt.code, pkt.quality?.id)) {
           this.log.warn({ code: pkt.code, x: pkt.x, y: pkt.y, item: pkt.name, action: pkt.action.name }, 'ItemDropped');
-          this.state.trackItem({ ...pkt, updatedAt: Date.now(), name: pkt.name ?? 'Unknown' });
+
+          const trackItem: ItemJson = {
+            id: pkt.id,
+            code: pkt.code,
+            x: pkt.x,
+            y: pkt.y,
+            category: pkt.category,
+            quality: pkt.quality,
+            level: pkt.level,
+            updatedAt: Date.now(),
+            name: pkt.name ?? 'Unknown',
+          };
+          this.state.trackItem(trackItem);
         }
       }
     });
@@ -174,7 +187,7 @@ export class Diablo2GameSession {
     return false;
   }
 
-  onPacket(direction: 'in' | 'out', bytes: Buffer, log: Logger): void {
+  onPacket(direction: 'in' | 'out', bytes: Buffer, log: Logger): void | boolean {
     if (direction === 'in') return this.parser.onPacketIn(bytes, log);
     return this.parser.onPacketOut(bytes, log);
   }
