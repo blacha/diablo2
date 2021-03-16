@@ -50,12 +50,12 @@ export class Diablo2PacketParser {
     this.client = client;
   }
 
-  onPacketIn(inBytes: Buffer, log: Logger, parseCount = 0): void {
+  onPacketIn(inBytes: Buffer, log: Logger, parseCount = 0): boolean {
     this.inPacketRawCount++;
 
     // Ignore this packet
     if (inBytes[0] === 0xaf && inBytes[1] === 0x01) {
-      if (inBytes.length === 2) return;
+      if (inBytes.length === 2) return true;
       inBytes = inBytes.slice(2);
     }
 
@@ -65,7 +65,7 @@ export class Diablo2PacketParser {
     // Need more bytes
     if (packetSize > bytes.length) {
       this.inputBuffer.buffer = bytes;
-      return;
+      return true;
     }
 
     const packets = Huffman.decompress(bytes);
@@ -92,17 +92,23 @@ export class Diablo2PacketParser {
       }
     } catch (e) {
       console.log(e);
-      log.warn({ left: toEmit.length, packets: toEmit.map((c) => c.packet.name) }, 'Packet:Failed:ServerClient');
+      const bytesLeft = packets.length - offset;
+      log.warn(
+        { left: toEmit.length, packets: toEmit.map((c) => c.packet.name), offset, bytesLeft },
+        'Packet:Failed:ServerClient',
+      );
+      return false;
     }
 
     // More than one compressed packet was delivered
     if (packetSize < bytes.length) {
       const extraBytes = bytes.slice(packetSize);
-      this.onPacketIn(extraBytes, log, parseCount + 1);
+      return this.onPacketIn(extraBytes, log, parseCount + 1);
     }
+    return true;
   }
 
-  onPacketOut(packets: Buffer, log: Logger): void {
+  onPacketOut(packets: Buffer, log: Logger): boolean {
     this.outPacketRawCount++;
     let offset = 0;
     const toEmit: Diablo2ParsedPacket<unknown>[] = [];
@@ -119,8 +125,14 @@ export class Diablo2PacketParser {
         this.events.emit(emit.packet.name, emit);
       }
     } catch (e) {
-      log.warn({ left: toEmit.length, packets: toEmit.map((c) => c.packet.name) }, 'Packet:Failed:ClientServer');
+      const bytesLeft = packets.length - offset;
+      log.warn(
+        { left: toEmit.length, packets: toEmit.map((c) => c.packet.name), offset, bytesLeft },
+        'Packet:Failed:ClientServer',
+      );
+      return false;
     }
+    return true;
   }
 
   /** On all packets being emitted */
