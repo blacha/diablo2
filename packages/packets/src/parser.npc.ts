@@ -1,5 +1,7 @@
-import { Diablo2Mpq, NpcFlags } from '@diablo2/data';
+import { Diablo2Mpq, NpcEnchant, NpcFlags } from '@diablo2/data';
 import { BitStream, bp, StrutBase, StrutParserContext, toHex } from 'binparse';
+
+const NpcEnchantsIgnore = new Set([NpcEnchant.RandomName, NpcEnchant.None, NpcEnchant.Quest, NpcEnchant.Ai]);
 
 export interface NpcInfo {
   unitId: number;
@@ -13,6 +15,7 @@ export interface NpcInfo {
   /** Name of monster */
   name: string;
   flags?: NpcFlags;
+  enchants?: { id: NpcEnchant; name: keyof typeof NpcEnchant }[];
 
   /** Was the NPC parsed successfully */
   isValid: boolean;
@@ -89,6 +92,16 @@ export class DataTypeNpc extends StrutBase<NpcInfo> {
       npc.name = Diablo2Mpq.monsters.getSuperUniqueName(superUniqueId);
     }
     if (Object.keys(flags).length === 0) delete npc.flags;
+
+    if (npc.flags?.isSuperUnique || npc.flags?.isUnique) {
+      while (br.offset + 8 < br.maxOffset - 16) {
+        const enchant = br.bits(8);
+
+        if (NpcEnchantsIgnore.has(enchant)) continue;
+        npc.enchants = npc.enchants ?? [];
+        npc.enchants.push({ id: enchant, name: NpcEnchant[enchant] as keyof typeof NpcEnchant });
+      }
+    }
 
     return npc as NpcInfo;
   }
