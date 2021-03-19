@@ -160,6 +160,7 @@ export class Diablo2GameSession {
         code: pkt.code,
         flags: pkt.flags ?? {},
         updatedAt: Date.now(),
+        enchants: pkt.enchants ?? [],
       });
     });
     this.parser.all((pkt) => {

@@ -1,4 +1,4 @@
-import { Act, Difficulty, ItemCategory, ItemQuality, NpcFlags } from '@diablo2/data';
+import { Act, Difficulty, ItemCategory, ItemQuality, NpcEnchant, NpcFlags } from '@diablo2/data';
 
 export interface GameStateJson {
   id: string;
@@ -38,8 +38,8 @@ export interface NpcJson extends BaseGameJson {
   type: 'npc';
   code: number;
   life: number;
-  uniqueName?: string;
   flags: NpcFlags;
+  enchants: { id: NpcEnchant; name: keyof typeof NpcEnchant }[];
 }
 
 export interface ItemJson extends BaseGameJson {

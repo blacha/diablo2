@@ -203,6 +203,7 @@ export class Diablo2State {
         life: -1,
         code: -1,
         name: 'Unknown',
+        enchants: [],
         flags: {},
       };
       this.units.set(id, unit);
