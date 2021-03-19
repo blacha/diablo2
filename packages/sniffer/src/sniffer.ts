@@ -122,6 +122,7 @@ export class Diablo2PacketSniffer {
       });
 
       session.on('end', () => {
+        gameSession.state.close();
         log.info({ src: session.src, dst: session.dst }, 'Session Close');
       });
     });
