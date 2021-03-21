@@ -1,5 +1,4 @@
-import { toHex } from './factory';
-import { bp, StrutAny, StrutInfer, StrutParserContext, StrutType } from 'binparse';
+import { bp, StrutAny, StrutInfer, StrutParserContext, StrutType, toHex } from 'binparse';
 
 export type Diablo2PacketDirection = 'ClientServer' | 'ServerClient';
 

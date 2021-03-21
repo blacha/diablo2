@@ -1,9 +1,5 @@
 import { Diablo2Packet, Diablo2PacketDirection, Diablo2ParsedPacket } from './packet';
-import { StrutParserContext } from 'binparse';
-
-export function toHex(num: number, padding = 2): string {
-  return `0x${num.toString(16).padStart(padding, '0')}`;
-}
+import { StrutParserContext, toHex } from 'binparse';
 
 function isEmpty(bytes: number[] | Buffer, offset: number): boolean {
   for (let i = offset; i < bytes.length; i++) if (bytes[i] !== 0) return false;
