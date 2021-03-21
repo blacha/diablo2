@@ -57,7 +57,7 @@ export class Diablo2PacketSniffer {
   private getTraceStream(sessionId: string): AutoClosingStream {
     let existingStream = this.fileStreams.get(sessionId);
     if (existingStream == null) {
-      existingStream = new AutoClosingStream(`./replay-${sessionId}.ndjson`);
+      existingStream = new AutoClosingStream(`./packets-${new Date().toISOString().slice(10)}-${sessionId}.ndjson`);
       this.fileStreams.set(sessionId, existingStream);
     }
     return existingStream;
