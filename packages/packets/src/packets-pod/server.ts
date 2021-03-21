@@ -335,7 +335,7 @@ export const PlayerCorpseAssign = Diablo2Packet.create(0x8e, 'PlayerCorpseAssign
   ownerId: bp.lu32,
   corpseId: bp.lu32,
 });
-export const Pong = Diablo2Packet.create(0x8f, 'Pong', { tickCount: bp.bytes(32) });
+export const Pong = Diablo2Packet.create(0x8f, 'Pong', { tickCount: bp.skip(32) });
 export const PartyMemberPulse = Diablo2Packet.create(0x90, 'PartyMemberPulse', {
   unitId: bp.lu32,
   x: bp.lu32,
@@ -347,7 +347,7 @@ export const BaseSkills = Diablo2Packet.create(0x94, 'BaseSkills', {
   skills: bp.array('Skills', bp.object('SkillLevels', { skill: bp.lu16, level: bp.u8 }), 'count', false),
 });
 export const PlayerWeaponSwitch = Diablo2Packet.empty(0x97, 'PlayerWeaponSwitch');
-export const SkillTriggered = Diablo2Packet.create(0x99, 'SkillTriggered', { unk1: bp.bytes(15) });
+export const SkillTriggered = Diablo2Packet.create(0x99, 'SkillTriggered', { unk1: bp.skip(15) });
 export const MercRelated = Diablo2Packet.create(0x9b, 'MercRelated', { unk1: bp.lu16, unk2: bp.lu32 });
 export const MercAttributeByte = Diablo2Packet.create(0x9e, 'MercAttributeByte', {
   attribute: bp.u8,
