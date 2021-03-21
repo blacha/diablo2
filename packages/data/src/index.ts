@@ -9,3 +9,5 @@ export { WarpType } from './warp';
 export { Diablo2Mpq, Diablo2MpqData } from './mpq/mpq';
 export { Diablo2Version, getDiabloVersion } from './version';
 export { NpcFlags, NpcEnchant } from './npc';
+
+export { toHex } from 'binparse';
