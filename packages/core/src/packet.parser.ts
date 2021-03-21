@@ -1,4 +1,5 @@
 import { Logger } from '@diablo2/bintools';
+import { toHex } from '@diablo2/data';
 import { Huffman } from '@diablo2/huffman';
 import { Diablo2Packet, Diablo2ParsedPacket } from '@diablo2/packets';
 import { EventEmitter } from 'events';
@@ -30,6 +31,8 @@ export class PacketBuffer {
 }
 
 export class Diablo2PacketParser {
+  /** Dump raw packets on failure */
+  debugFailures = true;
   events = new EventEmitter();
   /** Number of packets received from  */
   inPacketRawCount = 0;
@@ -50,7 +53,7 @@ export class Diablo2PacketParser {
     this.client = client;
   }
 
-  onPacketIn(inBytes: Buffer, log: Logger, parseCount = 0): boolean {
+  onPacketIn(inBytes: Buffer, log: Logger, parseCount = 0, startOffset = 0): boolean {
     this.inPacketRawCount++;
 
     // Ignore this packet
@@ -69,7 +72,7 @@ export class Diablo2PacketParser {
     }
 
     const packets = Huffman.decompress(bytes);
-    let offset = 0;
+    let offset = startOffset;
 
     const toEmit: Diablo2ParsedPacket<unknown>[] = [];
     try {
@@ -81,6 +84,8 @@ export class Diablo2PacketParser {
         }
 
         const res = this.client.serverToClient.create(packets, offset);
+        // console.log(offset, res.packet.id.toString(16), res.packet.name);
+
         this.inPacketParsedCount++;
         offset += res.packet.size;
         toEmit.push(res);
@@ -91,11 +96,20 @@ export class Diablo2PacketParser {
         this.events.emit(emit.packet.name, emit);
       }
     } catch (e) {
-      console.log(e);
       const bytesLeft = packets.length - offset;
+
+      if (this.debugFailures) {
+        console.log(Buffer.from(packets).toString('hex'), { offset, packetId: toHex(packets[offset]) });
+      }
       log.warn(
-        { left: toEmit.length, packets: toEmit.map((c) => c.packet.name), offset, bytesLeft },
-        'Packet:Failed:ServerClient',
+        {
+          packet: toHex(packets[offset]),
+          left: toEmit.length,
+          packets: toEmit.map((c) => c.packet.name),
+          offset,
+          bytesLeft,
+        },
+        'Packet:Failed:ServerClient:' + e.message,
       );
       return false;
     }
