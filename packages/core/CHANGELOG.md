@@ -3,6 +3,29 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/blacha/diablo2/compare/v0.4.0...v0.5.0) (2021-03-26)
+
+
+### Bug Fixes
+
+* expose npc enchants out of game state ([2a933c2](https://github.com/blacha/diablo2/commit/2a933c2fae9eae13272c2e115f0a444116c88f98))
+* **core:** skip packet 0x2b as we cannot parse it right now ([4eb2001](https://github.com/blacha/diablo2/commit/4eb2001e291aef70a27842cd1d60c1da19268503))
+
+
+### Features
+
+* **core:** basic game state from packets flowing though it ([#10](https://github.com/blacha/diablo2/issues/10)) ([c052059](https://github.com/blacha/diablo2/commit/c052059bbe2a62957cbfd877016fdabc1affe13c))
+* **core:** easier debugging of packet parse failures ([3958f68](https://github.com/blacha/diablo2/commit/3958f68dda26be71163ba97054232ad9a9efe455))
+* **core:** expand on game state tracking ([7e6dcc7](https://github.com/blacha/diablo2/commit/7e6dcc77d801e919ddfcd6cb6c3077a1f6dd8073))
+* **core:** filter out old objects if they havent been seen in a while ([2a01ea6](https://github.com/blacha/diablo2/commit/2a01ea66eb33d785de8c4332ba690e2c29c5e5fe))
+* **core:** improve xp tracking ([6a1e757](https://github.com/blacha/diablo2/commit/6a1e757f4c5e03fbce0ef658ff27813f680eb215))
+* **core:** track when monsters die ([6309f29](https://github.com/blacha/diablo2/commit/6309f292446d0d5cd4ba015c7d8d91ad44356398))
+* **core:** track when packets are not parsed correctly ([0ed0975](https://github.com/blacha/diablo2/commit/0ed0975b8d56be24d8db4e18942bc4692505e7f8))
+
+
+
+
+
 # [0.4.0](https://github.com/blacha/diablo2/compare/v0.3.0...v0.4.0) (2020-11-06)
 
 

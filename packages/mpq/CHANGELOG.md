@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/blacha/diablo2/compare/v0.4.0...v0.5.0) (2021-03-26)
+
+
+### Bug Fixes
+
+* **mpq:** allow extraction of uncompressed files ([25edc0c](https://github.com/blacha/diablo2/commit/25edc0c0eb05a77e86f22780cd54a1e138088675))
+* **mpq:** correct exploding of implode compressed mpq ([f0e50d7](https://github.com/blacha/diablo2/commit/f0e50d7057bbb6ec77303f13ecaf0184312f87ed))
+
+
+### Features
+
+* **mpq:** alias exists to has ([613888f](https://github.com/blacha/diablo2/commit/613888f2e449f7ce4ccdbca6c6dbef000c09202b))
+
+
+
+
+
 # [0.4.0](https://github.com/blacha/diablo2/compare/v0.3.0...v0.4.0) (2020-11-06)
 
 **Note:** Version bump only for package @diablo2/mpq

@@ -3,6 +3,43 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/blacha/diablo2/compare/v0.4.0...v0.5.0) (2021-03-26)
+
+
+### Bug Fixes
+
+* **packets/pd2:** correct parsing of packet 0x56 ([459ef8a](https://github.com/blacha/diablo2/commit/459ef8a7181a08ebf0cb76ea778a4703240a3554))
+* expose npc enchants out of game state ([2a933c2](https://github.com/blacha/diablo2/commit/2a933c2fae9eae13272c2e115f0a444116c88f98))
+* **bintools:** parsing of tbl files where the hash count and index count differ ([77d2f85](https://github.com/blacha/diablo2/commit/77d2f8504dabf76ac73c23ac0efc380bfe2eb1a1))
+* **core:** skip packet 0x2b as we cannot parse it right now ([4eb2001](https://github.com/blacha/diablo2/commit/4eb2001e291aef70a27842cd1d60c1da19268503))
+* **map:** skip mapid 150 on pd2 as it doesnt seem to work yet ([a268073](https://github.com/blacha/diablo2/commit/a2680739a8615e01f7562c25a52d35155cb56393))
+* **mpq:** allow extraction of uncompressed files ([25edc0c](https://github.com/blacha/diablo2/commit/25edc0c0eb05a77e86f22780cd54a1e138088675))
+* **mpq:** correct exploding of implode compressed mpq ([f0e50d7](https://github.com/blacha/diablo2/commit/f0e50d7057bbb6ec77303f13ecaf0184312f87ed))
+* **packets:** actually export all the packets ([bc7b6c2](https://github.com/blacha/diablo2/commit/bc7b6c22d60413b9e3d27a9b9aeada341d90011e))
+* **sniffer:** force close the game if the session cuts out ([3390faa](https://github.com/blacha/diablo2/commit/3390faa4a7cf777ac3e5b111ce03d0994c4fcf42))
+
+
+### Features
+
+* **core:** basic game state from packets flowing though it ([#10](https://github.com/blacha/diablo2/issues/10)) ([c052059](https://github.com/blacha/diablo2/commit/c052059bbe2a62957cbfd877016fdabc1affe13c))
+* **core:** easier debugging of packet parse failures ([3958f68](https://github.com/blacha/diablo2/commit/3958f68dda26be71163ba97054232ad9a9efe455))
+* **core:** expand on game state tracking ([7e6dcc7](https://github.com/blacha/diablo2/commit/7e6dcc77d801e919ddfcd6cb6c3077a1f6dd8073))
+* **core:** filter out old objects if they havent been seen in a while ([2a01ea6](https://github.com/blacha/diablo2/commit/2a01ea66eb33d785de8c4332ba690e2c29c5e5fe))
+* **core:** improve xp tracking ([6a1e757](https://github.com/blacha/diablo2/commit/6a1e757f4c5e03fbce0ef658ff27813f680eb215))
+* **core:** track when monsters die ([6309f29](https://github.com/blacha/diablo2/commit/6309f292446d0d5cd4ba015c7d8d91ad44356398))
+* **core:** track when packets are not parsed correctly ([0ed0975](https://github.com/blacha/diablo2/commit/0ed0975b8d56be24d8db4e18942bc4692505e7f8))
+* **data:** expose toHex function ([86e6dbd](https://github.com/blacha/diablo2/commit/86e6dbd7147280c25a6150c4d311c83c1199c3d4))
+* **mpq:** alias exists to has ([613888f](https://github.com/blacha/diablo2/commit/613888f2e449f7ce4ccdbca6c6dbef000c09202b))
+* **packets:** support unknown 0x56 packet for pd2 ([33b25de](https://github.com/blacha/diablo2/commit/33b25dea35335f046730ba5778466ed79da4a041))
+* **sniffer:** change packet output location to `packets-${date)-${id}.ndjson` ([108ef99](https://github.com/blacha/diablo2/commit/108ef993efcf648aeb6027f58357da38e1087a4f))
+* **sniffer:** include hour in replay filename ([0cabc6d](https://github.com/blacha/diablo2/commit/0cabc6df1e3d37c33708691b6d741f5a2cbbc94c))
+* add NpcEnchants to track modifiers to Npcs ([9c602c4](https://github.com/blacha/diablo2/commit/9c602c4dbc8973a5c65dd6659b1f46c44f640da0))
+* **sniffer:** expose findLocalIps function ([9c4d1d7](https://github.com/blacha/diablo2/commit/9c4d1d76341bde934b341c9a06500b9d45a5005d))
+
+
+
+
+
 # [0.4.0](https://github.com/blacha/diablo2/compare/v0.3.0...v0.4.0) (2020-11-06)
 
 

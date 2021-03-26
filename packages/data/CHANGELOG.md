@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/blacha/diablo2/compare/v0.4.0...v0.5.0) (2021-03-26)
+
+
+### Features
+
+* **data:** expose toHex function ([86e6dbd](https://github.com/blacha/diablo2/commit/86e6dbd7147280c25a6150c4d311c83c1199c3d4))
+* add NpcEnchants to track modifiers to Npcs ([9c602c4](https://github.com/blacha/diablo2/commit/9c602c4dbc8973a5c65dd6659b1f46c44f640da0))
+* **core:** basic game state from packets flowing though it ([#10](https://github.com/blacha/diablo2/issues/10)) ([c052059](https://github.com/blacha/diablo2/commit/c052059bbe2a62957cbfd877016fdabc1affe13c))
+
+
+
+
+
 # [0.4.0](https://github.com/blacha/diablo2/compare/v0.3.0...v0.4.0) (2020-11-06)
 
 

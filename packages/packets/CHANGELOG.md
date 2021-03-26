@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/blacha/diablo2/compare/v0.4.0...v0.5.0) (2021-03-26)
+
+
+### Bug Fixes
+
+* **packets:** actually export all the packets ([bc7b6c2](https://github.com/blacha/diablo2/commit/bc7b6c22d60413b9e3d27a9b9aeada341d90011e))
+* **packets/pd2:** correct parsing of packet 0x56 ([459ef8a](https://github.com/blacha/diablo2/commit/459ef8a7181a08ebf0cb76ea778a4703240a3554))
+
+
+### Features
+
+* add NpcEnchants to track modifiers to Npcs ([9c602c4](https://github.com/blacha/diablo2/commit/9c602c4dbc8973a5c65dd6659b1f46c44f640da0))
+* **core:** basic game state from packets flowing though it ([#10](https://github.com/blacha/diablo2/issues/10)) ([c052059](https://github.com/blacha/diablo2/commit/c052059bbe2a62957cbfd877016fdabc1affe13c))
+* **packets:** support unknown 0x56 packet for pd2 ([33b25de](https://github.com/blacha/diablo2/commit/33b25dea35335f046730ba5778466ed79da4a041))
+
+
+
+
+
 # [0.4.0](https://github.com/blacha/diablo2/compare/v0.3.0...v0.4.0) (2020-11-06)
 
 

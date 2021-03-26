@@ -3,6 +3,28 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.5.0](https://github.com/blacha/diablo2/compare/v0.4.0...v0.5.0) (2021-03-26)
+
+
+### Bug Fixes
+
+* **packets/pd2:** correct parsing of packet 0x56 ([459ef8a](https://github.com/blacha/diablo2/commit/459ef8a7181a08ebf0cb76ea778a4703240a3554))
+* **sniffer:** force close the game if the session cuts out ([3390faa](https://github.com/blacha/diablo2/commit/3390faa4a7cf777ac3e5b111ce03d0994c4fcf42))
+
+
+### Features
+
+* **core:** basic game state from packets flowing though it ([#10](https://github.com/blacha/diablo2/issues/10)) ([c052059](https://github.com/blacha/diablo2/commit/c052059bbe2a62957cbfd877016fdabc1affe13c))
+* **core:** easier debugging of packet parse failures ([3958f68](https://github.com/blacha/diablo2/commit/3958f68dda26be71163ba97054232ad9a9efe455))
+* **core:** track when monsters die ([6309f29](https://github.com/blacha/diablo2/commit/6309f292446d0d5cd4ba015c7d8d91ad44356398))
+* **sniffer:** change packet output location to `packets-${date)-${id}.ndjson` ([108ef99](https://github.com/blacha/diablo2/commit/108ef993efcf648aeb6027f58357da38e1087a4f))
+* **sniffer:** expose findLocalIps function ([9c4d1d7](https://github.com/blacha/diablo2/commit/9c4d1d76341bde934b341c9a06500b9d45a5005d))
+* **sniffer:** include hour in replay filename ([0cabc6d](https://github.com/blacha/diablo2/commit/0cabc6df1e3d37c33708691b6d741f5a2cbbc94c))
+
+
+
+
+
 # [0.4.0](https://github.com/blacha/diablo2/compare/v0.3.0...v0.4.0) (2020-11-06)
 
 
