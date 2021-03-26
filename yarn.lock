@@ -2349,10 +2349,10 @@ es6-promisify@^5.0.0:
   dependencies:
     es6-promise "^4.0.3"
 
-esbuild@^0.8.56:
-  version "0.8.56"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.56.tgz#9c7c3d6e614db7367afa348adb0ab287c296735e"
-  integrity sha512-PTMdAWK3JI2MNW811znGssGP5GR44tQPr++VQ1rPP0n8Z1cTKbCPD3S/kXPLr3ZZDIwAaVm08fuFym6Rp8l/0A==
+esbuild@^0.10.1:
+  version "0.10.1"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.10.1.tgz#3616b5d3de7d6249b30874abe35ac1e7e1d75734"
+  integrity sha512-JSZpNt0sCb5KtUwHR3ddTY7T85xwasbqrVbxJ57iFOR00dCeD/HwAqIsUSXR1O9Nnt4z/7oWLasUCgBnhBFcdg==
 
 escape-html@~1.0.3:
   version "1.0.3"
