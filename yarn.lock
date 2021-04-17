@@ -1020,6 +1020,13 @@
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
 
+"@types/pino-pretty@*":
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/@types/pino-pretty/-/pino-pretty-4.7.0.tgz#e4a18541f8464d1cc48216f5593cc6a0e62dc2c3"
+  integrity sha512-fIZ+VXf9gJoJR4tiiM7G+j/bZkPoZEfFGzA4d8tAWCTpTVyvVaBwnmdLs3wEXYpMjw8eXulrOzNCjmGHT3FgHw==
+  dependencies:
+    "@types/pino" "*"
+
 "@types/pino-std-serializers@*":
   version "2.4.1"
   resolved "https://registry.yarnpkg.com/@types/pino-std-serializers/-/pino-std-serializers-2.4.1.tgz#f8bd52a209c8b3c97d1533b1ba27f57c816382bf"
@@ -1027,12 +1034,13 @@
   dependencies:
     "@types/node" "*"
 
-"@types/pino@^6.3.0":
-  version "6.3.6"
-  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-6.3.6.tgz#3aa928bcbd30dc0c6a0ec2e9302cabd5dee6e832"
-  integrity sha512-yVgSyMGzNDYe/XNMJyuIkklDeZbFdGAxRztYLoN1QQrrgiLJ1oJPmnS8Ge5xpzI9ODKEddKH97VFQ7cWO6Pumw==
+"@types/pino@*", "@types/pino@^6.3.0":
+  version "6.3.7"
+  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-6.3.7.tgz#0ccef98a159230cb3fa2589c7e8b00a7550a69f6"
+  integrity sha512-v7FdDXVEL0Zx1zcCf0cJZMojChnF+O0ujDKV1UdocsLuUhENjdtNIaanCZK1zRELp35x//bI2/IHtYUK0vmRvw==
   dependencies:
     "@types/node" "*"
+    "@types/pino-pretty" "*"
     "@types/pino-std-serializers" "*"
     "@types/sonic-boom" "*"
 
