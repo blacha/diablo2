@@ -1035,9 +1035,9 @@
     "@types/node" "*"
 
 "@types/pino@*", "@types/pino@^6.3.0":
-  version "6.3.7"
-  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-6.3.7.tgz#0ccef98a159230cb3fa2589c7e8b00a7550a69f6"
-  integrity sha512-v7FdDXVEL0Zx1zcCf0cJZMojChnF+O0ujDKV1UdocsLuUhENjdtNIaanCZK1zRELp35x//bI2/IHtYUK0vmRvw==
+  version "6.3.10"
+  resolved "https://registry.yarnpkg.com/@types/pino/-/pino-6.3.10.tgz#bbcd4be930b0dc65168d080e6acc211905dca2da"
+  integrity sha512-r2ZOSQmjDGDEus+mif6Aym7cKQdgATv6P09iBwxlh9UdTWHUzHWbr8HxC0fwqYjAicfe2UzP+ahjm1KdbwA4GA==
   dependencies:
     "@types/node" "*"
     "@types/pino-pretty" "*"
