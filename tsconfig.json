@@ -1,6 +1,7 @@
 {
     "files": [],
     "references": [
+        { "path": "./packages/casc" },
         { "path": "./packages/mpq" },
         { "path": "./packages/data" },
         { "path": "./packages/bintools" },

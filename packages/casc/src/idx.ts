@@ -1,4 +1,5 @@
 import { bp } from 'binparse';
+import { BufferLike } from './lookup3';
 
 /** Default number of idx files */
 export const IdxCount = 16;
@@ -42,9 +43,6 @@ export const Idx = {
   }),
 };
 
-interface BufferLike {
-  [i: number]: number;
-}
 /** Lookup the idx file number for a hash */
 export function getIdxFileIndex(k: BufferLike): number {
   const i = k[0] ^ k[1] ^ k[2] ^ k[3] ^ k[4] ^ k[5] ^ k[6] ^ k[7] ^ k[8];

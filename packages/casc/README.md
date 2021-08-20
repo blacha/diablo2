@@ -1,3 +1,4 @@
 # @diablo2/casc
 
-Reading diablo2 resurrected files
+Pure javascript implementation of CASC file readers
+
