@@ -16,7 +16,7 @@
     "test": "npx lerna run test --parallel"
   },
   "devDependencies": {
-    "@linzjs/style": "^2.0.0",
+    "@linzjs/style": "^3.0.0",
     "@types/node": "^14.6.2",
     "@types/ospec": "^4.0.2",
     "lerna": "^4.0.0",
