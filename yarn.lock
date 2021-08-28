@@ -1397,10 +1397,10 @@ before-after-hook@^2.2.0:
   resolved "https://registry.yarnpkg.com/before-after-hook/-/before-after-hook-2.2.0.tgz#09c40d92e936c64777aa385c4e9b904f8147eaf0"
   integrity sha512-jH6rKQIfroBbhEXVmI7XmXe3ix5S/PgJqpzdDPnR8JGLHWNYLsYZ6tK5iWOF/Ra3oqEX0NobXGlzbiylIzVphQ==
 
-binparse@^1.0.1:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/binparse/-/binparse-1.1.0.tgz#6fc539c399e4421acfd0bea3cfb7bb1e72238f87"
-  integrity sha512-hGi+b7L1DcCThhS+fqnxdAIztE5VtsH3ehLXmH9bHdg8SvwRr+jHVuID3ZMZJ+ohfk9QmGk2M8FhdvCt4nxT/w==
+binparse@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/binparse/-/binparse-1.2.0.tgz#fca31f683100856b5d8fa11fe9eb6bcbf9e92ea8"
+  integrity sha512-FCitzDAw0Bl9a5ho0kaMTr4DYgB5XM6dM7ueoabpeVeEjZwQGZCHNKpIktr1Cb0D1L7GNiFAdRgKfX6FE7m00w==
 
 body-parser@1.19.0:
   version "1.19.0"
