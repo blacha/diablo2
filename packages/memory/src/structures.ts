@@ -1,7 +1,7 @@
-import { bp, StrutAny, StrutBase, StrutInfer, StrutParserContext, StrutType } from 'binparse';
-import { ProcessMemory } from './process';
+import { bp, StrutAny, StrutBase, StrutInfer, StrutParserContext } from 'binparse';
+import { Process } from './process';
 
-export type PointerFetcher<T> = (proc: ProcessMemory) => Promise<T>;
+export type PointerFetcher<T> = (proc: Process) => Promise<T>;
 export class Pointer<T extends StrutAny> extends StrutBase<{
   offset: number;
   fetch: PointerFetcher<StrutInfer<T>>;
@@ -25,8 +25,8 @@ export class Pointer<T extends StrutAny> extends StrutBase<{
     return { offset, fetch };
   }
 
-  async fetch(offset: number, proc: ProcessMemory): Promise<StrutInfer<T>> {
-    const bytes = await proc.read(offset, this.target.size);
+  async fetch(offset: number, proc: Process): Promise<StrutInfer<T>> {
+    const bytes = await proc.memory(offset, this.target.size);
     const res = this.target.raw(bytes, 0);
     return res;
   }
@@ -46,27 +46,52 @@ export const PlayerStrut = bp.object('PlayerStrut', {
   }),
 });
 
-export const Act = bp.object('Act', {
+export const ActStrut = bp.object('Act', {
   unk1: bp.lu32,
   unk2: bp.lu32,
   unk3: bp.lu32,
   mapSeed: bp.lu32,
 });
+export type Act = StrutInfer<typeof ActStrut>;
 
-export const Stat = bp.object('Stat', {
+export const StatStrut = bp.object('Stat', {
   unk1: bp.lu16,
   code: bp.lu16,
   value: bp.lu32,
 });
 
-export const UnitAnyPlayer = bp.object('UnitAnyPlayer', {
+export const StatListStrut = bp.object('StatList', {
+  unk1: bp.bytes(9 * 4),
+  pStat: new Pointer(StatStrut),
+  count: bp.lu16,
+  countB: bp.lu16,
+});
+export type StatList = StrutInfer<typeof StatListStrut>;
+
+export const PathStrut = bp.object('Path', {
+  xOffset: bp.lu16,
+  x: bp.lu16,
+  yOffset: bp.lu16,
+  y: bp.lu16,
+});
+export type Path = StrutInfer<typeof PathStrut>;
+
+export const UnitAnyPlayerStrut = bp.object('UnitAnyPlayer', {
   type: bp.lu32,
   txtFileNo: bp.lu32,
   unitId: bp.lu32,
   mode: bp.lu32,
   /** Pointer to PlayerStrut */
-  pPlayer: new Pointer<typeof PlayerStrut>(PlayerStrut),
+  pPlayer: new Pointer(PlayerStrut),
   actId: bp.lu32,
   /** Pointer to Act */
-  pAct: new Pointer(Act),
+  pAct: new Pointer(ActStrut),
+  seedA: bp.lu32,
+  seedB: bp.lu32,
+  unk2: bp.lu32,
+  pPath: new Pointer(PathStrut),
+  unk3: bp.skip(48),
+  pStats: new Pointer(StatListStrut),
 });
+
+export type UnitPlayer = StrutInfer<typeof UnitAnyPlayerStrut>;

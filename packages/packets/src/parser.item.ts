@@ -75,6 +75,10 @@ export class DataTypeItem extends StrutBase<Diablo2Item> {
   constructor() {
     super('Diablo2:Packet:Item');
   }
+
+  get size(): number {
+    throw new Error('Cannot size :' + this.name);
+  }
   parse(bytes: Buffer, ctx: StrutParserContext): Diablo2Item {
     const item: Partial<Diablo2Item> = {};
     const packetId = bytes[ctx.startOffset];

@@ -1,42 +1,71 @@
-import { bp, StrutInfer, toHex } from 'binparse';
+import { bp, StrutAny, StrutInfer, toHex } from 'binparse';
 import pino from 'pino';
 import { PrettyTransform } from 'pretty-json-log';
 import 'source-map-support/register';
 import { ulid } from 'ulid';
-import { ProcessMemory } from './process';
-import { PlayerStrut, UnitAnyPlayer } from './structures';
+import { LogType } from './logger';
+import { Process } from './process';
+import { Scanner } from './scanner';
+import { Act, ActStrut, Path, PathStrut, PlayerStrut, UnitAnyPlayerStrut, UnitPlayer } from './structures';
+import { dump } from './util/dump';
 
 const pinoLogger = process.stdout.isTTY ? pino(PrettyTransform.stream()) : pino();
 export const logger = pinoLogger.child({ id: ulid().toLowerCase() });
 logger.level = 'debug';
 
-export class D2Process {
-  proc: ProcessMemory;
+export class Diablo2Process {
+  process: Process;
   /** Size of pointers */
   pointer = bp.lu32;
 
-  constructor(proc: ProcessMemory) {
-    this.proc = proc;
+  constructor(proc: Process) {
+    this.process = proc;
   }
 
-  static async create(game: string | number = 'Game.exe'): Promise<D2Process> {
-    if (typeof game === 'number') return new D2Process(new ProcessMemory(game));
-    const proc = await ProcessMemory.fromName(game);
-    if (proc == null) throw new Error('Unable to find "Game.exe"');
-    return new D2Process(proc);
+  async readStrutAt<T extends StrutAny>(offset: number, strut: T, size = strut.size): Promise<StrutInfer<T>> {
+    const buf = await this.process.memory(offset, size);
+    return strut.raw(buf);
   }
 
-  async scanForMapSeed(playerName: string): Promise<number | null> {
+  static async find(game: string | number = 'Game.exe'): Promise<Diablo2Process> {
+    if (typeof game === 'number') return new Diablo2Process(new Process(game));
+    const pid = await Process.findPidByName(game);
+    if (pid == null) throw new Error('Unable to find "Game.exe"');
+    return new Diablo2Process(new Process(pid));
+  }
+
+  async scanForGame(gameName: string): Promise<number | null> {
+    console.log({ gameName });
+    const gameOffsets = await Scanner.text(this.process, gameName);
+
+    for (const offset of gameOffsets) {
+      logger.info({ offset: toHex(offset) }, 'GameOffset');
+      const memory = await this.process.memory(offset, 100);
+      dump(memory);
+    }
+
+    console.log(gameOffsets);
+
+    return null;
+  }
+
+  async scanForPlayer(playerName: string): Promise<Diablo2Player | null> {
     // Find all references to the player name
-    logger.info({ process: this.proc.pid, playerName }, 'StartScan');
-    const playerNameOffsets = await this.proc.text(playerName);
-    logger.info({ process: this.proc.pid, playerName, offsets: playerNameOffsets.length }, 'NameOffsets');
+    logger.info({ process: this.process.pid, playerName }, 'StartScan');
+    const playerNameOffsets = await Scanner.textFixed(this.process, playerName, 16);
+    logger.info({ process: this.process.pid, playerName, offsets: playerNameOffsets.length }, 'NameOffsets');
 
     // Look for objects that look like the PlayerStrut object
     const goodOffsets: number[] = [];
     for (const offset of playerNameOffsets) {
-      const strut = await this.proc.readStrut(offset, PlayerStrut);
-      if (strut.waypoint.normal === 0) continue;
+      const strut = await this.readStrutAt(offset, PlayerStrut);
+      if (!this.process.isValidOffset(strut.waypoint.normal)) continue;
+      if (!this.process.isValidOffset(strut.waypoint.nightmare)) continue;
+      if (!this.process.isValidOffset(strut.waypoint.hell)) continue;
+
+      if (!this.process.isValidOffset(strut.quest.normal)) continue;
+      if (!this.process.isValidOffset(strut.quest.nightmare)) continue;
+      if (!this.process.isValidOffset(strut.quest.hell)) continue;
       logger.debug({ offset: toHex(offset), player: strut }, 'FoundOffset');
       goodOffsets.push(offset);
     }
@@ -47,40 +76,90 @@ export class D2Process {
     }
 
     // Find pointers to the player strut and see if any look like the Act object
+    const res = await this.scanForPlayerUnit(goodOffsets);
 
-    let player: StrutInfer<typeof UnitAnyPlayer> | null = null;
-    let playerOffset = -1;
-    for await (const { buffer, offset } of this.proc.scan()) {
-      if (player) break; // TODO should we break early?
+    if (res == null) {
+      logger.error('Unable to find player information');
+      return null;
+    }
 
+    const player = await res.player;
+    const act = await res.act;
+    logger.info({ offset: toHex(player.pAct.offset), mapSeed: act.mapSeed }, 'MapSeed');
+
+    const path = await res.path;
+    logger.info({ offset: toHex(player.pPath.offset), path: path }, 'Path');
+
+    return res;
+  }
+
+  async scanForPlayerUnit(offsets: number[]): Promise<Diablo2Player | null> {
+    for await (const { buffer, offset } of this.process.scan()) {
       for (let i = 0; i < buffer.length - this.pointer.size; i++) {
         const val = this.pointer.raw(buffer, i);
 
-        for (const off of goodOffsets) {
+        for (const off of offsets) {
           if (val !== off) continue;
-          const unitAny = UnitAnyPlayer.raw(buffer, i - 16);
+          const unitAny = UnitAnyPlayerStrut.raw(buffer, i - 16);
 
           // Unit should be a player
           if (unitAny.type !== 1) continue;
 
           if (unitAny.pAct.offset === 0) continue;
-          logger.info({ offset: toHex(offset), player: unitAny }, 'FoundPlayer');
+          logger.info({ offset: toHex(offset + i), player: unitAny, from: toHex(off) }, 'FoundPlayer');
           // TODO should we break early?
-          player = unitAny;
-          playerOffset = offset;
-          break;
+
+          return new Diablo2Player(this, offset + i - 16);
         }
       }
     }
+    return null;
+  }
+}
 
-    if (player == null) {
-      logger.error({ offset: toHex(playerOffset), player }, 'Unable to find player information');
+export class Diablo2Player {
+  d2: Diablo2Process;
+  offset: number;
+  constructor(d2: Diablo2Process, offset: number) {
+    this.offset = offset;
+    this.d2 = d2;
+  }
+  async validate(log: LogType): Promise<UnitPlayer | null> {
+    const player = await this.player;
+
+    if (
+      !this.d2.process.isValidOffset(player.pAct.offset) ||
+      !this.d2.process.isValidOffset(player.pPlayer.offset) ||
+      !this.d2.process.isValidOffset(player.pPath.offset)
+    ) {
+      log.warn(
+        { act: toHex(player.pAct.offset), player: toHex(player.pPlayer.offset), path: toHex(player.pPath.offset) },
+        'InvalidOffset',
+      );
       return null;
     }
-    const act = await player.pAct.fetch(this.proc);
+    return player;
+  }
 
-    logger.info({ offset: toHex(player.pAct.offset), mapSeed: act.mapSeed }, 'MapSeed');
+  get player(): Promise<UnitPlayer> {
+    return this.d2.readStrutAt(this.offset, UnitAnyPlayerStrut);
+  }
 
-    return act.mapSeed;
+  get act(): Promise<Act> {
+    return this.player.then((p) => {
+      if (!this.d2.process.isValidOffset(p.pAct.offset)) {
+        logger.error({ offset: toHex(p.pAct.offset) }, 'InvalidOffset:Act');
+      }
+      return this.d2.readStrutAt(p.pAct.offset, ActStrut);
+    });
+  }
+
+  get path(): Promise<Path> {
+    return this.player.then((p) => {
+      if (!this.d2.process.isValidOffset(p.pPath.offset)) {
+        logger.error({ offset: toHex(p.pPath.offset) }, 'InvalidOffset:Path');
+      }
+      return this.d2.readStrutAt(p.pPath.offset, PathStrut);
+    });
   }
 }

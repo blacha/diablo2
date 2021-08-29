@@ -1,86 +1,100 @@
-import { Proc, ProcMemoryMap } from './proc';
-import { StrutAny, StrutInfer, StrutTypeObject } from 'binparse';
+import { promises as fs } from 'fs';
+import { FileHandle } from 'fs/promises';
+import { MemoizeExpiring } from 'typescript-memoize';
 
-export class ProcessMemory {
+export interface ProcessMemoryMap {
+  start: number;
+  end: number;
+  permissions: string;
+  path?: string;
+  line: string;
+}
+
+export class Process {
   pid: number;
+  fh: Promise<FileHandle> | null;
 
   constructor(pid: number) {
     this.pid = pid;
   }
 
-  /** Create a instance from  */
-  static async fromName(name: string): Promise<ProcessMemory | null> {
-    const pid = await Proc.findByName(name);
-    if (pid == null) return null;
-    return new ProcessMemory(pid);
-  }
+  /** Find a pid from a process name */
+  static async findPidByName(name: string): Promise<number | null> {
+    const files = await fs.readdir('/proc');
+    for (const file of files) {
+      const pid = Number(file);
+      if (isNaN(pid)) continue;
 
-  async readStrut<T extends StrutAny>(offset: number, strut: T, size = strut.size): Promise<StrutInfer<T>> {
-    const buf = await Proc.memory(this.pid, offset, size);
-    return strut.raw(buf);
-  }
+      const data = await fs.readFile(`/proc/${file}/status`);
+      const first = data.toString().split('\n')[0];
+      const fileName = first.split('\t')[1];
 
-  async read(offset: number, count: number): Promise<Buffer> {
-    return Proc.memory(this.pid, offset, count);
-  }
-
-  async *scan(): AsyncGenerator<{ buffer: Buffer; offset: number; map: ProcMemoryMap }> {
-    yield* Proc.scan(this.pid);
-  }
-
-  async strut<T extends Record<string, StrutAny>, K extends keyof T>(
-    strut: StrutTypeObject<T>,
-    expected: Record<K, StrutInfer<T[K]>>,
-  ): Promise<{ offset: number; obj: T }[]> {
-    const offsets: { offset: number; obj: T }[] = [];
-    const strutSize = strut.size;
-
-    for await (const { buffer, map } of Proc.scan(this.pid)) {
-      for (let i = 0; i < buffer.length; i++) {
-        const bytesLeft = buffer.byteLength - i;
-        if (bytesLeft < strutSize) break;
-
-        const ctx = { startOffset: i, offset: i };
-        let matches = true;
-        for (const [name, parser] of strut.fields) {
-          const ret = parser.parse(buffer, ctx);
-          const val = expected[name as unknown as K];
-          if (val === undefined) continue;
-          if (ret !== val) {
-            matches = false;
-            break;
-          }
-        }
-        if (matches === true) offsets.push({ offset: map.start + i, obj: strut.raw(buffer, i) });
-      }
+      if (fileName.includes(name)) return pid;
     }
-    return offsets;
+    return null;
   }
 
-  async text(text: string, isNullTerminated = true): Promise<number[]> {
-    if (isNullTerminated) text = text + '\x00';
-    const textBuffer = Buffer.from(text);
-    return this.buffer(textBuffer);
-  }
+  /** Load the memory map */
+  @MemoizeExpiring(10_000)
+  async loadMap(): Promise<ProcessMemoryMap[]> {
+    const data = await fs.readFile(`/proc/${this.pid}/maps`);
 
-  async buffer(buf: Buffer): Promise<number[]> {
-    const offsets: number[] = [];
+    const memLines = data.toString().trim().split('\n');
 
-    for await (const { buffer, map } of Proc.scan(this.pid)) {
-      for (let i = 0; i < buffer.length; i++) {
-        const bytesLeft = buffer.byteLength - i;
-        if (bytesLeft < buf.length) continue;
+    const memMaps: ProcessMemoryMap[] = [];
+    for (const line of memLines) {
+      const parts = line.split(' ');
+      const [start, end] = parts[0].split('-').map((c) => parseInt(c, 16));
 
-        let matches = true;
-        for (let j = 0; j < buf.length; j++) {
-          if (buffer[i + j] !== buf[j]) {
-            matches = false;
-            break;
-          }
-        }
-        if (matches === true) offsets.push(map.start + i);
-      }
+      const obj = {
+        start,
+        end,
+        permissions: parts[1],
+        path: parts.length > 7 ? parts[parts.length - 1] : undefined,
+        line,
+      };
+      if (!obj.permissions.startsWith('rw')) continue;
+      if (obj.path?.includes('/dev/nvidia')) continue;
+
+      memMaps.push(obj);
     }
-    return offsets;
+
+    return memMaps;
+  }
+
+  /** Read a section of memory from this process */
+  async memory(offset: number, count: number): Promise<Buffer> {
+    if (this.fh == null) this.fh = fs.open(`/proc/${this.pid}/mem`, 'r');
+    const fh = await this.fh;
+    const buf = Buffer.alloc(count);
+
+    const ret = await fh?.read(buf, 0, buf.length, offset);
+    if (ret == null || ret.bytesRead === 0) throw new Error('Failed to read memory');
+    return buf;
+  }
+
+  isValidOffset(offset: number): boolean {
+    if (offset > 0x7fff0000) return false;
+    if (offset < 0x00110000) return false;
+    return true;
+  }
+
+  async isValidMemoryMap(offset: number): Promise<boolean> {
+    const maps = await this.loadMap();
+
+    for (const map of maps) {
+      if (map.start < offset && map.end > offset) return true;
+    }
+    return false;
+  }
+
+  async *scan(): AsyncGenerator<{ buffer: Buffer; offset: number; map: ProcessMemoryMap }> {
+    const maps = await this.loadMap();
+
+    for (const map of maps) {
+      if (map.start >= 0x7fff0000) break;
+      const buffer = await this.memory(map.start, map.end - map.start);
+      yield { buffer, offset: map.start, map: map };
+    }
   }
 }

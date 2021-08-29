@@ -36,6 +36,10 @@ export class DataTypeNpc extends StrutBase<NpcInfo> {
     super('Diablo2:Packet:Npc');
   }
 
+  get size(): number {
+    throw new Error('Cannot size :' + this.name);
+  }
+
   parse(bytes: Buffer, ctx: StrutParserContext): NpcInfo {
     const npc: Partial<NpcInfo> = {};
     const packetId = bytes[ctx.startOffset];
