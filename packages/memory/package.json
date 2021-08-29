@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@diablo2/core": "*",
-    "binparse": "^1.2.0",
+    "binparse": "^1.2.1",
     "typescript-memoize": "^1.0.1"
   },
   "publishConfig": {

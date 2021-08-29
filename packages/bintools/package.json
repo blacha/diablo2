@@ -19,7 +19,7 @@
   "dependencies": {
     "@diablo2/data": "^0.5.0",
     "@diablo2/mpq": "^0.5.0",
-    "binparse": "^1.2.0",
+    "binparse": "^1.2.1",
     "ulid": "^2.3.0"
   },
   "publishConfig": {
