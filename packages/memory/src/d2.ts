@@ -1,3 +1,4 @@
+import { Attribute } from '@diablo2/data';
 import { bp, StrutAny, StrutInfer, toHex } from 'binparse';
 import pino from 'pino';
 import { PrettyTransform } from 'pretty-json-log';
@@ -6,7 +7,17 @@ import { ulid } from 'ulid';
 import { LogType } from './logger';
 import { Process } from './process';
 import { Scanner } from './scanner';
-import { Act, ActStrut, Path, PathStrut, PlayerStrut, UnitAnyPlayerStrut, UnitPlayer } from './structures';
+import {
+  Act,
+  ActStrut,
+  Path,
+  PathStrut,
+  PlayerStrut,
+  StatListStrut,
+  StatStrut,
+  UnitAnyPlayerStrut,
+  UnitPlayer,
+} from './structures';
 import { dump } from './util/dump';
 
 const pinoLogger = process.stdout.isTTY ? pino(PrettyTransform.stream()) : pino();
@@ -143,6 +154,22 @@ export class Diablo2Player {
 
   get player(): Promise<UnitPlayer> {
     return this.d2.readStrutAt(this.offset, UnitAnyPlayerStrut);
+  }
+
+  get stats(): Promise<Map<Attribute, number>> {
+    return this.loadStats();
+  }
+  async loadStats(): Promise<Map<Attribute, number>> {
+    const stats = new Map<Attribute, number>();
+
+    const p = await this.player;
+    const statList = await this.d2.readStrutAt(p.pStats.offset, StatListStrut);
+    const buf = await this.d2.process.memory(statList.pStat.offset, StatStrut.size * statList.count);
+    for (let i = 0; i < statList.count; i++) {
+      const stat = StatStrut.raw(buf, i * StatStrut.size);
+      stats.set(stat.code, stat.value);
+    }
+    return stats;
   }
 
   get act(): Promise<Act> {

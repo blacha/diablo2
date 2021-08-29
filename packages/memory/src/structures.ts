@@ -90,7 +90,7 @@ export const UnitAnyPlayerStrut = bp.object('UnitAnyPlayer', {
   seedB: bp.lu32,
   unk2: bp.lu32,
   pPath: new Pointer(PathStrut),
-  unk3: bp.skip(48),
+  unk3: bp.skip(44),
   pStats: new Pointer(StatListStrut),
 });
 

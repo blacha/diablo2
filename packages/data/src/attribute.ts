@@ -12,7 +12,7 @@ export enum Attribute {
   Stam = 10,
   StamMax = 11,
   CurrentLevel = 12,
-  Experience = 12,
+  Experience = 13,
   GoldInPlayer = 14,
   GoldInStash = 15,
 }
