@@ -1,8 +1,7 @@
 import 'source-map-support/register';
-import { Diablo2Player, Diablo2Process } from './d2';
+import { Diablo2Process } from './d2';
 import { Log } from './logger';
 import { Diablo2GameSessionMemory } from './session';
-import { StatStrut, UnitAnyPlayerStrut } from './structures';
 
 function usage(err?: string): void {
   if (err) console.log(`Error ${err} \n`);
@@ -20,17 +19,7 @@ async function main(): Promise<void> {
   if (proc == null) return;
 
   const session = new Diablo2GameSessionMemory(proc, playerName);
-
-  const d2Player = new Diablo2Player(proc, 0x6f7ea14 - 16);
-  const player = await d2Player.player;
-  console.log(player);
-  const stats = await player.pStats.fetch(proc.process);
-  console.log(stats);
-
-  console.time('RestStats');
-  console.log(await d2Player.stats);
-  console.timeEnd('RestStats');
-  // await session.start(Log);
+  await session.start(Log);
 }
 
 main().catch((e) => Log.fatal(e, 'FailedToRun'));

@@ -41,6 +41,7 @@ export class Diablo2GameSessionMemory {
 
   async watchPlayer(obj: Diablo2Player): Promise<void> {
     const startTime = Date.now();
+    // Player object is no longer validate assume game has exited
     const player = await obj.validate(this.state.log);
     if (player == null) {
       clearInterval(this._watcher);
@@ -52,22 +53,24 @@ export class Diablo2GameSessionMemory {
     const act = await obj.act;
     this.state.map.act = player.actId;
 
+    // Track map information
     if (act.mapSeed !== this.state.map.id) {
       this.state.map.id = act.mapSeed;
       this.state.map.difficulty = Difficulty.Normal;
       this.state.log.info({ map: this.state.map }, 'MapSeed:Changed');
     }
 
+    // Track player location
     if (this.state.players.get(player.unitId) == null) {
       this.state.addPlayer(player.unitId, 'Player', path.x, path.y);
     } else {
       this.state.movePlayer(undefined, player.unitId, path.x, path.y);
     }
 
+    // Track XP
     const stats = await obj.stats;
     const xp = stats.get(Attribute.Experience);
-
-    if (xp != null && this.state.player.xp.current != xp) {
+    if (xp != null && this.state.player.xp.current !== xp) {
       this.state.trackXp(xp, true);
     }
 
