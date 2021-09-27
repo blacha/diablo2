@@ -16,14 +16,10 @@ export const UnitAnyPlayerStrutD2r = bp.object('UnitAnyPlayer', {
   pAct: new Pointer(ActStrut),
   seedA: bp.lu32,
   seedB: bp.lu32,
-  unk2: new Pointer(bp.lu32),
+  unk2: bp.array('Unk2', new Pointer(bp.lu32), 1),
   pPath: new Pointer(PathStrut),
   unk3: bp.skip(40),
-  unk4: new Pointer(bp.lu32),
-  unk5: new Pointer(bp.lu32),
-  unk6: new Pointer(bp.lu32),
-  unk7: new Pointer(bp.lu32),
-  unk8: new Pointer(bp.lu32),
+  unk4: bp.array('Unk', new Pointer(bp.lu32), 4),
 
   pStats: new Pointer(StatListStrut),
 });

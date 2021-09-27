@@ -2,6 +2,7 @@ import { StrutAny, StrutBase, bp, StrutParserContext, StrutInfer, toHex } from '
 import { Process } from '../process.js';
 import * as util from 'util';
 import c from 'ansi-colors';
+import { LUInt32 } from 'binparse/build/src/int';
 
 export class PointerResult<T extends StrutAny> {
   offset: number;

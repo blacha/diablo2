@@ -13,7 +13,7 @@ export class Diablo2GameSessionMemory {
 
   player: Diablo2Player | null;
   /** Delay to wait between ticks */
-  tickSpeed = 100;
+  tickSpeed = 250;
 
   /** Default difficulty to use */
   static Difficulty = Difficulty.Nightmare;
@@ -48,6 +48,8 @@ export class Diablo2GameSessionMemory {
     this.player = null;
     let backOff = 0;
     while (true) {
+      logger.info({ pid: this.d2.process.pid }, 'Session:WaitForPlayer');
+
       await sleep(Math.min(backOff * 500, 5_000));
       backOff++;
 

@@ -109,6 +109,30 @@ export class Process {
     }
   }
 
+  /** Scan memory near a point */
+  async *scanDistance(
+    offset: number,
+    f?: FilterFunc,
+  ): AsyncGenerator<{ buffer: Buffer; offset: number; map: ProcessMemoryMap }> {
+    const maps = await this.loadMap();
+    maps.sort((a, b) => {
+      const aStart = Math.abs(a.start - offset);
+      const bStart = Math.abs(b.start - offset);
+      return aStart - bStart;
+    });
+
+    for (const map of maps) {
+      if (f != null && f(map) === false) continue;
+
+      try {
+        const buffer = await this.read(map.start, map.end - map.start);
+        yield { buffer, offset: map.start, map: map };
+      } catch (err) {
+        console.trace({ err }, 'Scan:Reverse');
+      }
+    }
+  }
+
   /** Scan memory backwards */
   async *scanReverse(f?: FilterFunc): AsyncGenerator<{ buffer: Buffer; offset: number; map: ProcessMemoryMap }> {
     const maps = await this.loadMap();

@@ -19,7 +19,12 @@ export class Diablo2Player {
     const player = await this.player;
     if (Pointer.isPointersValid(player) === 0) {
       log.warn(
-        { act: toHex(player.pAct.offset), player: toHex(player.pPlayer.offset), path: toHex(player.pPath.offset) },
+        {
+          unit: toHex(this.offset),
+          act: toHex(player.pAct.offset),
+          player: toHex(player.pPlayer.offset),
+          path: toHex(player.pPath.offset),
+        },
         'InvalidOffset',
       );
       return null;

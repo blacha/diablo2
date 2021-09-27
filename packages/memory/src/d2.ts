@@ -7,6 +7,7 @@ import { Scanner, ScannerBuffer } from './scanner.js';
 import { PlayerStrut } from './structures.js';
 import { D2RStrut } from './struts/d2r.js';
 import { Pointer } from './struts/pointer.js';
+import { dump } from './util/dump.js';
 
 export class Diablo2Process {
   process: Process;
@@ -28,25 +29,42 @@ export class Diablo2Process {
   }
 
   async scanForPlayerD2r(playerName: string, logger: LogType): Promise<Diablo2Player | null> {
-    for await (const mem of this.process.scanReverse((f) => f.start >= 0x7ffff0000000)) {
+    for await (const mem of this.process.scanDistance(0x7fffd3000000, (f) => f.line.startsWith('7fffd'))) {
       for (const nameOffset of ScannerBuffer.text(mem.buffer, playerName, 16)) {
         const memoryOffset = nameOffset + mem.map.start;
 
         const strut = PlayerStrut.raw(mem.buffer, nameOffset);
         if (Pointer.isPointersValid(strut) > 0) continue;
 
-        logger.info({ offset: toHex(nameOffset + mem.map.start) }, 'Player:Offset');
+        // if ('0x7fffd30b5460' !== toHex(nameOffset + mem.map.start)) continue;
+        logger.debug({ offset: toHex(nameOffset + mem.map.start) }, 'Player:Offset');
 
         const pointerBuf = ScannerBuffer.lu64(memoryOffset);
-        for await (const p of this.process.scanReverse((f) => f.start >= 0x7ffff0000000)) {
+        // bufs.push(pointerBuf);
+
+        for await (const p of this.process.scanDistance(
+          0x2e000000,
+          (f) => Math.abs(f.start - 0x2e000000) < 0xfffffff,
+        )) {
           for (const off of ScannerBuffer.buffer(p.buffer, pointerBuf)) {
             const playerStrutOffset = off - 16;
 
             const unit = D2RStrut.UnitPlayer.raw(p.buffer, playerStrutOffset);
-            logger.debug({ offset: toHex(nameOffset + mem.map.start) }, 'Player:Offset:Pointer');
+            console.log(unit);
+            logger.info(
+              {
+                offset: toHex(nameOffset + mem.map.start),
+                unit: toHex(playerStrutOffset + p.map.start),
+                pointers: Pointer.isPointersValid(unit),
+              },
+              'Player:Offset:Pointer',
+            );
 
-            if (Pointer.isPointersValid(unit) > 0) continue;
-            logger.info({ offset: toHex(nameOffset + mem.map.start) }, 'Player:Offset:Pointer:Found');
+            if (Pointer.isPointersValid(unit) === 0) continue;
+            logger.info(
+              { offset: toHex(nameOffset + mem.map.start), unit: toHex(playerStrutOffset + p.map.start) },
+              'Player:Offset:Pointer:Found',
+            );
 
             return new Diablo2Player(this, playerStrutOffset + p.map.start);
           }

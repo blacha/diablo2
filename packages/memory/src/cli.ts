@@ -37,7 +37,7 @@ async function main(): Promise<void> {
     // D2R uses 64bit pointers
     Pointer.type = bp.lu64;
 
-    Log.info({ procId: proc.process.pid }, 'FoundProcess');
+    Log.info({ procId: proc.process.pid }, 'Process:Found');
     const session = new Diablo2GameSessionMemory(proc, playerName);
     await session.start(Log);
     return;
