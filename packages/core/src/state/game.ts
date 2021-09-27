@@ -1,7 +1,7 @@
 import { Logger } from '@diablo2/bintools';
 import { Difficulty } from '@diablo2/data';
 import { Diablo2ParsedPacket } from '@diablo2/packets';
-import * as GameJson from './json';
+import * as GameJson from './json.js';
 
 type OnCloseEvent = (game: Diablo2State) => void;
 const MaxAgeMs = 5 * 60_000;

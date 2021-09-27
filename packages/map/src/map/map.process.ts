@@ -2,9 +2,9 @@ import { ChildProcess, spawn, spawnSync } from 'child_process';
 import { EventEmitter } from 'events';
 import PLimit from 'p-limit';
 import { createInterface } from 'readline';
-import { Log, LogType } from '../logger';
-import { LruCache } from './lru';
-import { Diablo2Map, Diablo2MapGenMessage, MapGenMessageInfo, MapGenMessageMap } from './map';
+import { Log, LogType } from '../logger.js';
+import { LruCache } from './lru.js';
+import { Diablo2Map, Diablo2MapGenMessage, MapGenMessageInfo, MapGenMessageMap } from './map.js';
 
 export const MapCommand = './bin/d2-map.exe';
 export const Diablo2Path = '/app/game';
@@ -139,7 +139,7 @@ export class Diablo2MapProcess {
     if (cacheData != null) return Promise.resolve(cacheData);
     return this.q(async () => {
       const mapResult = await this.getMaps(seed, difficulty, log);
-      this.cache.put(mapKey, mapResult);
+      this.cache.set(mapKey, mapResult);
       return mapResult;
     });
   }

@@ -1,13 +1,13 @@
 import cors from 'cors';
 import * as express from 'express';
 import * as fs from 'fs';
-import 'source-map-support/register';
+import 'source-map-support/register.js';
 import * as ulid from 'ulid';
-import { Log } from './logger';
-import { Diablo2Path, MapCommand, MapProcess } from './map/map.process';
-import { HttpError, Request, Response, Route } from './route';
-import { HealthRoute } from './routes/health';
-import { MapRoute } from './routes/map';
+import { Log } from './logger.js';
+import { Diablo2Path, MapCommand, MapProcess } from './map/map.process.js';
+import { HttpError, Request, Response, Route } from './route.js';
+import { HealthRoute } from './routes/health.js';
+import { MapRoute } from './routes/map.js';
 
 if (!fs.existsSync(MapCommand)) {
   Log.fatal(`Cannot find ${MapCommand}`);

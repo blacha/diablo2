@@ -16,7 +16,8 @@ const char *dlls[] = {
     "Fog.DLL",
     "BNClient.DLL",
     "Storm.DLL",
-    "D2Cmp.DLL"};
+    "D2Cmp.DLL"
+};
 
 DWORD GetDllOffset(const char *DllName, int Offset) {
     try {

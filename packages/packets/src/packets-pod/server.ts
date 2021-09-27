@@ -1,8 +1,8 @@
-import { DataTypeItem } from '../parser.item';
-import { Diablo2Packet } from '../packet';
+import { DataTypeItem } from '../parser.item.js';
+import { Diablo2Packet } from '../packet.js';
 import { bp } from 'binparse';
-import { DataTypeNpc } from '../parser.npc';
-import { DataDifficulty, DataAct, DataUnitType, DataWarp, DataAttribute, DataPlayerClass } from './data';
+import { DataTypeNpc } from '../parser.npc.js';
+import { DataDifficulty, DataAct, DataUnitType, DataWarp, DataAttribute, DataPlayerClass } from './data.js';
 
 export const GameLoading = Diablo2Packet.empty(0x00, 'GameLoading');
 export const GameLogonReceipt = Diablo2Packet.create(0x01, 'GameLogonReceipt', {

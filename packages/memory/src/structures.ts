@@ -1,58 +1,32 @@
-import { bp, StrutAny, StrutBase, StrutInfer, StrutParserContext } from 'binparse';
-import { Process } from './process';
+import { bp, StrutInfer } from 'binparse';
+import { Process } from './process.js';
+import { D2RStrut } from './struts/d2r.js';
+import { Pointer } from './struts/pointer.js';
 
 export type PointerFetcher<T> = (proc: Process) => Promise<T>;
-export class Pointer<T extends StrutAny> extends StrutBase<{
-  offset: number;
-  fetch: PointerFetcher<StrutInfer<T>>;
-}> {
-  /** Configure pointer to be 32 or 64 bit */
-  static type = bp.lu32;
-  target: T;
-  constructor(target: T) {
-    super('Pointer:' + target.name);
-    this.target = target;
-  }
-
-  get size(): number {
-    return Pointer.type.size;
-  }
-
-  parse(bytes: Buffer, pkt: StrutParserContext): { offset: number; fetch: PointerFetcher<StrutInfer<T>> } {
-    const offset = Pointer.type.parse(bytes, pkt);
-    // if (offset > 0xfffffff) throw new Error('');
-    const fetch = this.fetch.bind(this, offset);
-    return { offset, fetch };
-  }
-
-  async fetch(offset: number, proc: Process): Promise<StrutInfer<T>> {
-    const bytes = await proc.memory(offset, this.target.size);
-    const res = this.target.raw(bytes, 0);
-    return res;
-  }
-}
 
 export const PlayerStrut = bp.object('PlayerStrut', {
   name: bp.string(16),
   quest: bp.object('Quest', {
-    normal: bp.lu32,
-    nightmare: bp.lu32,
-    hell: bp.lu32,
+    normal: new Pointer(bp.lu32),
+    nightmare: new Pointer(bp.lu32),
+    hell: new Pointer(bp.lu32),
   }),
   waypoint: bp.object('Quest', {
-    normal: bp.lu32,
-    nightmare: bp.lu32,
-    hell: bp.lu32,
+    normal: new Pointer(bp.lu32),
+    nightmare: new Pointer(bp.lu32),
+    hell: new Pointer(bp.lu32),
   }),
 });
 
 export const ActStrut = bp.object('Act', {
-  unk1: bp.lu32,
-  unk2: bp.lu32,
+  unk1: new Pointer(bp.lu32),
+  unk2: new Pointer(bp.lu32),
   unk3: bp.lu32,
   mapSeed: bp.lu32,
 });
-export type Act = StrutInfer<typeof ActStrut>;
+
+export type ActS = StrutInfer<typeof ActStrut>;
 
 export const StatStrut = bp.object('Stat', {
   unk1: bp.lu16,
@@ -62,7 +36,9 @@ export const StatStrut = bp.object('Stat', {
 
 export const StatListStrut = bp.object('StatList', {
   unk1: bp.bytes(9 * 4),
+  //   unk2: new Pointer(bp.lu32),
   pStat: new Pointer(StatStrut),
+
   count: bp.lu16,
   countB: bp.lu16,
 });
@@ -74,24 +50,6 @@ export const PathStrut = bp.object('Path', {
   yOffset: bp.lu16,
   y: bp.lu16,
 });
-export type Path = StrutInfer<typeof PathStrut>;
+export type PathS = StrutInfer<typeof PathStrut>;
 
-export const UnitAnyPlayerStrut = bp.object('UnitAnyPlayer', {
-  type: bp.lu32,
-  txtFileNo: bp.lu32,
-  unitId: bp.lu32,
-  mode: bp.lu32,
-  /** Pointer to PlayerStrut */
-  pPlayer: new Pointer(PlayerStrut),
-  actId: bp.lu32,
-  /** Pointer to Act */
-  pAct: new Pointer(ActStrut),
-  seedA: bp.lu32,
-  seedB: bp.lu32,
-  unk2: bp.lu32,
-  pPath: new Pointer(PathStrut),
-  unk3: bp.skip(44),
-  pStats: new Pointer(StatListStrut),
-});
-
-export type UnitPlayer = StrutInfer<typeof UnitAnyPlayerStrut>;
+export type UnitPlayer = StrutInfer<typeof D2RStrut.UnitPlayer>;

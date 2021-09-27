@@ -1,6 +1,6 @@
 import { createHash } from 'crypto';
 import { promises as fs } from 'fs';
-import { Mpq } from '../index';
+import { Mpq } from '../index.js';
 
 const MpqFileName = './patch_d2.mpq';
 async function main(): Promise<void> {

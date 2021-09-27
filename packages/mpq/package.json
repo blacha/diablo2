@@ -10,6 +10,7 @@
         "name": "Blayne Chard",
         "email": "blayne@chard.com"
     },
+    "type": "module",
     "license": "MIT",
     "main": "./build/index.js",
     "types": "./build/index.d.ts",

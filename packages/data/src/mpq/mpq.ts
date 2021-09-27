@@ -1,6 +1,6 @@
-import { Diablo2MpqItem } from './mpq.item';
-import { Diablo2MpqLang } from './mpq.lang';
-import { Diablo2MpqMonsters } from './mpq.monster';
+import { Diablo2MpqItem } from './mpq.item.js';
+import { Diablo2MpqLang } from './mpq.lang.js';
+import { Diablo2MpqMonsters } from './mpq.monster.js';
 
 export class Diablo2MpqData {
   /** Last path to load MPQ data from */

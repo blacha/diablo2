@@ -1,5 +1,4 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const implode = require('implode-decoder');
+import implode from 'implode-decoder';
 
 export async function decompressPkWare(sector: Buffer, offset: number, size: number): Promise<Buffer> {
   const buf = sector.slice(offset, offset + size);

@@ -1,7 +1,7 @@
 import { Diablo2GameSession } from '@diablo2/core';
 import { ItemActionType, ItemQuality } from '@diablo2/data';
 import { PacketsPod } from '@diablo2/packets';
-import { Log } from '../logger';
+import { Log } from '../logger.js';
 
 const GoodItems = new Set(['cx8', 'cm1', 'cm2', 'cm3']);
 /** Track all items dropped onto the ground */

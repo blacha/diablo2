@@ -1,8 +1,8 @@
-import 'source-map-support/register';
+import 'source-map-support/register.js';
 import { ItemActionType, ItemCategory, ItemDestination, ItemQuality } from '@diablo2/data';
 import o from 'ospec';
-import { DataTypeItem } from '../../parser.item';
-import { ItemActionWorld } from '../server';
+import { DataTypeItem } from '../../parser.item.js';
+import { ItemActionWorld } from '../server.js';
 
 o.spec('ItemPacket', () => {
   const parser = new DataTypeItem();

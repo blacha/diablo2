@@ -1,3 +1,4 @@
+import { toHex } from '@diablo2/data';
 import { promises as fs } from 'fs';
 import { FileHandle } from 'fs/promises';
 import { MemoizeExpiring } from 'typescript-memoize';
@@ -9,6 +10,8 @@ export interface ProcessMemoryMap {
   path?: string;
   line: string;
 }
+
+export type FilterFunc = (f: ProcessMemoryMap) => boolean;
 
 export class Process {
   pid: number;
@@ -53,7 +56,10 @@ export class Process {
         path: parts.length > 7 ? parts[parts.length - 1] : undefined,
         line,
       };
+
+      // If the process cant write to it, then its not useful to us
       if (!obj.permissions.startsWith('rw')) continue;
+      // Ignore graphic card data
       if (obj.path?.includes('/dev/nvidia')) continue;
 
       memMaps.push(obj);
@@ -63,20 +69,20 @@ export class Process {
   }
 
   /** Read a section of memory from this process */
-  async memory(offset: number, count: number): Promise<Buffer> {
-    if (this.fh == null) this.fh = fs.open(`/proc/${this.pid}/mem`, 'r');
-    const fh = await this.fh;
-    const buf = Buffer.alloc(count);
+  async read(offset: number, count: number): Promise<Buffer> {
+    try {
+      if (this.fh == null) this.fh = fs.open(`/proc/${this.pid}/mem`, 'r');
+      const fh = await this.fh;
+      const buf = Buffer.alloc(count);
 
-    const ret = await fh?.read(buf, 0, buf.length, offset);
-    if (ret == null || ret.bytesRead === 0) throw new Error('Failed to read memory');
-    return buf;
-  }
+      const ret = await fh?.read(buf, 0, buf.length, offset);
+      if (ret == null || ret.bytesRead === 0) throw new Error('Failed to read memory at: ' + toHex(offset));
 
-  isValidOffset(offset: number): boolean {
-    if (offset > 0x7fff0000) return false;
-    if (offset < 0x00110000) return false;
-    return true;
+      return buf;
+    } catch (e) {
+      console.trace(`Failed to read, ${offset}, ${count}`);
+      throw new Error('Failed to read memory at: ' + toHex(offset) + ' - ' + e);
+    }
   }
 
   async isValidMemoryMap(offset: number): Promise<boolean> {
@@ -88,13 +94,33 @@ export class Process {
     return false;
   }
 
-  async *scan(): AsyncGenerator<{ buffer: Buffer; offset: number; map: ProcessMemoryMap }> {
+  async *scan(f?: FilterFunc): AsyncGenerator<{ buffer: Buffer; offset: number; map: ProcessMemoryMap }> {
     const maps = await this.loadMap();
 
     for (const map of maps) {
-      if (map.start >= 0x7fff0000) break;
-      const buffer = await this.memory(map.start, map.end - map.start);
-      yield { buffer, offset: map.start, map: map };
+      if (f != null && f(map) === false) continue;
+
+      try {
+        const buffer = await this.read(map.start, map.end - map.start);
+        yield { buffer, offset: map.start, map: map };
+      } catch (err) {
+        console.trace({ err }, 'Scan:Failed');
+      }
+    }
+  }
+
+  /** Scan memory backwards */
+  async *scanReverse(f?: FilterFunc): AsyncGenerator<{ buffer: Buffer; offset: number; map: ProcessMemoryMap }> {
+    const maps = await this.loadMap();
+
+    for (const map of maps.reverse()) {
+      if (f != null && f(map) === false) continue;
+      try {
+        const buffer = await this.read(map.start, map.end - map.start);
+        yield { buffer, offset: map.start, map: map };
+      } catch (err) {
+        console.trace({ err }, 'Scan:Reverse');
+      }
     }
   }
 }

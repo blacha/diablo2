@@ -1,5 +1,5 @@
-import { ClientPacketsPod } from './client';
-import { ServerPacketsPod } from './server';
+import { ClientPacketsPod } from './client.js';
+import { ServerPacketsPod } from './server.js';
 
 export const PacketsPod = {
   client: ClientPacketsPod,

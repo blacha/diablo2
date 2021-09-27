@@ -1,7 +1,7 @@
 import { existsSync } from 'fs';
-import 'source-map-support/register';
-import { Log } from './logger';
-import { Diablo2PacketSniffer, findLocalIps } from './sniffer';
+import 'source-map-support/register.js';
+import { Log } from './logger.js';
+import { Diablo2PacketSniffer, findLocalIps } from './sniffer.js';
 
 function usage(err?: string): void {
   if (err) console.log(`Error ${err} \n`);

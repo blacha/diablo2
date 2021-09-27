@@ -3,9 +3,9 @@ import { Diablo2Client } from '@diablo2/core';
 import { Diablo2Mpq, getDiabloVersion } from '@diablo2/data';
 import { createReadStream, existsSync } from 'fs';
 import * as readline from 'readline';
-import { SniffExample } from '../example/index';
-import { Log } from '../logger';
-import { PacketLine } from '../packet.line';
+import { SniffExample } from '../example/index.js';
+import { Log } from '../logger.js';
+import { PacketLine } from '../packet.line.js';
 
 async function main(): Promise<void> {
   const packetFile = process.argv.pop();

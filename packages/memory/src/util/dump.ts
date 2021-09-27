@@ -1,5 +1,6 @@
 import { toHex } from '@diablo2/data';
-import * as c from 'ansi-colors';
+import c from 'ansi-colors';
+import { StrutAny, StrutTypeObject } from 'binparse';
 
 const charA = 'a'.charCodeAt(0);
 const charZ = 'z'.charCodeAt(0);
@@ -21,19 +22,46 @@ export function toHexColor(num: number): string {
   if (isChar(num)) {
     if (num >= char0 && num <= char9) return c.yellow(str);
     if (num === 0x20) return c.red(str);
-
-    return c.blue(str); // String.fromCharCode(num));
+    return c.blue(str);
   }
   return str;
 }
 
-export function dump(buf: Buffer): void {
+const NonStringChar = c.gray('.');
+const DumpSize = 16;
+
+/** Dump a buffer into a human readable(ish) output */
+export function dump(buf: Buffer, title = ''): void {
+  let offset = 0;
+
+  let padStart = 2;
+  if (buf.length >= 0x100) padStart = 3;
+
+  if (title) title = `  ${title}  `;
+  const titleLine = c.red('-'.repeat((122 + padStart) / 2 - title.length / 2));
+  console.log(`${titleLine}${title}${titleLine}`);
   while (buf.length > 0) {
-    const b = [...buf.slice(0, 20)];
-    console.log(
-      b.map((c) => toHexColor(c).padStart(4, ' ')).join(' '),
-      b.map((c) => (isChar(c) ? String.fromCharCode(c) : ' ')).join(' '),
-    );
-    buf = buf.slice(20);
+    const b = [...buf.slice(0, DumpSize)];
+
+    const output = [];
+    const outChars = [];
+    for (let i = 0; i < b.length; i++) {
+      const c = b[i];
+      output.push(toHexColor(b[i]).padStart(4, ' '));
+      outChars.push(isChar(c) ? String.fromCharCode(c) : NonStringChar);
+      if ((i + 1) % 4 === 0) output.push('  ');
+      else output.push(' ');
+    }
+    console.log(toHex(offset, padStart), c.red('|'), output.join('').padEnd(112 + padStart, ' '), outChars.join(' '));
+    offset += DumpSize;
+    buf = buf.slice(DumpSize);
+  }
+}
+
+export function dumpStrut(obj: StrutTypeObject<Record<string, StrutAny>>): void {
+  let offset = 0;
+  for (const [field, type] of obj.fields) {
+    console.log(toHex(offset), field, type.size);
+    offset += type.size;
   }
 }

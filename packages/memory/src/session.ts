@@ -1,14 +1,22 @@
 import { Diablo2State } from '@diablo2/core';
-import { Attribute, Difficulty } from '@diablo2/data';
-import { Diablo2Player, Diablo2Process } from './d2';
-import { id, Log, LogType } from './logger';
+import { Difficulty } from '@diablo2/data';
+import { Diablo2Process } from './d2.js';
+import { Diablo2Player } from './d2.player.js';
+import { id, Log, LogType } from './logger.js';
+
+const sleep = (dur: number): Promise<void> => new Promise((r) => setTimeout(r, dur));
 
 export class Diablo2GameSessionMemory {
   state: Diablo2State;
   d2: Diablo2Process;
   playerName: string;
 
-  private _watcher: NodeJS.Timeout;
+  player: Diablo2Player | null;
+  /** Delay to wait between ticks */
+  tickSpeed = 100;
+
+  /** Default difficulty to use */
+  static Difficulty = Difficulty.Nightmare;
 
   constructor(proc: Diablo2Process, playerName: string) {
     this.d2 = proc;
@@ -16,47 +24,53 @@ export class Diablo2GameSessionMemory {
     this.state = new Diablo2State(id, Log);
   }
 
-  async start(log: LogType): Promise<void> {
-    log.info({ pid: this.d2.process.pid }, 'StartSession');
-    this.waitForPlayer();
+  async start(logger: LogType): Promise<void> {
+    logger.info({ pid: this.d2.process.pid }, 'Session:Start');
+
+    while (true) {
+      try {
+        const player = await this.waitForPlayer(logger);
+        if (player == null) continue;
+
+        await this.updateState(player, logger);
+        await sleep(this.tickSpeed);
+      } catch (err) {
+        logger.error({ pid: this.d2.process.pid, err }, 'Session:Error');
+      }
+    }
   }
 
-  async waitForPlayer(): Promise<void> {
+  async waitForPlayer(logger: LogType): Promise<Diablo2Player> {
+    if (this.player) {
+      const player = await this.player.validate(logger);
+      if (player != null) return this.player;
+    }
+    this.player = null;
     let backOff = 0;
     while (true) {
-      const player = await this.d2.scanForPlayer(this.playerName);
-      if (player == null) {
-        await new Promise((r) => setTimeout(r, backOff));
-        backOff += 500;
-        backOff = Math.min(backOff, 2_500);
-        continue;
-      }
-      await player.validate(this.state.log);
+      await sleep(Math.min(backOff * 500, 5_000));
+      backOff++;
 
-      if (this._watcher) clearInterval(this._watcher);
-      this._watcher = setInterval(() => this.watchPlayer(player), 500);
-      break;
+      this.player = await this.d2.scanForPlayerD2r(this.playerName, logger);
+      if (this.player == null) continue;
+      return this.player;
     }
   }
 
-  async watchPlayer(obj: Diablo2Player): Promise<void> {
+  async updateState(obj: Diablo2Player, logger: LogType): Promise<void> {
     const startTime = Date.now();
+    const player = await obj.validate(logger);
     // Player object is no longer validate assume game has exited
-    const player = await obj.validate(this.state.log);
-    if (player == null) {
-      clearInterval(this._watcher);
-      this.waitForPlayer();
-      return;
-    }
+    if (player == null) return;
 
-    const path = await obj.path;
-    const act = await obj.act;
+    const path = await obj.getPath(player, logger);
+    const act = await obj.getAct(player, logger);
     this.state.map.act = player.actId;
 
     // Track map information
     if (act.mapSeed !== this.state.map.id) {
       this.state.map.id = act.mapSeed;
-      this.state.map.difficulty = Difficulty.Normal;
+      this.state.map.difficulty = Diablo2GameSessionMemory.Difficulty;
       this.state.log.info({ map: this.state.map }, 'MapSeed:Changed');
     }
 
@@ -68,14 +82,15 @@ export class Diablo2GameSessionMemory {
     }
 
     // Track XP
-    const stats = await obj.stats;
-    const xp = stats.get(Attribute.Experience);
-    if (xp != null && this.state.player.xp.current !== xp) {
-      this.state.trackXp(xp, true);
-    }
+    // const stats = await obj.stats;
+    // const xp = stats.get(Attribute.Experience);
+    // if (xp != null && this.state.player.xp.current !== xp) {
+    //   this.state.trackXp(xp, true);
+    // }
 
     const duration = Date.now() - startTime;
 
-    this.state.log.debug({ duration }, 'Update:Tick');
+    if (duration > 100) logger.warn({ duration }, 'Update:Tick');
+    else logger.trace({ duration }, 'Update:Tick');
   }
 }

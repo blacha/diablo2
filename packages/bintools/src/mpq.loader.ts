@@ -3,10 +3,10 @@ import { Mpq } from '@diablo2/mpq';
 import { StrutInfer, StrutType } from 'binparse';
 import { promises as fs } from 'fs';
 import * as path from 'path';
-import { ItemFileParser } from './item/item.reader';
-import { LangReader } from './lang/lang.reader';
-import { Logger } from './log.type';
-import { MonsterReader, MonsterReader2 } from './monster/monster.stat.reader';
+import { ItemFileParser } from './item/item.reader.js';
+import { LangReader } from './lang/lang.reader.js';
+import { Logger } from './log.type.js';
+import { MonsterReader, MonsterReader2 } from './monster/monster.stat.reader.js';
 
 async function readAndParse<T extends StrutType<any>>(
   mpq: Mpq,

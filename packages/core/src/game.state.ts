@@ -2,10 +2,10 @@ import { Logger } from '@diablo2/bintools';
 import { ItemQuality } from '@diablo2/data';
 import { PacketsPod } from '@diablo2/packets';
 import { ulid } from 'ulid';
-import { Diablo2Client } from './client';
-import { Diablo2PacketParser } from './packet.parser';
-import { Diablo2State } from './state/game';
-import { ItemJson } from './state/json';
+import { Diablo2Client } from './client.js';
+import { Diablo2PacketParser } from './packet.parser.js';
+import { Diablo2State } from './state/game.js';
+import { ItemJson } from './state/json.js';
 
 const { client, server } = PacketsPod;
 

@@ -1,5 +1,5 @@
 import type * as express from 'express';
-import { LogType } from './logger';
+import { LogType } from './logger.js';
 
 export interface Request extends express.Request {
   id: string;

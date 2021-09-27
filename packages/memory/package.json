@@ -10,6 +10,7 @@
     "name": "Blayne Chard",
     "email": "blayne@chard.com"
   },
+  "type": "module",
   "license": "MIT",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -18,7 +19,9 @@
   },
   "dependencies": {
     "@diablo2/core": "*",
+    "@types/split2": "^3.2.1",
     "binparse": "^1.2.1",
+    "split2": "^3.2.2",
     "typescript-memoize": "^1.0.1"
   },
   "publishConfig": {

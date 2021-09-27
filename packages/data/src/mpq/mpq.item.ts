@@ -1,4 +1,4 @@
-import { Diablo2MpqData } from './mpq';
+import { Diablo2MpqData } from './mpq.js';
 
 export interface Diablo2Item {
   code: string;

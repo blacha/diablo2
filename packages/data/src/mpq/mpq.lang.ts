@@ -1,4 +1,4 @@
-import { Diablo2MpqData } from './mpq';
+import { Diablo2MpqData } from './mpq.js';
 
 export const ExpansionOffset = 20000;
 export const PatchOffset = 10000;

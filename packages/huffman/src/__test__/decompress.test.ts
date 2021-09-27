@@ -1,5 +1,5 @@
 import o from 'ospec';
-import { Huffman } from '..';
+import { Huffman } from './../index.js';
 
 const PacketDataRaw = `8a8CyEODRn35rWxlBuZHZfCshXMkoE52PBDDuBVAdGjXNK2MsEYiBINj48h+XRuPQqkIPZgYhpRA
 VQBuaJ+aVsZYIRECQbHx5QpQfSAKBDDuBVAG5obc0rYyyCEQJAeHx5QpYAgqrR7bAqgaNDfmkgIy

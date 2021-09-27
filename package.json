@@ -7,6 +7,7 @@
     "name": "Blayne Chard",
     "email": "blayne@chard.com"
   },
+  "type": "module",
   "license": "MIT",
   "scripts": {
     "build": "tsc -b",

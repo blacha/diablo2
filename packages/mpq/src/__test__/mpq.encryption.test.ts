@@ -1,6 +1,6 @@
 import o from 'ospec';
-import { MpqEncryptionTable } from '../encryption';
-import { ExpectedMpqEncryptionTable } from './mpq.encryption.table';
+import { MpqEncryptionTable } from '../encryption.js';
+import { ExpectedMpqEncryptionTable } from './mpq.encryption.table.js';
 
 o.spec('MpqEncryptionTable', () => {
   o('should match provided table', () => {

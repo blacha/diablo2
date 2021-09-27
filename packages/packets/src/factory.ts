@@ -1,4 +1,4 @@
-import { Diablo2Packet, Diablo2PacketDirection, Diablo2ParsedPacket } from './packet';
+import { Diablo2Packet, Diablo2PacketDirection, Diablo2ParsedPacket } from './packet.js';
 import { StrutParserContext, toHex } from 'binparse';
 
 function isEmpty(bytes: number[] | Buffer, offset: number): boolean {
