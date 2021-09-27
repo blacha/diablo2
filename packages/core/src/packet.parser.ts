@@ -95,7 +95,7 @@ export class Diablo2PacketParser {
         this.events.emit('*', emit);
         this.events.emit(emit.packet.name, emit);
       }
-    } catch (e) {
+    } catch (e: any) {
       const bytesLeft = packets.length - offset;
 
       if (this.debugFailures) {

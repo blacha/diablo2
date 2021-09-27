@@ -23,7 +23,7 @@ async function main(): Promise<void> {
     try {
       const pkt = packet.create(packetData);
       console.log(pkt.value, pkt.size === packetData.length);
-    } catch (e) {
+    } catch (e: any) {
       console.log('FailedToParse', e.message);
     }
   }
