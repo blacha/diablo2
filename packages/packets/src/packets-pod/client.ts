@@ -1,6 +1,6 @@
-import { Diablo2Packet } from '../packet';
+import { Diablo2Packet } from '../packet.js';
 import { bp } from 'binparse';
-import { DataPlayerClass } from './data';
+import { DataPlayerClass } from './data.js';
 
 const DataTypePoint = { x: bp.lu16, y: bp.lu16 };
 const DataTypeEntity = { type: bp.lu32, entityId: bp.lu32 };

@@ -1,6 +1,6 @@
 import { Diablo2Mpq, NpcEnchant } from '@diablo2/data';
 import o from 'ospec';
-import { NpcAssign } from '../server';
+import { NpcAssign } from '../server.js';
 
 const fakeMonster = (id: number): { id: number; nameLangId: number; baseId: number } => {
   return { id, nameLangId: id, baseId: id };

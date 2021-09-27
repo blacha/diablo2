@@ -11,6 +11,7 @@
     "name": "Blayne Chard",
     "email": "blayne@chard.com"
   },
+  "type": "module",
   "license": "MIT",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -34,6 +35,7 @@
     "@types/cors": "^2.8.7",
     "@types/express": "^4.17.8",
     "@types/node": "^14.10.1",
-    "esbuild": "^0.11.11"
+    "esbuild": "^0.11.11",
+    "maplibre-gl": "^2.0.0-pre.1"
   }
 }

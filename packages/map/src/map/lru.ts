@@ -1,5 +1,6 @@
 export class LruCache<T> {
   private values: Map<string, T> = new Map<string, T>();
+  private valuesOld: Map<string, T> = new Map<string, T>();
   private maxEntries: number;
 
   constructor(maxEntries: number) {
@@ -7,21 +8,21 @@ export class LruCache<T> {
   }
 
   public get(key: string): T | undefined {
-    const entry = this.values.get(key);
-    if (entry != null) {
-      // peek the entry, re-insert for LRU strategy
-      this.values.delete(key);
+    let entry = this.values.get(key);
+    if (entry == null) {
+      entry = this.valuesOld.get(key);
+      if (entry == null) return undefined;
+      this.valuesOld.delete(key);
       this.values.set(key, entry);
     }
 
     return entry;
   }
 
-  public put(key: string, value: T): void {
+  public set(key: string, value: T): void {
     if (this.values.size >= this.maxEntries) {
-      // least-recently used cache eviction strategy
-      const keyToDelete = this.values.keys().next().value;
-      this.values.delete(keyToDelete);
+      this.valuesOld = this.values;
+      this.values = new Map();
     }
 
     this.values.set(key, value);

@@ -1,6 +1,6 @@
 import { bp } from 'binparse';
-import { Diablo2Packet } from '../packet';
-import { ClientPacketsPod } from '../packets-pod/client';
+import { Diablo2Packet } from '../packet.js';
+import { ClientPacketsPod } from '../packets-pod/client.js';
 
 const ClientSkillLeftOnEntity = Diablo2Packet.create(0x06, 'ClientSkillLeftOnEntity', {
   type: bp.lu32,

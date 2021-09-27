@@ -1,5 +1,9 @@
 export interface Diablo2Map {
-  id: string;
+  id: number;
+  map: number[][];
+  objects: { id: number; type: 'object'; x: number; y: number }[];
+  offset: { x: number; y: number };
+  size: { width: number; height: number };
 }
 export interface MapGenMessageInit {
   type: 'init';
@@ -20,3 +24,10 @@ export interface MapGenMessageDone {
 }
 
 export type Diablo2MapGenMessage = MapGenMessageDone | MapGenMessageMap | MapGenMessageInfo | MapGenMessageInit;
+
+export interface MapRouteResponse {
+  id: string;
+  seed: number;
+  difficulty: number;
+  maps: Record<number, Diablo2Map>;
+}

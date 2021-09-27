@@ -1,7 +1,7 @@
 import { Logger } from '@diablo2/bintools';
 import { Difficulty } from '@diablo2/data';
 import { Diablo2ParsedPacket } from '@diablo2/packets';
-import * as GameJson from './json';
+import * as GameJson from './json.js';
 
 type OnCloseEvent = (game: Diablo2State) => void;
 const MaxAgeMs = 5 * 60_000;
@@ -142,18 +142,21 @@ export class Diablo2State {
     if (this.isMe(id)) this.player.level = level;
   }
 
-  movePlayer(pkt: Diablo2ParsedPacket<unknown>, id: number, x: number, y: number): void {
+  movePlayer(pkt: Diablo2ParsedPacket<unknown> | undefined, id: number, x: number, y: number): void {
     // console.log('MovePlayer', pkt.packet.name, id, x, y);
     if (x === 0 || y === 0) return;
     const player = this.players.get(id);
     if (player == null) return;
-    this.log.debug({ packet: pkt.packet.name, player: player.name, id, x, y }, 'Player:Move');
+
+    player.updatedAt = Date.now();
+    if (player.x === x && player.y === y) return;
+    this.log.debug({ packet: pkt?.packet.name, player: player.name, id, x, y }, 'Player:Move');
 
     player.x = x;
     player.y = y;
-    player.updatedAt = Date.now();
     this.dirty();
   }
+
   trackKill(u: GameJson.NpcJson): void {
     if (u.code === -1) return;
     let kill = this.kills.get(u.code);

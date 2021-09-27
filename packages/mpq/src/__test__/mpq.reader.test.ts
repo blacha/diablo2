@@ -1,8 +1,8 @@
 import { createHash } from 'crypto';
 import o from 'ospec';
-import { MpqHashType } from '../const';
-import { Mpq } from '../mpq';
-import { MpqDecryptionTests } from './mpq.encryption.data';
+import { MpqHashType } from '../const.js';
+import { Mpq } from '../mpq.js';
+import { MpqDecryptionTests } from './mpq.encryption.data.js';
 
 const TestFiles = {
   Pd2: 'strings/pd2/patchstring.tbl',

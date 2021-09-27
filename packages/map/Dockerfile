@@ -17,7 +17,7 @@ FROM tianon/wine
 
 RUN apt-get update -yq \
     && apt-get install curl gnupg -yq \
-    && curl -sL https://deb.nodesource.com/setup_12.x | bash \
+    && curl -sL https://deb.nodesource.com/setup_16.x | bash \
     && apt-get install nodejs -yq
 
 ENV WINEARCH=win32

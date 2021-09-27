@@ -1,5 +1,5 @@
 import { Diablo2GameSession } from '@diablo2/core';
-import { Log } from '../logger';
+import { Log } from '../logger.js';
 
 /** Track all packets that are being received */
 export function sniffAll(game: Diablo2GameSession): void {

@@ -1,7 +1,7 @@
 import { Diablo2MpqLoader, Logger } from '@diablo2/bintools';
 import { Diablo2Mpq, Diablo2MpqData, Diablo2Version } from '@diablo2/data';
 import { Diablo2PacketFactory, getDiabloPackets } from '@diablo2/packets';
-import { Diablo2GameSession } from './game.state';
+import { Diablo2GameSession } from './game.state.js';
 
 export class Diablo2Client {
   mpq: Diablo2MpqData = Diablo2Mpq;

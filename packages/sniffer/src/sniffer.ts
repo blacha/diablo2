@@ -2,9 +2,9 @@ import { Diablo2Client, Diablo2GameSession } from '@diablo2/core';
 import { Diablo2Version, getDiabloVersion } from '@diablo2/data';
 import { EventEmitter } from 'events';
 import { networkInterfaces } from 'os';
-import { LogType } from './logger';
-import { PacketLine } from './packet.line';
-import { AutoClosingStream } from './replay.tracker';
+import { LogType } from './logger.js';
+import { PacketLine } from './packet.line.js';
+import { AutoClosingStream } from './replay.tracker.js';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pcap = require('pcap');

@@ -1,1 +1,1 @@
-export { Mpq } from './mpq';
+export { Mpq } from './mpq.js';

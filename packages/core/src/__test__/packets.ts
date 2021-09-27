@@ -1,8 +1,10 @@
+import url from 'url';
+const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
 import { Diablo2Version } from '@diablo2/data';
 import * as fs from 'fs';
 import * as path from 'path';
-import 'source-map-support/register';
-import { Diablo2Client } from '../client';
+import 'source-map-support/register.js';
+import { Diablo2Client } from '../client.js';
 
 const packetPath = path.join(__dirname, '..', '..', '..', '..', 'test-data', '2020-08-24T05:51-packets.json');
 

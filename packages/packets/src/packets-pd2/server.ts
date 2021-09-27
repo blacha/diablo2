@@ -1,6 +1,6 @@
 import { bp } from 'binparse';
-import { Diablo2Packet } from '../packet';
-import { ServerPacketsPod } from '../packets-pod/server';
+import { Diablo2Packet } from '../packet.js';
+import { ServerPacketsPod } from '../packets-pod/server.js';
 
 export const StateEnd = Diablo2Packet.create(0xa9, 'StateEnd', {
   unitType: bp.u8,

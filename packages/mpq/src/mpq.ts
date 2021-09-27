@@ -1,9 +1,9 @@
 import { promises as fs } from 'fs';
 import { FileHandle } from 'fs/promises';
-import { decompressSector } from './compression';
-import { decompressPkWare } from './compression/compress.pkware';
-import { MpqFlags, MpqFormatVersion, MpqHashType } from './const';
-import { MpqEncryptionTable } from './encryption';
+import { decompressSector } from './compression/index.js';
+import { decompressPkWare } from './compression/compress.pkware.js';
+import { MpqFlags, MpqFormatVersion, MpqHashType } from './const.js';
+import { MpqEncryptionTable } from './encryption.js';
 import {
   MpqBlockEntry,
   MpqBlockTableEntry,
@@ -11,7 +11,7 @@ import {
   MpqHashTableEntry,
   MpqHeader,
   MpqHeaderReader,
-} from './header';
+} from './header.js';
 
 // Common big ints used during decompression
 const x0b = BigInt(0x0b);

@@ -4,8 +4,8 @@ const DecompressedPacketData =
 import { Diablo2MpqLoader } from '@diablo2/bintools';
 import { Diablo2Client } from '@diablo2/core';
 import { Diablo2Mpq, getDiabloVersion, toHex } from '@diablo2/data';
-import 'source-map-support/register';
-import { Log } from '../logger';
+import 'source-map-support/register.js';
+import { Log } from '../logger.js';
 
 async function main(): Promise<void> {
   if (process.env['DIABLO2_PATH']) await Diablo2MpqLoader.load(process.env['DIABLO2_PATH'], Log, Diablo2Mpq);

@@ -1,7 +1,7 @@
 import { createHash } from 'crypto';
 import { existsSync, readFileSync } from 'fs';
 import o from 'ospec';
-import { Mpq } from '../mpq';
+import { Mpq } from '../mpq.js';
 
 o.spec('Mpq.PatchD2', () => {
   if (!existsSync('./patch_d2.mpq')) {

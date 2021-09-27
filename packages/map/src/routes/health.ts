@@ -1,11 +1,11 @@
-import { Route } from '../route';
+import { Route } from '../route.js';
 
 export interface HealthResponse {
   message: 'ok';
 }
 
 export class HealthRoute implements Route {
-  url = '/healthz';
+  url = '/health';
   async process(): Promise<HealthResponse> {
     return { message: 'ok' };
   }

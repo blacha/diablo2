@@ -3,7 +3,7 @@ import { toHex } from '@diablo2/data';
 import { Huffman } from '@diablo2/huffman';
 import { Diablo2Packet, Diablo2ParsedPacket } from '@diablo2/packets';
 import { EventEmitter } from 'events';
-import { Diablo2Client } from './client';
+import { Diablo2Client } from './client.js';
 
 /** Buffer packets until the required amount have been received */
 export class PacketBuffer {

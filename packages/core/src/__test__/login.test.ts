@@ -1,7 +1,7 @@
 import { Diablo2Version } from '@diablo2/data';
 import o from 'ospec';
-import 'source-map-support/register';
-import { Diablo2Client } from '../client';
+import 'source-map-support/register.js';
+import { Diablo2Client } from '../client.js';
 
 const GamePackets = [
   { data: [175, 1] },

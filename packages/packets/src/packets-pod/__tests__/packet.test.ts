@@ -9,7 +9,7 @@ import {
   StateSet,
   UnitUseSkill,
   WarpAssign,
-} from '../server';
+} from '../server.js';
 
 // This has really weird formatting in prettier
 

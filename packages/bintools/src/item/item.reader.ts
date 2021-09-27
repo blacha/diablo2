@@ -1,6 +1,6 @@
 import { bp } from 'binparse';
-import { StrutTypeStringFixed } from 'binparse/build/src/string';
-import { StrutParserContext, StrutParserInput } from 'binparse/build/src/type';
+import { StrutTypeStringFixed } from 'binparse/build/src/string.js';
+import { StrutParserContext, StrutParserInput } from 'binparse/build/src/type.js';
 
 /**
  * Generally item codes are its 3 letters plus a space eg `cap `

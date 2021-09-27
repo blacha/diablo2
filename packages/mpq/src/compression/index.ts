@@ -1,5 +1,5 @@
-import { MpqCompressionType } from '../const';
-import { decompressPkWare } from './compress.pkware';
+import { MpqCompressionType } from '../const.js';
+import { decompressPkWare } from './compress.pkware.js';
 
 export function decompressSector(sector: Buffer, offset: number, size: number): Promise<Buffer> {
   const compressionType = sector[offset];

@@ -1,6 +1,6 @@
 import { promises as fs } from 'fs';
 import o from 'ospec';
-import { LangReader } from '../lang.reader';
+import { LangReader } from '../lang.reader.js';
 
 o.spec('LangReader', () => {
   o('should read v1 language tables', async () => {
