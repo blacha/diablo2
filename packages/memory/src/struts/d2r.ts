@@ -19,9 +19,13 @@ export const UnitAnyPlayerStrutD2r = bp.object('UnitAnyPlayer', {
   unk2: bp.array('Unk2', new Pointer(bp.lu32), 1),
   pPath: new Pointer(PathStrut),
   unk3: bp.skip(40),
-  unk4: bp.array('Unk', new Pointer(bp.lu32), 4),
+  unk4: bp.array('Unk4', new Pointer(bp.lu32), 4),
 
   pStats: new Pointer(StatListStrut),
+
+  unk5: bp.array('Unk5', new Pointer(bp.lu32), 25),
+
+  // nextUnit: new Pointer(bp.lu32),
 });
 
 export const D2RStrut = {

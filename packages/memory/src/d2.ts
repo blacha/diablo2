@@ -1,3 +1,4 @@
+import { Diablo2Mpq } from '@diablo2/data';
 import { StrutAny, StrutInfer, toHex } from 'binparse';
 import 'source-map-support/register.js';
 import { Diablo2Player } from './d2.player.js';
@@ -5,12 +6,14 @@ import { LogType } from './logger.js';
 import { Process } from './process.js';
 import { Scanner, ScannerBuffer } from './scanner.js';
 import { PlayerStrut } from './structures.js';
-import { D2RStrut } from './struts/d2r.js';
+import { D2RStrut, UnitAnyPlayerStrutD2r } from './struts/d2r.js';
 import { Pointer } from './struts/pointer.js';
-import { dump } from './util/dump.js';
+import { dump, dumpStrut } from './util/dump.js';
 
 export class Diablo2Process {
   process: Process;
+
+  lastGoodAddress = 0x7fffd3000000;
   constructor(proc: Process) {
     this.process = proc;
   }
@@ -42,10 +45,7 @@ export class Diablo2Process {
         const pointerBuf = ScannerBuffer.lu64(memoryOffset);
         // bufs.push(pointerBuf);
 
-        for await (const p of this.process.scanDistance(
-          0x2e000000,
-          (f) => Math.abs(f.start - 0x2e000000) < 0xfffffff,
-        )) {
+        for await (const p of this.process.scanDistance(this.lastGoodAddress)) {
           for (const off of ScannerBuffer.buffer(p.buffer, pointerBuf)) {
             const playerStrutOffset = off - 16;
 
@@ -66,6 +66,7 @@ export class Diablo2Process {
               'Player:Offset:Pointer:Found',
             );
 
+            this.lastGoodAddress = playerStrutOffset + p.map.start;
             return new Diablo2Player(this, playerStrutOffset + p.map.start);
           }
         }

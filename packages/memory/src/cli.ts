@@ -1,3 +1,4 @@
+import { Diablo2MpqLoader } from '@diablo2/bintools';
 import { Difficulty } from '@diablo2/data';
 import { bp } from 'binparse';
 import 'source-map-support/register.js';
@@ -28,6 +29,10 @@ async function main(): Promise<void> {
 
   const playerName = getPlayerName();
   if (playerName == null) return usage('Missing player name');
+
+  if (process.env['DIABLO2_PATH']) {
+    await Diablo2MpqLoader.load(process.env['DIABLO2_PATH'], Log);
+  }
 
   let proc = await Diablo2Process.find('Game.exe');
   if (proc == null || process.argv.includes('--d2r')) {
