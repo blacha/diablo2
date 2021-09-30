@@ -1,8 +1,7 @@
-import { StrutAny, StrutBase, bp, StrutParserContext, StrutInfer, toHex } from 'binparse';
-import { Process } from '../process.js';
-import * as util from 'util';
 import c from 'ansi-colors';
-import { LUInt32 } from 'binparse/build/src/int';
+import { bp, StrutAny, StrutBase, StrutInfer, StrutParserContext, toHex } from 'binparse';
+import * as util from 'util';
+import { Process } from '../process.js';
 
 export class PointerResult<T extends StrutAny> {
   offset: number;

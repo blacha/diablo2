@@ -1,5 +1,5 @@
 import { Diablo2State } from '@diablo2/core';
-import { Attribute, Difficulty } from '@diablo2/data';
+import { Difficulty } from '@diablo2/data';
 import { Diablo2Process } from './d2.js';
 import { Diablo2Player } from './d2.player.js';
 import { id, Log, LogType } from './logger.js';

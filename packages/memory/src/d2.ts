@@ -1,4 +1,3 @@
-import { Diablo2Mpq } from '@diablo2/data';
 import { StrutAny, StrutInfer, toHex } from 'binparse';
 import 'source-map-support/register.js';
 import { Diablo2Player } from './d2.player.js';
@@ -6,14 +5,13 @@ import { LogType } from './logger.js';
 import { Process } from './process.js';
 import { Scanner, ScannerBuffer } from './scanner.js';
 import { PlayerStrut } from './structures.js';
-import { D2RStrut, UnitAnyPlayerStrutD2r } from './struts/d2r.js';
+import { D2RStrut } from './struts/d2r.js';
 import { Pointer } from './struts/pointer.js';
-import { dump, dumpStrut } from './util/dump.js';
 
 export class Diablo2Process {
   process: Process;
 
-  lastGoodAddress = 0x7fffd3000000;
+  lastGoodAddress = 0x22000000;
   constructor(proc: Process) {
     this.process = proc;
   }
@@ -32,20 +30,20 @@ export class Diablo2Process {
   }
 
   async scanForPlayerD2r(playerName: string, logger: LogType): Promise<Diablo2Player | null> {
-    for await (const mem of this.process.scanDistance(0x7fffd3000000, (f) => f.line.startsWith('7fffd'))) {
+    for await (const mem of this.process.scanDistance(0x7fffd3000000, (f) => f.line.startsWith('7fff'))) {
       for (const nameOffset of ScannerBuffer.text(mem.buffer, playerName, 16)) {
         const memoryOffset = nameOffset + mem.map.start;
 
         const strut = PlayerStrut.raw(mem.buffer, nameOffset);
         if (Pointer.isPointersValid(strut) > 0) continue;
-
-        // if ('0x7fffd30b5460' !== toHex(nameOffset + mem.map.start)) continue;
         logger.debug({ offset: toHex(nameOffset + mem.map.start) }, 'Player:Offset');
 
         const pointerBuf = ScannerBuffer.lu64(memoryOffset);
-        // bufs.push(pointerBuf);
 
-        for await (const p of this.process.scanDistance(this.lastGoodAddress)) {
+        for await (const p of this.process.scanDistance(
+          this.lastGoodAddress,
+          (f) => Math.abs(f.start - this.lastGoodAddress) < 0xfffffff,
+        )) {
           for (const off of ScannerBuffer.buffer(p.buffer, pointerBuf)) {
             const playerStrutOffset = off - 16;
 
