@@ -44,13 +44,9 @@ export class Diablo2Player {
     if (!player.pStats.isValid) logger.error({ offset: toHex(player.pStats.offset) }, 'Player:OffsetInvalid:Stats');
     const stats = new Map<Attribute, number>();
 
-    dumpStrut(StatListStrut);
-    dump(await this.d2.process.read(player.pStats.offset, StatListStrut.size), ' pStats ');
     const statList = await this.d2.readStrutAt(player.pStats.offset, StatListStrut);
-    console.log(statList);
     const buf = await this.d2.process.read(statList.pStat.offset, StatStrut.size * statList.count);
 
-    dump(buf, ' StatList ');
     for (let i = 0; i < statList.count; i++) {
       const stat = StatStrut.raw(buf, i * StatStrut.size);
       stats.set(stat.code, stat.value);

@@ -105,6 +105,7 @@ export class Process {
         yield { buffer, offset: map.start, map: map };
       } catch (err) {
         console.trace({ err }, 'Scan:Failed');
+        break;
       }
     }
   }
@@ -129,6 +130,7 @@ export class Process {
         yield { buffer, offset: map.start, map: map };
       } catch (err) {
         console.trace({ err }, 'Scan:Reverse');
+        break;
       }
     }
   }
@@ -144,6 +146,7 @@ export class Process {
         yield { buffer, offset: map.start, map: map };
       } catch (err) {
         console.trace({ err }, 'Scan:Reverse');
+        break;
       }
     }
   }

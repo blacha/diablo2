@@ -7,6 +7,7 @@ import { Scanner, ScannerBuffer } from './scanner.js';
 import { PlayerStrut } from './structures.js';
 import { D2RStrut } from './struts/d2r.js';
 import { Pointer } from './struts/pointer.js';
+import { dump } from './util/dump.js';
 
 export class Diablo2Process {
   process: Process;
@@ -14,6 +15,11 @@ export class Diablo2Process {
   lastGoodAddress = 0x22000000;
   constructor(proc: Process) {
     this.process = proc;
+  }
+
+  async dump(address: number, count = 100): Promise<void> {
+    const data = await this.process.read(address, count);
+    dump(data, toHex(address));
   }
 
   async readStrutAt<T extends StrutAny>(offset: number, strut: T, size = strut.size): Promise<StrutInfer<T>> {
@@ -36,7 +42,6 @@ export class Diablo2Process {
 
         const strut = PlayerStrut.raw(mem.buffer, nameOffset);
         if (Pointer.isPointersValid(strut) > 0) continue;
-        logger.debug({ offset: toHex(nameOffset + mem.map.start) }, 'Player:Offset');
 
         const pointerBuf = ScannerBuffer.lu64(memoryOffset);
 
@@ -48,7 +53,6 @@ export class Diablo2Process {
             const playerStrutOffset = off - 16;
 
             const unit = D2RStrut.UnitPlayer.raw(p.buffer, playerStrutOffset);
-            console.log(unit);
             logger.info(
               {
                 offset: toHex(nameOffset + mem.map.start),

@@ -17,7 +17,7 @@ export class PointerResult<T extends StrutAny> {
     return true;
   }
 
-  async fetch(proc: Process): Promise<T> {
+  async fetch(proc: Process): Promise<StrutInfer<T>> {
     const bytes = await proc.read(this.offset, this.target.size);
     const res = this.target.raw(bytes, 0);
     return res;

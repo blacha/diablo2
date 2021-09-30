@@ -35,10 +35,8 @@ export const StatStrut = bp.object('Stat', {
 });
 
 export const StatListStrut = bp.object('StatList', {
-  unk1: bp.bytes(9 * 4),
-  //   unk2: new Pointer(bp.lu32),
+  unk1: bp.bytes(12 * 4),
   pStat: new Pointer(StatStrut),
-
   count: bp.lu16,
   countB: bp.lu16,
 });

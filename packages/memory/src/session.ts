@@ -1,5 +1,5 @@
 import { Diablo2State } from '@diablo2/core';
-import { Difficulty } from '@diablo2/data';
+import { Attribute, Difficulty } from '@diablo2/data';
 import { Diablo2Process } from './d2.js';
 import { Diablo2Player } from './d2.player.js';
 import { id, Log, LogType } from './logger.js';
@@ -84,11 +84,11 @@ export class Diablo2GameSessionMemory {
     }
 
     // Track XP
-    // const stats = await obj.getStats(player, logger);
-    // const xp = stats.get(Attribute.Experience);
-    // if (xp != null && this.state.player.xp.current !== xp) {
-    //   this.state.trackXp(xp, true);
-    // }
+    const stats = await obj.getStats(player, logger);
+    const xp = stats.get(Attribute.Experience);
+    if (xp != null && this.state.player.xp.current !== xp) {
+      this.state.trackXp(xp, true);
+    }
 
     const duration = Date.now() - startTime;
 
