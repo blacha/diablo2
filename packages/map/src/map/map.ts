@@ -1,5 +1,6 @@
 export interface Diablo2Map {
   id: number;
+  name: string;
   map: number[][];
   objects: { id: number; type: 'object'; x: number; y: number }[];
   offset: { x: number; y: number };

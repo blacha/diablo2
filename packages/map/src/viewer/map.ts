@@ -1,32 +1,83 @@
 import { Act, Difficulty } from '@diablo2/data';
-import { AreaUtil } from './area.js';
-import { MapTiles } from './tile.js';
 import { toHex } from 'binparse/build/src/hex.js';
+import { AreaUtil } from './area.js';
+import { MapBounds } from './bounds.js';
+import { MapParams, MapTiles } from './tile.js';
 
 declare const maplibregl: any;
 
-export type Cancel = { cancel: () => void };
-const cancel = { cancel: (): void => undefined };
-maplibregl.addProtocol('d2', (params: { url: string }, cb: (d?: unknown, e?: unknown) => void): Cancel | void => {
-  const chunks = params.url.split('/');
+function urlToParams(url: string): null | MapParams {
+  const chunks = url.split('/');
 
   const seed = Number(chunks[2]);
-  if (isNaN(seed)) return cb();
+  if (isNaN(seed)) return null;
 
   const difficulty = AreaUtil.getDifficulty(chunks[3]);
-  if (difficulty == null) return cb();
+  if (difficulty == null) return null;
 
   const act = AreaUtil.getAct(chunks[4]);
-  if (act == null) return cb();
+  if (act == null) return null;
+  return { seed, difficulty, act } as MapParams;
+}
+
+function urlToXyzParams(url: string): null | MapParams {
+  const chunks = url.split('/');
+
+  const seed = Number(chunks[2]);
+  if (isNaN(seed)) return null;
+
+  const difficulty = AreaUtil.getDifficulty(chunks[3]);
+  if (difficulty == null) return null;
+
+  const act = AreaUtil.getAct(chunks[4]);
+  if (act == null) return null;
 
   const z = Number(chunks[5]);
   const x = Number(chunks[6]);
   const y = Number(chunks[7]);
-  if (isNaN(x) || isNaN(x) || isNaN(z)) return cb();
+  console.log({ z, x, y });
 
-  console.log('Fetch', { chunks, seed, difficulty, z, x, y });
+  if (isNaN(x) || isNaN(x) || isNaN(z)) return null;
 
-  MapTiles.render(difficulty, act, seed, z, x, y).then((d) => cb(null, d));
+  return { seed, difficulty, act, x, y, z };
+}
+
+export type Cancel = { cancel: () => void };
+const cancel = { cancel: (): void => undefined };
+maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: unknown) => void): Cancel | void => {
+  const data = urlToParams(params.url);
+  if (data == null) return cb();
+  MapTiles.get(data.difficulty, data.seed).then((c) => {
+    const features: unknown[] = [];
+
+    for (const z of c.zones.values()) {
+      const mapAct = AreaUtil.getActLevel(z.id);
+      if (mapAct !== data.act) continue;
+
+      const latLng = MapBounds.sourceToLatLng(z.offset.x, z.offset.y);
+      features.push({
+        type: 'Feature',
+        geometry: {
+          type: 'Point',
+          coordinates: [latLng.lng, latLng.lat],
+        },
+        properties: {
+          name: z.name,
+          type: 'zone-name',
+        },
+      });
+    }
+
+    return cb(null, { type: 'FeatureCollection', features });
+  });
+
+  return cancel;
+});
+maplibregl.addProtocol('d2r', (params: { url: string }, cb: (e?: unknown, d?: unknown) => void): Cancel | void => {
+  const data = urlToXyzParams(params.url);
+  if (data == null) return cb();
+
+  MapTiles.getRaster(data).then((d) => cb(null, d));
   return cancel;
 });
 
@@ -43,11 +94,23 @@ export class D2MapViewer {
       zoom: 0,
       minZoom: 0,
       center: [180, 90],
-      style: '',
+      style: {
+        version: 8,
+        id: 'base-style',
+        sources: {},
+        layers: [],
+        glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+        sprite: 'https://nst-guide.github.io/osm-liberty-topo/sprites/osm-liberty-topo',
+      },
       accessToken: '',
     });
-    this.trackDom();
-    this.updateFromUrl();
+
+    this.map.on('load', () => {
+      console.log('Loaded');
+      this.trackDom();
+      this.updateFromUrl();
+      this.update();
+    });
   }
 
   updateFromUrl(): void {
@@ -69,18 +132,38 @@ export class D2MapViewer {
 
   lastUrl: string | null;
   update(): void {
+    console.trace('Update');
     this.updateUrl();
     this.updateDom();
-    const d2Url = `d2://${toHex(this.seed, 8)}/${Difficulty[this.difficulty]}/${Act[this.act]}/{z}/{x}/{y}`;
+    const d2Url = `${toHex(this.seed, 8)}/${Difficulty[this.difficulty]}/${Act[this.act]}/{z}/{x}/{y}`;
     if (this.lastUrl === d2Url) return;
     this.lastUrl = d2Url;
 
-    if (this.map.style && this.map.style.sourceCaches['diablo2-collision']) {
-      this.map.removeLayer('diablo2-collision');
-      this.map.removeSource('diablo2-collision');
+    if (this.map.style && this.map.style.sourceCaches['source-diablo2-collision']) {
+      this.map.removeLayer('layer-diablo2-collision');
+      this.map.removeSource('source-diablo2-collision');
+      this.map.removeLayer('layer-diablo2-vector');
+      this.map.removeSource('source-diablo2-vector');
     }
-    this.map.addSource('diablo2-collision', { type: 'raster', tiles: [d2Url], maxzoom: 14 });
-    this.map.addLayer({ id: 'diablo2-collision', type: 'raster', source: 'diablo2-collision' });
+    this.map.addSource('source-diablo2-collision', { type: 'raster', tiles: [`d2r://${d2Url}`], maxzoom: 14 });
+    this.map.addSource('source-diablo2-vector', { type: 'geojson', data: `d2v://${d2Url}` });
+
+    this.map.addLayer({ id: 'layer-diablo2-collision', type: 'raster', source: 'source-diablo2-collision' });
+    this.map.addLayer({
+      id: 'layer-diablo2-vector', // Layer ID
+      source: 'source-diablo2-vector', // ID of the tile source created above
+      type: 'symbol',
+      layout: {
+        'icon-image': 'custom-marker',
+
+        'text-field': ['get', 'name'],
+        'text-font': ['Open Sans Bold'],
+        'text-offset': [0, 1.25],
+        'text-anchor': 'top',
+      },
+      // : {},
+      filter: ['==', 'type', 'zone-name'],
+    });
   }
 
   setAct(a: string): void {

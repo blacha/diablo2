@@ -10,6 +10,15 @@ export class MapBounds {
     const size = scale * MapBounds.TileSize;
     return { x: tX * size, y: tY * size, width: size, height: size };
   }
+
+  // TODO need to use an actual web mercator projection adjustment
+  static sourceToLatLng(sX: number, sY: number): { lat: number; lng: number } {
+    const halfSize = MapBounds.Size / 2;
+    const lng = ((sX - halfSize) / MapBounds.Size) * 360;
+    const lat = ((sY - halfSize) / MapBounds.Size) * -180;
+    return { lat, lng };
+  }
+
   static getScale(z: number): number {
     return MapBounds.Size / (2 ** z * MapBounds.TileSize);
   }
