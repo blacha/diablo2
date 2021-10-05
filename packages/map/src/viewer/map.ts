@@ -117,7 +117,7 @@ export class D2MapViewer {
     const urlParams = new URLSearchParams(window.location.search);
 
     this.seed = Number(urlParams.get('seed'));
-    if (isNaN(this.seed)) this.seed = 0x00ff00ff;
+    if (isNaN(this.seed) || this.seed <= 0) this.seed = 0x00ff00ff;
     this.act = AreaUtil.getAct(urlParams.get('act')) ?? Act.ActI;
     this.difficulty = AreaUtil.getDifficulty(urlParams.get('difficulty')) ?? Difficulty.Normal;
   }
