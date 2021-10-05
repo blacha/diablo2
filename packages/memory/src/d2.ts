@@ -12,7 +12,11 @@ import { dump } from './util/dump.js';
 export class Diablo2Process {
   process: Process;
 
-  lastGoodAddress = 0;
+  lastGoodAddress = {
+    name: 0x7fffd0724060,
+    player: 0x23b8f2c0,
+  };
+
   constructor(proc: Process) {
     this.process = proc;
   }
@@ -36,9 +40,9 @@ export class Diablo2Process {
   }
 
   async scanForPlayerD2r(playerName: string, logger: LogType): Promise<Diablo2Player | null> {
-    for await (const mem of this.process.scanDistance(0x7fffd3000000, (f) => f.line.startsWith('7fff'))) {
+    for await (const mem of this.process.scanDistance(this.lastGoodAddress.name, (f) => f.line.startsWith('7fff'))) {
       for (const nameOffset of ScannerBuffer.text(mem.buffer, playerName, 16)) {
-        const memoryOffset = nameOffset + mem.map.start;
+        const playerNameOffset = nameOffset + mem.map.start;
 
         const strut = PlayerStrut.raw(mem.buffer, nameOffset);
 
@@ -50,11 +54,12 @@ export class Diablo2Process {
         if (!strut.waypoint.nightmare.isValid) continue;
         if (!strut.waypoint.hell.isValid) continue;
         logger.info({ offset: toHex(nameOffset + mem.map.start) }, 'Player:Offset');
-        const pointerBuf = ScannerBuffer.lu64(memoryOffset);
+        const pointerBuf = ScannerBuffer.lu64(playerNameOffset);
 
+        const lastPlayer = this.lastGoodAddress.player;
         for await (const p of this.process.scanDistance(
-          this.lastGoodAddress,
-          (f) => this.lastGoodAddress === 0 || Math.abs(f.start - this.lastGoodAddress) < 0x0fffffff,
+          lastPlayer,
+          (f) => lastPlayer === 0 || Math.abs(f.start - lastPlayer) < 0x0fffffff,
         )) {
           for (const off of ScannerBuffer.buffer(p.buffer, pointerBuf)) {
             const playerStrutOffset = off - 16;
@@ -75,7 +80,9 @@ export class Diablo2Process {
               'Player:Offset:Pointer:Found',
             );
 
-            this.lastGoodAddress = playerStrutOffset + p.map.start;
+            this.lastGoodAddress.player = playerStrutOffset + p.map.start;
+            this.lastGoodAddress.name = playerNameOffset;
+
             return new Diablo2Player(this, playerStrutOffset + p.map.start);
           }
         }
