@@ -25,7 +25,7 @@ export const UnitAnyPlayerStrutD2r = bp.object('UnitAnyPlayer', {
 
   unk5: bp.array('Unk5', new Pointer(bp.lu32), 25),
 
-  // nextUnit: new Pointer(bp.lu32),
+  nextUnit: bp.lu64,
 });
 
 export const D2RStrut = {

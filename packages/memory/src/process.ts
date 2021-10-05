@@ -80,7 +80,7 @@ export class Process {
 
       return buf;
     } catch (e) {
-      console.trace(`Failed to read, ${offset}, ${count}`);
+      // console.trace(`Failed to read, ${offset}, ${count}`);
       throw new Error('Failed to read memory at: ' + toHex(offset) + ' - ' + e);
     }
   }
@@ -104,7 +104,7 @@ export class Process {
         const buffer = await this.read(map.start, map.end - map.start);
         yield { buffer, offset: map.start, map: map };
       } catch (err) {
-        console.trace({ err }, 'Scan:Failed');
+        // console.trace({ err }, 'Scan:Failed');
         break;
       }
     }
@@ -129,7 +129,7 @@ export class Process {
         const buffer = await this.read(map.start, map.end - map.start);
         yield { buffer, offset: map.start, map: map };
       } catch (err) {
-        console.trace({ err }, 'Scan:Reverse');
+        // console.trace({ err, offset }, 'Scan:Distance');
         break;
       }
     }
@@ -145,7 +145,7 @@ export class Process {
         const buffer = await this.read(map.start, map.end - map.start);
         yield { buffer, offset: map.start, map: map };
       } catch (err) {
-        console.trace({ err }, 'Scan:Reverse');
+        // console.trace({ err }, 'Scan:Reverse');
         break;
       }
     }

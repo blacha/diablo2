@@ -4,7 +4,6 @@ import { Pointer } from './index.js';
 import { LogType } from './logger.js';
 import { ActS, ActStrut, PathS, PathStrut, StatListStrut, StatStrut, UnitPlayer } from './structures.js';
 import { D2RStrut } from './struts/d2r.js';
-import { dump, dumpStrut } from './util/dump.js';
 
 export class Diablo2Player {
   d2: Diablo2Process;

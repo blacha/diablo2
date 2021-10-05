@@ -12,7 +12,7 @@ import { dump } from './util/dump.js';
 export class Diablo2Process {
   process: Process;
 
-  lastGoodAddress = 0x22000000;
+  lastGoodAddress = 0;
   constructor(proc: Process) {
     this.process = proc;
   }
@@ -41,13 +41,20 @@ export class Diablo2Process {
         const memoryOffset = nameOffset + mem.map.start;
 
         const strut = PlayerStrut.raw(mem.buffer, nameOffset);
-        if (Pointer.isPointersValid(strut) > 0) continue;
 
+        if (!strut.quest.normal.isValid) continue;
+        if (!strut.quest.nightmare.isValid) continue;
+        if (!strut.quest.hell.isValid) continue;
+
+        if (!strut.waypoint.normal.isValid) continue;
+        if (!strut.waypoint.nightmare.isValid) continue;
+        if (!strut.waypoint.hell.isValid) continue;
+        logger.info({ offset: toHex(nameOffset + mem.map.start) }, 'Player:Offset');
         const pointerBuf = ScannerBuffer.lu64(memoryOffset);
 
         for await (const p of this.process.scanDistance(
           this.lastGoodAddress,
-          (f) => Math.abs(f.start - this.lastGoodAddress) < 0xfffffff,
+          (f) => this.lastGoodAddress === 0 || Math.abs(f.start - this.lastGoodAddress) < 0x0fffffff,
         )) {
           for (const off of ScannerBuffer.buffer(p.buffer, pointerBuf)) {
             const playerStrutOffset = off - 16;
@@ -76,7 +83,7 @@ export class Diablo2Process {
     }
 
     logger.warn({ playerName }, 'Player:NotFound');
-    return null;
+    process.exit();
   }
 
   async scanForPlayerD2c(playerName: string, logger: LogType): Promise<Diablo2Player | null> {
