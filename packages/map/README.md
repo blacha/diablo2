@@ -46,32 +46,52 @@ wine bin/d2-map.exe :PathToDiablo2 --seed 10 --level 1 --difficulty 0
  - npm v16
  - yarn
  - docker
- - Diablo 2 LOD
+ - Diablo 2 LOD 1.14d
  - ProjectD2
  
- 
-### Building (windows)
+
+### Building from docker image
+
+This is the easiest method to get working:
+
+```bash
+docker pull blacha/diablo2
+docker run -it -v "/E/Games/Diablo II":/app/game docker.io/blacha/diablo2:latest /bin/bash
+wine regedit /app/d2.install.reg
+wine bin/d2-map.exe game --seed 10 --level 1 --difficulty 0
+```
+The last wine command should generate the JSON for one level, this is to test that it works.
+
+
+### Building from source (windows)
 From the source code folder:
 Remember to change "/E/Games/Diablo II" in the below commands to your D2 installation folder.
 
 ```bash
 yarn install
+yarn build
 cd packages/map
 yarn bundle-server
 yarn bundle-www
 xcopy static dist\www
 docker build . -t diablo2/map
 docker run -it -v "/E/Games/Diablo II":/app/game diablo2/map /bin/bash
+wine regedit /app/d2.install.reg
 wine bin/d2-map.exe game --seed 10 --level 1 --difficulty 0
 exit
 ```
-
 The above wine command should generate the JSON for one level, this is to test that it works.
+You can try using different seeds, levels and difficulties this way if you like.
+
 
 ### Starting the server
 Now you run this server so you can send requests for seeds/difficulties to generate all the maps for that given seed:
 ```bash
 docker run -v "/E/Games/Diablo II":/app/game -p 8899:8899 diablo2/map
+```
+or if you're using the public docker image:
+```bash
+docker run -v "/E/Games/Diablo II":/app/game -p 8899:8899 docker.io/blacha/diablo2:latest
 ```
 
 Then you can do a simple curl command to generate:
