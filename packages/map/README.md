@@ -40,28 +40,67 @@ wine bin/d2-map.exe :PathToDiablo2 --seed 10 --level 1 --difficulty 0
 }
 ```
 
+## Getting started
 
-## Building
+### Installation
+ - npm v16
+ - yarn
+ - docker
+ - Diablo 2 LOD
+ - ProjectD2
+ 
+ 
+### Building (windows)
+From the source code folder:
+Remember to change "/E/Games/Diablo II" in the below commands to your D2 installation folder.
 
-Everything needed to build and run this is provided inside the `./Dockerfile`
-
-```
-yarn bundle
-
+```bash
+yarn install
+cd packages/map
+yarn bundle-server
+yarn bundle-www
+xcopy static dist\www
 docker build . -t diablo2/map
-
-docker run -it -v /path/to/diablo2/game:/app/game diablo2/map /bin/bash
-
+docker run -it -v "/E/Games/Diablo II":/app/game diablo2/map /bin/bash
 wine bin/d2-map.exe game --seed 10 --level 1 --difficulty 0
+exit
 ```
 
-## Starting server
+The above wine command should generate the JSON for one level, this is to test that it works.
 
+### Starting the server
+Now you run this server so you can send requests for seeds/difficulties to generate all the maps for that given seed:
+```bash
+docker run -v "/E/Games/Diablo II":/app/game -p 8899:8899 diablo2/map
 ```
-docker run -v /path/to/diablo2/game:/app/game -p 8899:8899 diablo2/map /bin/bash
 
-curl localhost:8899/v1/maps/0x005/0.json
+Then you can do a simple curl command to generate:
+
+`curl localhost:8899/v1/map/<seed>/<difficulty>.json`
+
+e.g. `curl localhost:8899/v1/map/3607656c/0.json`
+
+### Troubleshooting:
+
+* `/bin/sh: 1: ./build.mapgen.sh: not found`
+ 
+I had this issue and I suspect it was windows removing the 'executable' permissions from this bash script.
+I worked around it by making this change to the `Dockerfile`:
+
+Replaced the line
 ```
+RUN ./build.mapgen.sh
+```
+with (the contents of build.mapgen.sh)
+```
+RUN mkdir bin -p
+RUN i686-w64-mingw32-g++ -o bin/d2-map.exe \
+    -Wno-write-strings \
+    -static-libgcc -static-libstdc++ \
+    map/json.c map/map.c map/offset.c map/d2_client.c map/main.c 
+RUN echo $(date --iso-8601=seconds) "Build done"
+```  
+
 
 
 ## Fixing offsets
