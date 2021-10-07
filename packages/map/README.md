@@ -40,28 +40,87 @@ wine bin/d2-map.exe :PathToDiablo2 --seed 10 --level 1 --difficulty 0
 }
 ```
 
+## Getting started
 
-## Building
+### Installation
+ - npm v16
+ - yarn
+ - docker
+ - Diablo 2 LOD 1.14d
+ - ProjectD2
+ 
 
-Everything needed to build and run this is provided inside the `./Dockerfile`
+### Building from docker image
 
-```
-yarn bundle
+This is the easiest method to get working:
 
-docker build . -t diablo2/map
-
-docker run -it -v /path/to/diablo2/game:/app/game diablo2/map /bin/bash
-
+```bash
+docker pull blacha/diablo2
+docker run -it -v "/E/Games/Diablo II":/app/game docker.io/blacha/diablo2:latest /bin/bash
+wine regedit /app/d2.install.reg
 wine bin/d2-map.exe game --seed 10 --level 1 --difficulty 0
 ```
+The last wine command should generate the JSON for one level, this is to test that it works.
 
-## Starting server
 
+### Building from source (windows)
+From the source code folder:
+Remember to change "/E/Games/Diablo II" in the below commands to your D2 installation folder.
+
+```bash
+yarn install
+yarn build
+cd packages/map
+yarn bundle-server
+yarn bundle-www
+xcopy static dist\www
+docker build . -t diablo2/map
+docker run -it -v "/E/Games/Diablo II":/app/game diablo2/map /bin/bash
+wine regedit /app/d2.install.reg
+wine bin/d2-map.exe game --seed 10 --level 1 --difficulty 0
+exit
 ```
-docker run -v /path/to/diablo2/game:/app/game -p 8899:8899 diablo2/map /bin/bash
+The above wine command should generate the JSON for one level, this is to test that it works.
+You can try using different seeds, levels and difficulties this way if you like.
 
-curl localhost:8899/v1/maps/0x005/0.json
+
+### Starting the server
+Now you run this server so you can send requests for seeds/difficulties to generate all the maps for that given seed:
+```bash
+docker run -v "/E/Games/Diablo II":/app/game -p 8899:8899 diablo2/map
 ```
+or if you're using the public docker image:
+```bash
+docker run -v "/E/Games/Diablo II":/app/game -p 8899:8899 docker.io/blacha/diablo2:latest
+```
+
+Then you can do a simple curl command to generate:
+
+`curl localhost:8899/v1/map/<seed>/<difficulty>.json`
+
+e.g. `curl localhost:8899/v1/map/3607656c/0.json`
+
+### Troubleshooting:
+
+* `/bin/sh: 1: ./build.mapgen.sh: not found`
+ 
+I had this issue and I suspect it was windows removing the 'executable' permissions from this bash script.
+I worked around it by making this change to the `Dockerfile`:
+
+Replaced the line
+```
+RUN ./build.mapgen.sh
+```
+with (the contents of build.mapgen.sh)
+```
+RUN mkdir bin -p
+RUN i686-w64-mingw32-g++ -o bin/d2-map.exe \
+    -Wno-write-strings \
+    -static-libgcc -static-libstdc++ \
+    map/json.c map/map.c map/offset.c map/d2_client.c map/main.c 
+RUN echo $(date --iso-8601=seconds) "Build done"
+```  
+
 
 
 ## Fixing offsets
