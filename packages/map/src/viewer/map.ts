@@ -62,7 +62,7 @@ maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: un
       features.push({
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
-        properties: { name: z.name, type: 'zone-name' },
+        properties: { name: AreaLevel[z.id], type: 'zone-name' },
       });
 
       for (const obj of z.objects) {
