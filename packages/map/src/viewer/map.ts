@@ -151,7 +151,6 @@ export class D2MapViewer {
 
   lastUrl: string | null;
   update(): void {
-    console.trace('Update');
     this.updateUrl();
     this.updateDom();
     const d2Url = `${toHex(this.seed, 8)}/${Difficulty[this.difficulty]}/${Act[this.act]}/{z}/{x}/{y}`;
