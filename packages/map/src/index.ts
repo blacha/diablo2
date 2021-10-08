@@ -5,19 +5,15 @@ import 'source-map-support/register.js';
 import * as ulid from 'ulid';
 import { Log } from './logger.js';
 import { Diablo2Path, MapCommand, MapProcess } from './map/map.process.js';
-import { HttpError, Request, Response, Route } from './route.js';
+import { HttpError, Request, Route } from './route.js';
 import { HealthRoute } from './routes/health.js';
 import { MapRoute } from './routes/map.js';
 
-if (!fs.existsSync(MapCommand)) {
-  Log.fatal(`Cannot find ${MapCommand}`);
-  process.exit(1);
-}
+if (!fs.existsSync(MapCommand)) Log.warn({ path: MapCommand }, `Diablo2Map:Missing`);
+if (!fs.existsSync(Diablo2Path)) Log.warn({ path: Diablo2Path }, `Diablo2Path:Missing`);
 
-if (!fs.existsSync(Diablo2Path)) {
-  Log.fatal(`Cannot find ${Diablo2Path}`);
-  process.exit(1);
-}
+const html = fs.readFileSync('./www/index.html');
+const js = fs.readFileSync('./www/index.js').toString().replace('process.env.MAP_HOST', "''");
 
 class Diablo2MapServer {
   server = express.default();
@@ -25,11 +21,21 @@ class Diablo2MapServer {
 
   constructor() {
     this.server.use(cors());
+    this.server.get('/', (ex: express.Request, res: express.Response) => {
+      res.status(200);
+      res.header('text/html');
+      res.end(html);
+    });
+    this.server.get('/index.js', (ex: express.Request, res: express.Response) => {
+      res.status(200);
+      res.header('text/javascript');
+      res.end(js);
+    });
   }
 
   bind(route: Route): void {
     Log.info({ url: route.url }, 'Bind');
-    this.server.get(route.url, async (ex: express.Request, res: Response, next: express.NextFunction) => {
+    this.server.get(route.url, async (ex: express.Request, res: express.Response, next: express.NextFunction) => {
       const req = ex as Request;
       req.id = ulid.ulid();
       req.log = Log.child({ id: req.id });

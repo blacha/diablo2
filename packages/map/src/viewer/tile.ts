@@ -15,8 +15,9 @@ export interface MapParams {
   z: number;
 }
 
+process = typeof process === 'undefined' ? ({ env: {} } as any) : process;
 export class MapTiles {
-  static MapHost = 'https://diablo2.chard.dev';
+  static MapHost = process.env.MAP_HOST ?? 'https://diablo2.chard.dev';
 
   static tiles = new LruCache<Promise<unknown>>(1024);
   static maps = new LruCache<Promise<MapData>>(32);
