@@ -6,8 +6,17 @@ import { Diablo2Map, MapRouteResponse } from '../map/map.js';
 import { AreaUtil } from './area.js';
 import { Bounds, MapBounds } from './bounds.js';
 
+export interface MapParams {
+  seed: number;
+  difficulty: number;
+  act: number;
+  x: number;
+  y: number;
+  z: number;
+}
+
 export class MapTiles {
-  static MapHost = 'http://localhost:8899';
+  static MapHost = 'https://diablo2.chard.dev';
 
   static tiles = new LruCache<Promise<unknown>>(1024);
   static maps = new LruCache<Promise<MapData>>(32);
@@ -38,12 +47,31 @@ export class MapTiles {
     return new MapData(json);
   }
 
-  static render(difficulty: Difficulty, act: Act, seed: number, z: number, x: number, y: number): Promise<unknown> {
-    const tileId = [toHex(difficulty, 8), Act[act], seed, z, x, y].join('__');
+  static getVector(d: MapParams): Promise<unknown> {
+    const tileId = ['vector', toHex(d.difficulty, 8), Act[d.act], d.seed, d.z, d.x, d.y].join('__');
     let existing = this.tiles.get(tileId);
     if (existing == null) {
       const startTime = Date.now();
-      existing = this.tile(difficulty, act, seed, z, x, y);
+      existing = this.tileVector(d);
+
+      existing.then((r) => {
+        if (r) console.log(tileId, { duration: Date.now() - startTime });
+      });
+      this.tiles.set(tileId, existing);
+    }
+    return existing;
+  }
+  static async tileVector(d: MapParams): Promise<unknown | void> {
+    console.log('Tile', d);
+    return;
+  }
+
+  static getRaster(d: MapParams): Promise<unknown> {
+    const tileId = ['raster', toHex(d.difficulty, 8), Act[d.act], d.seed, d.z, d.x, d.y].join('__');
+    let existing = this.tiles.get(tileId);
+    if (existing == null) {
+      const startTime = Date.now();
+      existing = this.tileRaster(d);
 
       existing.then((r) => {
         if (r) console.log(tileId, { duration: Date.now() - startTime });
@@ -53,39 +81,25 @@ export class MapTiles {
     return existing;
   }
 
-  static async tile(
-    difficulty: Difficulty,
-    act: Act,
-    seed: number,
-    z: number,
-    x: number,
-    y: number,
-  ): Promise<ArrayBuffer | void> {
-    const map = await this.get(difficulty, seed);
-    const tileId = [toHex(difficulty, 8), seed, z, x, y].join('__');
+  static async tileRaster(d: MapParams): Promise<ArrayBuffer | void> {
+    const map = await this.get(d.difficulty, d.seed);
 
-    const bounds = MapBounds.tileToSourceBounds(x, y, z);
-    const zones = map.findMaps(act, bounds);
-    console.log('Canvas', { zones, bounds });
+    const bounds = MapBounds.tileToSourceBounds(d.x, d.y, d.z);
+    const zones = map.findMaps(d.act, bounds);
 
     if (zones.length === 0) return;
-    console.log({ z, x, y, bounds }, zones);
 
     const canvas = document.createElement('canvas') as HTMLCanvasElement;
-    // const canvas = document.querySelector('#main-canvas') as HTMLCanvasElement;
-    const scale = MapBounds.getScale(z);
-    console.log(tileId, scale, MapBounds.TileSize);
+
+    const scale = MapBounds.getScale(d.z);
+
     canvas.width = MapBounds.TileSize * 2;
     canvas.height = MapBounds.TileSize * 2;
-    // console.log('Canvas', { canvas });
 
     const ctx = canvas.getContext('2d');
     if (ctx == null) return;
 
     for (const zone of zones) map.render(zone, ctx, bounds, (1 / scale) * 2);
-
-    // ctx.textAlign = 'center';
-    // ctx.fillText(tileId, 128, 128);
 
     const blob: Blob | null = await new Promise((r) => canvas.toBlob((b) => r(b), 'image/png'));
     if (blob == null) return;

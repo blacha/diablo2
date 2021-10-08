@@ -1,0 +1,70 @@
+export class VectorMap {
+  static source = 'source-diablo2-vector';
+  static ids = new Set<string>();
+  static layerName(s: string): string {
+    const name = `layer-diablo2-vector-${s}`;
+    this.ids.add(name);
+    return name;
+  }
+
+  static add(map: any): void {
+    map.addLayer({
+      id: this.layerName('waypoint'),
+      source: this.source,
+      type: 'circle',
+      paint: {
+        'circle-radius': 3,
+        'circle-color': '#ff00ff',
+        'circle-stroke-color': 'white',
+        'circle-stroke-width': 1,
+        'circle-opacity': 0.5,
+      },
+      filter: ['==', 'type', 'waypoint'],
+    });
+    map.addLayer({
+      id: this.layerName('zone-name'),
+      source: this.source,
+      type: 'symbol',
+      layout: {
+        'icon-image': 'custom-marker',
+        'text-field': ['get', 'name'],
+        'text-font': ['Open Sans Bold'],
+        'text-offset': [0, 0],
+        'text-anchor': 'bottom-left',
+      },
+      filter: ['==', 'type', 'zone-name'],
+    });
+
+    map.addLayer({
+      id: this.layerName('exit-name'),
+      source: this.source,
+      type: 'symbol',
+      layout: {
+        'icon-image': 'custom-marker',
+        'text-field': ['get', 'name'],
+        'text-font': ['Open Sans Bold'],
+        'text-offset': [0, 0],
+        'text-anchor': 'bottom-left',
+      },
+      filter: ['==', 'type', 'exit'],
+    });
+
+    map.addLayer({
+      id: this.layerName('exit'),
+      source: this.source,
+      type: 'circle',
+      paint: {
+        'circle-radius': 3,
+        'circle-color': '#ff0000',
+        'circle-stroke-color': 'white',
+        'circle-stroke-width': 1,
+        'circle-opacity': 0.5,
+      },
+      filter: ['==', 'type', 'exit'],
+    });
+  }
+
+  static remove(map: any): void {
+    for (const id of this.ids) map.removeLayer(id);
+  }
+}

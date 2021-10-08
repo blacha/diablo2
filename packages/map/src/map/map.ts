@@ -1,10 +1,34 @@
 export interface Diablo2Map {
   id: number;
+  name: string;
   map: number[][];
-  objects: { id: number; type: 'object'; x: number; y: number }[];
+  objects: Diablo2Object[];
   offset: { x: number; y: number };
   size: { width: number; height: number };
 }
+
+export type Diablo2Object = Diablo2MapObject | Diablo2MapNpc | Diablo2MapExit;
+
+export interface Diablo2MapObject {
+  id: number;
+  type: 'object';
+  x: number;
+  y: number;
+  name: 'chest' | 'Waypoint';
+}
+export interface Diablo2MapNpc {
+  id: number;
+  type: 'npc';
+  x: number;
+  y: number;
+}
+export interface Diablo2MapExit {
+  id: number;
+  type: 'exit';
+  x: number;
+  y: number;
+}
+
 export interface MapGenMessageInit {
   type: 'init';
 }
