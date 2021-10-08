@@ -1,7 +1,11 @@
 import { Act, Difficulty } from '@diablo2/data';
+import { toFeatureCollection } from '@linzjs/geojson';
 import { toHex } from 'binparse/build/src/hex.js';
+import type { Feature } from 'geojson';
 import { AreaUtil } from './area.js';
+import { AreaLevel } from './area.name.js';
 import { MapBounds } from './bounds.js';
+import { VectorMap } from './map.style.js';
 import { MapParams, MapTiles } from './tile.js';
 
 declare const maplibregl: any;
@@ -48,7 +52,7 @@ maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: un
   const data = urlToParams(params.url);
   if (data == null) return cb();
   MapTiles.get(data.difficulty, data.seed).then((c) => {
-    const features: unknown[] = [];
+    const features: Feature[] = [];
 
     for (const z of c.zones.values()) {
       const mapAct = AreaUtil.getActLevel(z.id);
@@ -57,18 +61,31 @@ maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: un
       const latLng = MapBounds.sourceToLatLng(z.offset.x, z.offset.y);
       features.push({
         type: 'Feature',
-        geometry: {
-          type: 'Point',
-          coordinates: [latLng.lng, latLng.lat],
-        },
-        properties: {
-          name: z.name,
-          type: 'zone-name',
-        },
+        geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
+        properties: { name: z.name, type: 'zone-name' },
       });
+
+      for (const obj of z.objects) {
+        if (obj.type === 'object' && obj.name === 'Waypoint') {
+          const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x - 2, z.offset.y + obj.y + 2);
+          features.push({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
+            properties: { type: 'waypoint' },
+          });
+        }
+        if (obj.type === 'exit') {
+          const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x - 2, z.offset.y + obj.y + 2);
+          features.push({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
+            properties: { type: 'exit', name: AreaLevel[obj.id] },
+          });
+        }
+      }
     }
 
-    return cb(null, { type: 'FeatureCollection', features });
+    return cb(null, toFeatureCollection(features));
   });
 
   return cancel;
@@ -104,6 +121,8 @@ export class D2MapViewer {
       },
       accessToken: '',
     });
+
+    (window as any).map = this.map;
 
     this.map.on('load', () => {
       console.log('Loaded');
@@ -142,28 +161,16 @@ export class D2MapViewer {
     if (this.map.style && this.map.style.sourceCaches['source-diablo2-collision']) {
       this.map.removeLayer('layer-diablo2-collision');
       this.map.removeSource('source-diablo2-collision');
-      this.map.removeLayer('layer-diablo2-vector');
+
+      VectorMap.remove(this.map);
       this.map.removeSource('source-diablo2-vector');
     }
     this.map.addSource('source-diablo2-collision', { type: 'raster', tiles: [`d2r://${d2Url}`], maxzoom: 14 });
     this.map.addSource('source-diablo2-vector', { type: 'geojson', data: `d2v://${d2Url}` });
 
     this.map.addLayer({ id: 'layer-diablo2-collision', type: 'raster', source: 'source-diablo2-collision' });
-    this.map.addLayer({
-      id: 'layer-diablo2-vector', // Layer ID
-      source: 'source-diablo2-vector', // ID of the tile source created above
-      type: 'symbol',
-      layout: {
-        'icon-image': 'custom-marker',
 
-        'text-field': ['get', 'name'],
-        'text-font': ['Open Sans Bold'],
-        'text-offset': [0, 1.25],
-        'text-anchor': 'top',
-      },
-      // : {},
-      filter: ['==', 'type', 'zone-name'],
-    });
+    VectorMap.add(this.map);
   }
 
   setAct(a: string): void {
