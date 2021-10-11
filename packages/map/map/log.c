@@ -61,8 +61,16 @@ struct log_obj* lk_i(const char* key, int value) {
 struct log_obj* lk_s(const char* key, const char* value) {
     struct log_obj* field = log_field_new(key);
     field->type = LOG_STRING;
-    field->char_val = (char*)malloc(strlen(value) + 1);
-    strcpy(field->char_val, value);
+
+    int char_len = strlen(value);
+    field->char_val = (char*)malloc(char_len + 1);
+
+    for (int i = 0; i < char_len; i ++) {
+        char ch = value[i];
+        if (ch == '\\')  ch = '/';
+        field->char_val[i] = ch;
+    }
+    field->char_val[char_len] = 0;
     return field;
 }
 

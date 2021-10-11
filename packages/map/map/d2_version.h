@@ -30,7 +30,7 @@ bool game_version_exists(char* folderName, D2Version version) {
     char* gamePath = game_version_path(version);
     if (gamePath == NULL) return false;
 
-    sprintf(gamePathExe, "%s/%sGame.exe", folderName, gamePath);
+    sprintf(gamePathExe, "%s\\%sGame.exe", folderName, gamePath);
 
     std::ifstream ifs(gamePathExe, std::ifstream::in);
     bool found = !ifs;

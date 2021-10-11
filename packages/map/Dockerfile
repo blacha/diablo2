@@ -13,7 +13,7 @@ WORKDIR /build
 RUN ./build.mapgen.sh
 
 # Make a run environment with nodejs and wine
-FROM tianon/wine
+FROM tianon/wine:5
 
 RUN apt-get update -yq \
     && apt-get install curl gnupg -yq \

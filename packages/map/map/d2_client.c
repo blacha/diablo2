@@ -307,9 +307,7 @@ void dump_map_collision(int width, int height) {
                 continue;
             }
 
-            if (outputCount == 0 && last == ' ') {
-                fprintf(stderr, "-1, ");
-            }
+            if (outputCount == 0 && last == ' ') fprintf(stderr, "-1, ");
 
             json_value(count);
 
@@ -331,7 +329,7 @@ int get_act(int levelCode) {
 
 }
 int d2_dump_map(int seed, int difficulty, int levelCode) {
-    log_debug("DumpMap", lk_i("seed", seed), lk_i("difficulty", difficulty), lk_i("mapId", levelCode));
+    log_debug("Map:Dump", lk_i("seed", seed), lk_i("difficulty", difficulty), lk_i("mapId", levelCode));
     if (gameVersion == VersionPathOfDiablo) {
         switch (levelCode) {
             // Why are these levels broken?
@@ -361,15 +359,15 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
 
     char *levelName = levelData->szName;
     if (!pLevel) {
-        log_warn("SkippingLevel:FailedLoading", lk_i("mapId", levelCode), lk_s("mapName", levelName));
+        log_warn("Map:SkippingLevel:FailedLoading", lk_i("mapId", levelCode), lk_s("mapName", levelName));
         return 1;
     }
 
-    log_debug("MapLoaded", lk_i("act", actId), lk_i("mapId", levelCode), lk_s("mapName", levelData->szName));
+    log_debug("Map:Loaded", lk_i("act", actId), lk_i("mapId", levelCode), lk_s("mapName", levelData->szName));
 
     if (!pLevel->pRoom2First) d2common_init_level(gameVersion, pLevel); 
     if (!pLevel->pRoom2First) {
-        log_warn("SkippingLevel:FailedRoomLoading", lk_i("mapId", levelCode), lk_s("mapName", levelName));
+        log_warn("Map:SkippingLevel:FailedRoomLoading", lk_i("mapId", levelCode), lk_s("mapName", levelName));
         return 1;
     }
 
