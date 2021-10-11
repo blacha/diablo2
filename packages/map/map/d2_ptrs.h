@@ -74,8 +74,7 @@ FUNCPTR(D2LANG, 10009, DWORD __fastcall, (DWORD _1, CHAR *_2, DWORD _3), -10009)
 FUNCPTR(D2WIN, 10174, DWORD __fastcall, (VOID), -10174)
 FUNCPTR(D2WIN, 10072, DWORD __fastcall, (DWORD _1, DWORD _2, DWORD _3, d2client_struct *pD2Client), -10072) 
 
-
-// Project Diablo 2 Specific
+// Project Diablo 2 Specific / v1.13c
 FUNCPTR(D2CLIENT, Pd2_InitGameMisc_I, VOID __stdcall, (DWORD Dummy1, DWORD Dummy2, DWORD Dummy3), 0x4454B)
 VARPTR(STORM, Pd2_MPQHashTable, DWORD, 0x53120)
 ASMPTR(D2CLIENT, Pd2_LoadAct_1, 0x62AA0)

@@ -1,5 +1,8 @@
 #ifndef JSON_H
 #define JSON_H
+
+#include <stdint.h>
+
 /** Really stupid JSON encoder which dumps to stdout/stderr */
 void json_start();
 void json_start(FILE* fp);

@@ -116,7 +116,7 @@ export class D2MapViewer {
         id: 'base-style',
         sources: {},
         layers: [],
-        glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+        glyphs: 'https://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
         sprite: 'https://nst-guide.github.io/osm-liberty-topo/sprites/osm-liberty-topo',
       },
       accessToken: '',
