@@ -1,6 +1,6 @@
 # @diablo2/map 
 
-Diablo 2 Map generator
+Diablo 2 Map generator for v1.14 or v1.13c
 
 Most of the work is done inside `d2_client.c` this includes the D2 Game client init as well as exporting everything to json.
 
@@ -46,9 +46,14 @@ wine bin/d2-map.exe :PathToDiablo2 --seed 10 --level 1 --difficulty 0
  - npm v16
  - yarn
  - docker
- - Diablo 2 LOD 1.14d
- - ProjectD2
- 
+
+#### Diablo 2
+
+This Map generation client can be used with
+
+- Diablo 2 LOD 1.14d & ProjectD2
+or 
+- Diablo 2 LOD 1.13c 
 
 ### Building from docker image
 
