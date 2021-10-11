@@ -12,7 +12,7 @@ export const RegistryPath = '/app/d2.install.reg';
 export const WineCommand = 'wine';
 
 /** Wait at most 10 seconds for things to work */
-const ProcessTimeout = 10000;
+const ProcessTimeout = 30_000;
 const MaxMapsToGenerate = 10;
 
 interface LogMessage {
