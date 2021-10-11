@@ -15,6 +15,7 @@
 #include "log.h"
 #include "map.h"
 #include "offset.h"
+#include "d2_client_version.h"
 
 #define UNIT_TYPE_PLAYER 0
 #define UNIT_TYPE_NPC 1
@@ -58,7 +59,7 @@ void /* __declspec(naked) */ D2CLIENT_Pod_InitGameMisc() {
         "PUSHL %EBP\n");
 }
 
-bool isPathOfDiablo = false;
+// bool isPathOfDiablo = false;
 void d2_game_init_pod() {
     *p_STORM_Pod_MPQHashTable = (DWORD)NULL;
     D2Client.dwInit = 1;
@@ -156,11 +157,7 @@ void d2_game_init(char *folderName) {
         ExitProcess(1);
     }
 
-    isPathOfDiablo = gameVersion == VersionPathOfDiablo;
-    isProjectDiablo2 = gameVersion == VersionProjectDiablo2;
 
-    // ProjectDiablo2 needs the InstallPath set
-    // if (isProjectDiablo2) {
     LPCTSTR keyName = TEXT("SOFTWARE\\Blizzard Entertainment\\Diablo II");
     HKEY hKey;
     LONG openRes = RegOpenKeyEx(HKEY_CURRENT_USER, keyName, 0, KEY_ALL_ACCESS, &hKey);
@@ -187,9 +184,9 @@ void d2_game_init(char *folderName) {
     DefineOffsets();
     log_debug("Offsets Defined");
 
-    if (isPathOfDiablo) {
+    if (gameVersion == VersionPathOfDiablo) {
         d2_game_init_pod();
-    } else if (isProjectDiablo2) {
+    } else if (gameVersion == VersionProjectDiablo2) {
         d2_game_init_pd2();
     } else {
         log_error("InvalidGameType", lk_s("path", D2_DIR));
@@ -202,7 +199,7 @@ void d2_game_init(char *folderName) {
 }
 
 Level *__fastcall d2_get_level(ActMisc *misc, DWORD levelCode) {
-    LevelTxt *levelData = isPathOfDiablo ? D2COMMON_Pod_GetLevelText(levelCode) : D2COMMON_Pd2_GetLevelText(levelCode);
+    LevelTxt *levelData = d2common_get_level_text(gameVersion, levelCode); 
     if (!levelData) return NULL;
 
     for (Level *pLevel = misc->pLevelFirst; pLevel; pLevel = pLevel->pNextLevel) {
@@ -210,8 +207,7 @@ Level *__fastcall d2_get_level(ActMisc *misc, DWORD levelCode) {
         if (pLevel->dwLevelNo == levelCode) return pLevel;
     }
 
-    if (isPathOfDiablo) return D2COMMON_Pod_GetLevel(misc, levelCode);
-    return D2COMMON_Pd2_GetLevel(misc, levelCode);
+    return d2common_get_level(gameVersion, misc, levelCode);
 }
 
 void add_collision_data(CollMap *pCol, int originX, int originY) {
@@ -268,7 +264,7 @@ int dump_objects(Act *pAct, Level *pLevel, Room2 *pRoom2) {
             if (!objectType) continue;
             objectId = pPresetUnit->dwTxtFileNo;
             if (pPresetUnit->dwTxtFileNo < 580) {
-                ObjectTxt *txt = isPathOfDiablo ? D2COMMON_Pod_GetObjectTxt(pPresetUnit->dwTxtFileNo) : D2COMMON_Pd2_GetObjectTxt(pPresetUnit->dwTxtFileNo);
+                ObjectTxt *txt = d2common_get_object_txt(gameVersion, pPresetUnit->dwTxtFileNo); // isPathOfDiablo ? D2COMMON_Pod_GetObjectTxt(pPresetUnit->dwTxtFileNo) : D2COMMON_Pd2_GetObjectTxt(pPresetUnit->dwTxtFileNo);
                 if (strcmp(txt->szName, "Dummy") == 0 ||
                     strcmp(txt->szName, "dummy") == 0 ||
                     strcmp(txt->szName, "fire") == 0) {
@@ -327,7 +323,6 @@ void dump_map_collision(int width, int height) {
 }
 /** Get the correct Act for a level */
 int get_act(int levelCode) {
-    // if (isPathOfDiablo) {
     if (levelCode < 40) return 0;
     if (levelCode < 75) return 1;
     if (levelCode < 103) return 2;
@@ -338,7 +333,7 @@ int get_act(int levelCode) {
 }
 int d2_dump_map(int seed, int difficulty, int levelCode) {
     log_debug("DumpMap", lk_i("seed", seed), lk_i("difficulty", difficulty), lk_i("mapId", levelCode));
-    if (isPathOfDiablo) {
+    if (gameVersion == VersionPathOfDiablo) {
         switch (levelCode) {
             // Why are these levels broken?
             case 20:
@@ -347,8 +342,7 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
             case 99:
                 return 1;
         }
-    } 
-    if (isProjectDiablo2) {
+    } else if (gameVersion == VersionProjectDiablo2) {
         switch(levelCode) {
             case 150:
                 return 1;
@@ -356,10 +350,11 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
     }
 
     int actId = get_act(levelCode);
-    Act *pAct = isPathOfDiablo ? D2COMMON_Pod_LoadAct(actId, seed, TRUE, FALSE, difficulty, (DWORD)NULL, 1, D2CLIENT_Pod_LoadAct_1, D2CLIENT_Pod_LoadAct_2) : D2COMMON_Pd2_LoadAct(actId, seed, TRUE, FALSE, difficulty, (DWORD)NULL, 1, D2CLIENT_Pd2_LoadAct_1, D2CLIENT_Pd2_LoadAct_2);
+    
+    Act *pAct = d2common_load_act(gameVersion, actId, seed, difficulty); 
     if (!pAct) return 1;
 
-    LevelTxt *levelData = isPathOfDiablo ? D2COMMON_Pod_GetLevelText(levelCode) : D2COMMON_Pd2_GetLevelText(levelCode);
+    LevelTxt *levelData = d2common_get_level_text(gameVersion, levelCode); 
     if (!levelData) return 1;
 
     Level *pLevel = d2_get_level(pAct->pMisc, levelCode);  // Loading Town Level
@@ -373,7 +368,7 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
 
     log_debug("MapLoaded", lk_i("act", actId), lk_i("mapId", levelCode), lk_s("mapName", levelData->szName));
 
-    if (!pLevel->pRoom2First) isPathOfDiablo ? D2COMMON_Pod_InitLevel(pLevel) : D2COMMON_Pd2_InitLevel(pLevel);
+    if (!pLevel->pRoom2First) d2common_init_level(gameVersion, pLevel); 
     if (!pLevel->pRoom2First) {
         log_warn("SkippingLevel:FailedRoomLoading", lk_i("mapId", levelCode), lk_s("mapName", levelName));
         return 1;
@@ -407,21 +402,13 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
     json_array_start("objects");
 
     for (Room2 *pRoom2 = pLevel->pRoom2First; pRoom2; pRoom2 = pRoom2->pRoom2Next) {
-        BOOL bAdded = FALSE;
+        BOOL bAdded = !pRoom2->pRoom1;
 
-        if (!pRoom2->pRoom1) {
-            bAdded = TRUE;
-            if (isPathOfDiablo) D2COMMON_Pod_AddRoomData(pAct, pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
-            if (isProjectDiablo2) D2COMMON_Pd2_AddRoomData(pAct, pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
-        }
-
+        if (bAdded) d2common_add_room_data(gameVersion, pAct, pLevel, pRoom2);
         dump_objects(pAct, pLevel, pRoom2);
 
         if (pRoom2->pRoom1) add_collision_data(pRoom2->pRoom1->Coll, originX, originY);
-        if (bAdded) {
-            if (isPathOfDiablo) D2COMMON_Pod_RemoveRoomData(pAct, pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
-            if (isProjectDiablo2) D2COMMON_Pd2_RemoveRoomData(pAct, pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
-        }
+        if (bAdded) d2common_remove_room_data(gameVersion, pAct, pLevel, pRoom2);
     }
 
     json_array_end();
