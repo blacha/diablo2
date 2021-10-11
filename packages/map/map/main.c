@@ -17,12 +17,12 @@ const char COMMAND_DIFF[] = "$difficulty";
 const char COMMAND_SEED[] = "$seed";
 
 bool starts_with(const char *prefix, const char *search_string) {
-    if (strncmp(prefix, search_string, strlen(search_string)) == 0)
-        return 1;
+    if (strncmp(prefix, search_string, strlen(search_string)) == 0) return 1;
     return 0;
 }
 
 char *CliUsage = "d2-map.exe [D2 Game Path] [--seed :MapSeed] [--difficulty :difficulty] [--level :levelCode]";
+
 
 int main(int argc, char *argv[]) {
     if (argc < 1) {
@@ -49,13 +49,12 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
+    log_info("Map:Init", lk_s("version", GIT_VERSION), lk_s("hash", GIT_HASH));
+
     d2_game_init(gameFolder);
 
     /** Seed/Diff has been passed in just generate the map that is required */
     if (argSeed > 0 && argDifficulty != -1) {
-
-
-
         if (argLevelCode > -1) {
             log_trace("Map:Generate", lk_i("seed", argSeed), lk_i("difficulty", argDifficulty), lk_i("level", argLevelCode));
 
@@ -65,6 +64,7 @@ int main(int argc, char *argv[]) {
 
             for (int levelCode = 0; levelCode < 200; levelCode++) d2_dump_map(argSeed, argDifficulty, levelCode);
         }
+        printf("\n");
         return 0;
     }
 

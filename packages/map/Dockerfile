@@ -1,8 +1,9 @@
 
 # Build mapgen in a container
 FROM ubuntu:20.04 as build
+
 RUN apt-get update \
-    && apt-get install --no-install-recommends --no-install-suggests -y \
+    && apt-get install --no-install-recommends --no-install-suggests git -y \
     mingw-w64
 
 RUN mkdir -p /build/map
@@ -10,10 +11,16 @@ COPY ./map /build/map
 COPY ./build.mapgen.sh /build
 
 WORKDIR /build
+ARG GIT_VERSION
+ENV GIT_VERSION ${GIT_VERSION}
+
+ARG GIT_HASH
+ENV GIT_HASH ${GIT_HASH}
+
 RUN ./build.mapgen.sh
 
 # Make a run environment with nodejs and wine
-FROM tianon/wine
+FROM tianon/wine:5
 
 RUN apt-get update -yq \
     && apt-get install curl gnupg -yq \
@@ -23,12 +30,13 @@ RUN apt-get update -yq \
 ENV WINEARCH=win32
 ENV WINEDEBUG=-all
 
-COPY --from=build /build/bin/d2-map.exe /app/bin/d2-map.exe
 
 VOLUME [ "/app/game" ]
 
 WORKDIR /app
 ADD dist/ /app/
+
+COPY --from=build /build/bin/d2-map.exe /app/bin/d2-map.exe
 
 # Make sure InstallPath exists inside the registry
 COPY d2.install.reg /app/
