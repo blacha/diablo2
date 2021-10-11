@@ -3,9 +3,9 @@ import { MapRouteResponse } from '../map/map.js';
 import { MapProcess } from '../map/map.process.js';
 import { HttpError, Request, Route } from '../route.js';
 
-const isInSeedRange = (seed: number): boolean => seed > 0 && seed < 0xffffffff;
+export const isInSeedRange = (seed: number): boolean => seed > 0 && seed < 0xffffffff;
 
-function getDifficulty(res: string): Difficulty | null {
+export function getDifficulty(res: string): Difficulty | null {
   const resIsNumber = Number(res);
   if (isNaN(resIsNumber)) return Difficulty[res as any] as any;
   if (resIsNumber in Difficulty) return resIsNumber;

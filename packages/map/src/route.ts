@@ -20,5 +20,6 @@ export class HttpError {
 
 export interface Route<T = any> {
   url: string;
+  contentType?: string;
   process(req: Request, res?: Response): Promise<T>;
 }

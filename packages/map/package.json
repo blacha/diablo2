@@ -18,13 +18,15 @@
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
     "bundle": "yarn run bundle-server && yarn run bundle-www && cp static/* dist/www/",
-    "bundle-server": "esbuild src/index.ts --platform=node --target=node16 --bundle --outdir=dist",
+    "bundle-server": "esbuild src/index.ts --platform=node --target=node16 --bundle --external:canvas --outdir=dist",
     "bundle-www": "esbuild src/viewer/index.ts --platform=node --target=node16 --bundle --outdir=dist/www",
+    "bundle-canvas": "cd dist && yarn init . --yes && yarn add canvas",
     "build-docker": "yarn bundle && docker build . -t blacha/diablo2"
   },
   "dependencies": {
     "@linzjs/geojson": "^6.10.0",
     "@types/p-limit": "^2.2.0",
+    "canvas": "^2.8.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "p-limit": "^4.0.0",

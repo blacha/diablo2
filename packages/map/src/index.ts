@@ -7,6 +7,7 @@ import { Log } from './logger.js';
 import { Diablo2Path, MapCommand, MapProcess } from './map/map.process.js';
 import { HttpError, Request, Route } from './route.js';
 import { HealthRoute } from './routes/health.js';
+import { MapImageRoute } from './routes/map.image.js';
 import { MapActRoute, MapRoute } from './routes/map.js';
 
 if (!fs.existsSync(MapCommand)) Log.warn({ path: MapCommand }, `Diablo2Map:Missing`);
@@ -44,15 +45,20 @@ class Diablo2MapServer {
         const output = await route.process(req, res);
         if (output != null) {
           res.status(200);
-          res.json(output);
+          if (Buffer.isBuffer(output)) {
+            res.header('content-type', 'image/png');
+            res.end(output);
+          } else {
+            res.json(output);
+          }
         }
-      } catch (err) {
-        if (err instanceof HttpError) {
-          req.log.warn(err.message);
-          res.status(err.status ?? 500);
-          res.json({ id: req.id, message: err.message });
+      } catch (e) {
+        if (e instanceof HttpError) {
+          req.log.warn(e.message);
+          res.status(e.status ?? 500);
+          res.json({ id: req.id, message: e.message });
         } else {
-          req.log.error({ err, status: 500 }, 'Failed to run');
+          req.log.error({ error: e }, 'Failed to run');
           res.status(500);
           res.json({ id: req.id, message: `Internal server error` });
         }
@@ -80,7 +86,7 @@ export const MapServer = new Diablo2MapServer();
 MapServer.bind(new HealthRoute());
 MapServer.bind(new MapRoute());
 MapServer.bind(new MapActRoute());
-
+MapServer.bind(new MapImageRoute());
 MapServer.init().catch((e) => {
   console.log(e);
   Log.fatal({ error: e }, 'Uncaught Exception');
