@@ -28,11 +28,14 @@ export class Process {
       const pid = Number(file);
       if (isNaN(pid)) continue;
 
-      const data = await fs.readFile(`/proc/${file}/status`);
-      const first = data.toString().split('\n')[0];
-      const fileName = first.split('\t')[1];
-
-      if (fileName.includes(name)) return pid;
+      try {
+        const data = await fs.readFile(`/proc/${file}/status`);
+        const first = data.toString().split('\n')[0];
+        const fileName = first.split('\t')[1];
+        if (fileName.includes(name)) return pid;
+      } catch(e) {
+        // noop
+      }
     }
     return null;
   }
