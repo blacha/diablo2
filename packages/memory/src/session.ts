@@ -1,8 +1,12 @@
 import { Diablo2State } from '@diablo2/core';
-import { Attribute, Difficulty } from '@diablo2/data';
+import { Attribute, Difficulty, toHex } from '@diablo2/data';
+import { bp } from 'binparse';
 import { Diablo2Process } from './d2.js';
 import { Diablo2Player } from './d2.player.js';
 import { id, Log, LogType } from './logger.js';
+import { RoomStrut } from './structures.js';
+import { D2RStrut } from './struts/d2r.js';
+import { dumpStrut } from './util/dump.js';
 
 const sleep = (dur: number): Promise<void> => new Promise((r) => setTimeout(r, dur));
 
@@ -65,7 +69,32 @@ export class Diablo2GameSessionMemory {
     // Player object is no longer validate assume game has exited
     if (player == null) return;
 
+
+
     const path = await obj.getPath(player, logger);
+
+    if (path.pRoom.isValid) {
+      await this.d2.dump(path.pRoom.offset, 0x160);
+      let room1 = await this.d2.readStrutAt(path.pRoom.offset, RoomStrut)
+
+      dumpStrut(RoomStrut)
+
+
+      // const player = await this.d2.readStrutAt(room1.pUnitFirst.offset, D2RStrut.UnitPlayer);
+
+      // for (let i = 0; i < room1.count; i ++) {
+      //   const ptr = await this.d2.readStrutAt(room1.roomNear.offset + i * 8, bp.lu64);
+      //   // console.log(ptr);
+      //   const roomB = await this.d2.readStrutAt(ptr, RoomStrut)
+      //   // console.log(roomB)
+      // }
+      // while (room1.roomNear.isValid && room1.roomNear.offset !== path.pRoom.offset) {
+      //   console.log(toHex(room1.roomNear.offset))
+      // }
+      console.log(path,room1);
+      process.exit();
+    }
+
     const act = await obj.getAct(player, logger);
     this.state.map.act = player.actId;
 
