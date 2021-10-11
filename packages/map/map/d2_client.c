@@ -15,6 +15,7 @@
 #include "log.h"
 #include "map.h"
 #include "offset.h"
+#include "d2_client_version.h"
 
 #define UNIT_TYPE_PLAYER 0
 #define UNIT_TYPE_NPC 1
@@ -58,38 +59,38 @@ void /* __declspec(naked) */ D2CLIENT_Pod_InitGameMisc() {
         "PUSHL %EBP\n");
 }
 
-bool isPathOfDiablo = false;
+// bool isPathOfDiablo = false;
 void d2_game_init_pod() {
     *p_STORM_Pod_MPQHashTable = (DWORD)NULL;
     D2Client.dwInit = 1;
     D2Client.fpInit = (DWORD)D2ClientInterface;
 
-    log_trace("Init", lk_s("dll", "Fog.dll"));
+    log_trace("Init:Dll", lk_s("dll", "Fog.dll"));
     FOG_10021("D2");
     FOG_10019(DIABLO_2, (DWORD)ExceptionHandler, DIABLO_2_VERSION, 1);
     FOG_10101(1, 0);
     FOG_10089(1);
     if (!FOG_10218()) {
-        log_error("InitFailed", lk_s("dll", "Fog.dll"));
+        log_error("Init:Dll:Failed", lk_s("dll", "Fog.dll"));
         ExitProcess(1);
     }
-    log_debug("InitDone", lk_s("dll", "Fog.dll"));
+    log_debug("Init:Dll:Done", lk_s("dll", "Fog.dll"));
 
-    log_trace("Init", lk_s("dll", "D2Win.dll"));
+    log_trace("Init:Dll", lk_s("dll", "D2Win.dll"));
     if (!D2WIN_10174() || !D2WIN_10072((DWORD)NULL, (DWORD)NULL, (DWORD)NULL, &D2Client)) {
-        log_error("InitFailed", lk_s("dll", "D2Win.dll"));
+        log_error("Init:Dll:Failed", lk_s("dll", "D2Win.dll"));
         ExitProcess(1);
     }
-    log_debug("InitDone", lk_s("dll", "D2Win.dll"));
+    log_debug("Init:Dll:Done", lk_s("dll", "D2Win.dll"));
 
-    log_trace("Init", lk_s("dll", "D2Lang.dll"));
+    log_trace("Init:Dll", lk_s("dll", "D2Lang.dll"));
     D2LANG_10009(0, "ENG", 0);
-    log_debug("InitDone", lk_s("dll", "D2Lang.dll"));
+    log_debug("Init:Dll:Done", lk_s("dll", "D2Lang.dll"));
 
-    log_trace("Init", lk_s("dll", "D2Client.dll"));
+    log_trace("Init:Dll", lk_s("dll", "D2Client.dll"));
     D2COMMON_Pod_InitDataTables(0, 0, 0);
     D2CLIENT_Pod_InitGameMisc();
-    log_debug("InitDone", lk_s("dll", "D2Client.dll"));
+    log_debug("Init:Dll:Done", lk_s("dll", "D2Client.dll"));
 }
 
 int D2CLIENT_Pd2_InitGameMisc_I_P = 0x6faf454b;
@@ -112,55 +113,51 @@ void d2_game_init_pd2() {
     D2Client.dwInit = 1;
     D2Client.fpInit = (DWORD)D2ClientInterface;
 
-    log_trace("Init", lk_s("dll", "Fog.dll"));
+    log_trace("Init:Dll", lk_s("dll", "Fog.dll"));
     FOG_10021("D2");
     FOG_10019(DIABLO_2, (DWORD)ExceptionHandler, DIABLO_2_VERSION, 1);
     FOG_10101(1, 0);
     FOG_10089(1);
 
     if (!FOG_10218()) {
-        log_error("InitFailed", lk_s("dll", "Fog.dll"));
+        log_error("Init:Dll:Failed", lk_s("dll", "Fog.dll"));
         ExitProcess(1);
     }
-    log_debug("InitDone", lk_s("dll", "Fog.dll"));
+    log_debug("Init:Dll:Done", lk_s("dll", "Fog.dll"));
 
-    log_trace("Init", lk_s("dll", "D2Win.dll"));
+    log_trace("Init:Dll", lk_s("dll", "D2Win.dll"));
     if (!D2WIN_10086() || !D2WIN_10005((DWORD)NULL, (DWORD)NULL, (DWORD)NULL, &D2Client)) {
         log_error("InitFailed", lk_s("dll", "D2Win.dll"));
         ExitProcess(1);
     }
-    log_debug("InitDone", lk_s("dll", "D2Win.dll"));
+    log_debug("Init:Dll:Done", lk_s("dll", "D2Win.dll"));
 
-    log_trace("Init", lk_s("dll", "D2Lang.dll"));
+    log_trace("Init:Dll", lk_s("dll", "D2Lang.dll"));
     D2LANG_10008(0, "ENG", 0);
-    log_debug("InitDone", lk_s("dll", "D2Lang.dll"));
+    log_debug("Init:Dll:Done", lk_s("dll", "D2Lang.dll"));
 
-    log_trace("Init", lk_s("dll", "D2Client.dll"));
+    log_trace("Init:Dll", lk_s("dll", "D2Client.dll"));
     D2COMMON_Pd2_InitDataTables(0, 0, 0);
     D2CLIENT_Pd2_InitGameMisc();
-    log_debug("InitDone", lk_s("dll", "D2Client.dll"));
+    log_debug("Init:Dll:Done", lk_s("dll", "D2Client.dll"));
 }
 
 void d2_game_init(char *folderName) {
-    log_debug("Initalizing", lk_s("path", folderName));
+    log_debug("Init:Dll", lk_s("path", folderName));
 
     gameVersion = game_version(folderName);
     if (gameVersion == VersionUnknown) {
-        log_error("Failed to determine game version", lk_s("path", folderName));
+        log_error("Init:Failed:UnknownGameVersion", lk_s("path", folderName));
         ExitProcess(1);
     }
 
     char *gamePath = game_version_path(gameVersion);
     if (gamePath == NULL) {
-        log_error("Failed to determine game version", lk_s("path", folderName), lk_s("version", game_version_name(gameVersion)));
+        log_error("Init:Failed:UnknownGamePath", lk_s("path", folderName), lk_s("version", game_version_path(gameVersion)));
         ExitProcess(1);
     }
 
-    isPathOfDiablo = gameVersion == VersionPathOfDiablo;
-    isProjectDiablo2 = gameVersion == VersionProjectDiablo2;
 
-    // ProjectDiablo2 needs the InstallPath set
-    // if (isProjectDiablo2) {
     LPCTSTR keyName = TEXT("SOFTWARE\\Blizzard Entertainment\\Diablo II");
     HKEY hKey;
     LONG openRes = RegOpenKeyEx(HKEY_CURRENT_USER, keyName, 0, KEY_ALL_ACCESS, &hKey);
@@ -177,32 +174,31 @@ void d2_game_init(char *folderName) {
     LONG setRes = RegSetValueEx(hKey, value, 0, REG_SZ, (LPBYTE)data, strlen(data) + 1);
     log_info("Registry:InstallPath", lk_s("value", folderName));
     RegCloseKey(hKey);
-    // }
 
     sprintf_s(D2_DIR, sizeof(D2_DIR), "%s/%s", folderName, game_version_path(gameVersion));
-    log_info("InitializeGame", lk_s("version", game_version_name(gameVersion)), lk_s("path", D2_DIR));
+    log_info("Init:Game", lk_s("version", game_version_path(gameVersion)), lk_s("path", D2_DIR));
     memset(&D2Client, (DWORD)NULL, sizeof(d2client_struct));
     SetCurrentDirectory(D2_DIR);
 
     DefineOffsets();
-    log_debug("Offsets Defined");
+    log_debug("Init:Offsets:Defined");
 
-    if (isPathOfDiablo) {
+    if (gameVersion == VersionPathOfDiablo) {
         d2_game_init_pod();
-    } else if (isProjectDiablo2) {
+    } else if (gameVersion == VersionProjectDiablo2 || gameVersion == VersionDiablo2) {
         d2_game_init_pd2();
     } else {
-        log_error("InvalidGameType", lk_s("path", D2_DIR));
+        log_error("Init:Failed:GameInit", lk_s("path", D2_DIR));
         ExitProcess(1);
     }
 
     SetCurrentDirectory(folderName);
-    log_info("GameInitialized");
+    log_info("Init:Done");
     return;
 }
 
 Level *__fastcall d2_get_level(ActMisc *misc, DWORD levelCode) {
-    LevelTxt *levelData = isPathOfDiablo ? D2COMMON_Pod_GetLevelText(levelCode) : D2COMMON_Pd2_GetLevelText(levelCode);
+    LevelTxt *levelData = d2common_get_level_text(gameVersion, levelCode); 
     if (!levelData) return NULL;
 
     for (Level *pLevel = misc->pLevelFirst; pLevel; pLevel = pLevel->pNextLevel) {
@@ -210,8 +206,7 @@ Level *__fastcall d2_get_level(ActMisc *misc, DWORD levelCode) {
         if (pLevel->dwLevelNo == levelCode) return pLevel;
     }
 
-    if (isPathOfDiablo) return D2COMMON_Pod_GetLevel(misc, levelCode);
-    return D2COMMON_Pd2_GetLevel(misc, levelCode);
+    return d2common_get_level(gameVersion, misc, levelCode);
 }
 
 void add_collision_data(CollMap *pCol, int originX, int originY) {
@@ -268,7 +263,7 @@ int dump_objects(Act *pAct, Level *pLevel, Room2 *pRoom2) {
             if (!objectType) continue;
             objectId = pPresetUnit->dwTxtFileNo;
             if (pPresetUnit->dwTxtFileNo < 580) {
-                ObjectTxt *txt = isPathOfDiablo ? D2COMMON_Pod_GetObjectTxt(pPresetUnit->dwTxtFileNo) : D2COMMON_Pd2_GetObjectTxt(pPresetUnit->dwTxtFileNo);
+                ObjectTxt *txt = d2common_get_object_txt(gameVersion, pPresetUnit->dwTxtFileNo); // isPathOfDiablo ? D2COMMON_Pod_GetObjectTxt(pPresetUnit->dwTxtFileNo) : D2COMMON_Pd2_GetObjectTxt(pPresetUnit->dwTxtFileNo);
                 if (strcmp(txt->szName, "Dummy") == 0 ||
                     strcmp(txt->szName, "dummy") == 0 ||
                     strcmp(txt->szName, "fire") == 0) {
@@ -327,7 +322,6 @@ void dump_map_collision(int width, int height) {
 }
 /** Get the correct Act for a level */
 int get_act(int levelCode) {
-    // if (isPathOfDiablo) {
     if (levelCode < 40) return 0;
     if (levelCode < 75) return 1;
     if (levelCode < 103) return 2;
@@ -338,7 +332,7 @@ int get_act(int levelCode) {
 }
 int d2_dump_map(int seed, int difficulty, int levelCode) {
     log_debug("DumpMap", lk_i("seed", seed), lk_i("difficulty", difficulty), lk_i("mapId", levelCode));
-    if (isPathOfDiablo) {
+    if (gameVersion == VersionPathOfDiablo) {
         switch (levelCode) {
             // Why are these levels broken?
             case 20:
@@ -347,8 +341,7 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
             case 99:
                 return 1;
         }
-    } 
-    if (isProjectDiablo2) {
+    } else if (gameVersion == VersionProjectDiablo2) {
         switch(levelCode) {
             case 150:
                 return 1;
@@ -356,10 +349,11 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
     }
 
     int actId = get_act(levelCode);
-    Act *pAct = isPathOfDiablo ? D2COMMON_Pod_LoadAct(actId, seed, TRUE, FALSE, difficulty, (DWORD)NULL, 1, D2CLIENT_Pod_LoadAct_1, D2CLIENT_Pod_LoadAct_2) : D2COMMON_Pd2_LoadAct(actId, seed, TRUE, FALSE, difficulty, (DWORD)NULL, 1, D2CLIENT_Pd2_LoadAct_1, D2CLIENT_Pd2_LoadAct_2);
+    
+    Act *pAct = d2common_load_act(gameVersion, actId, seed, difficulty); 
     if (!pAct) return 1;
 
-    LevelTxt *levelData = isPathOfDiablo ? D2COMMON_Pod_GetLevelText(levelCode) : D2COMMON_Pd2_GetLevelText(levelCode);
+    LevelTxt *levelData = d2common_get_level_text(gameVersion, levelCode); 
     if (!levelData) return 1;
 
     Level *pLevel = d2_get_level(pAct->pMisc, levelCode);  // Loading Town Level
@@ -373,7 +367,7 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
 
     log_debug("MapLoaded", lk_i("act", actId), lk_i("mapId", levelCode), lk_s("mapName", levelData->szName));
 
-    if (!pLevel->pRoom2First) isPathOfDiablo ? D2COMMON_Pod_InitLevel(pLevel) : D2COMMON_Pd2_InitLevel(pLevel);
+    if (!pLevel->pRoom2First) d2common_init_level(gameVersion, pLevel); 
     if (!pLevel->pRoom2First) {
         log_warn("SkippingLevel:FailedRoomLoading", lk_i("mapId", levelCode), lk_s("mapName", levelName));
         return 1;
@@ -407,21 +401,13 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
     json_array_start("objects");
 
     for (Room2 *pRoom2 = pLevel->pRoom2First; pRoom2; pRoom2 = pRoom2->pRoom2Next) {
-        BOOL bAdded = FALSE;
+        BOOL bAdded = !pRoom2->pRoom1;
 
-        if (!pRoom2->pRoom1) {
-            bAdded = TRUE;
-            if (isPathOfDiablo) D2COMMON_Pod_AddRoomData(pAct, pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
-            if (isProjectDiablo2) D2COMMON_Pd2_AddRoomData(pAct, pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
-        }
-
+        if (bAdded) d2common_add_room_data(gameVersion, pAct, pLevel, pRoom2);
         dump_objects(pAct, pLevel, pRoom2);
 
         if (pRoom2->pRoom1) add_collision_data(pRoom2->pRoom1->Coll, originX, originY);
-        if (bAdded) {
-            if (isPathOfDiablo) D2COMMON_Pod_RemoveRoomData(pAct, pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
-            if (isProjectDiablo2) D2COMMON_Pd2_RemoveRoomData(pAct, pLevel->dwLevelNo, pRoom2->dwPosX, pRoom2->dwPosY, NULL);
-        }
+        if (bAdded) d2common_remove_room_data(gameVersion, pAct, pLevel, pRoom2);
     }
 
     json_array_end();

@@ -1,7 +1,9 @@
 #include <unistd.h>
+#include <stdarg.h>
 
 #include <iostream>
 
+#include "log.h"
 #include "d2_client.h"
 #include "d2_ptrs.h"
 #include "d2_structs.h"
@@ -51,17 +53,18 @@ int main(int argc, char *argv[]) {
 
     /** Seed/Diff has been passed in just generate the map that is required */
     if (argSeed > 0 && argDifficulty != -1) {
-        json_start();
-        json_key_value("seed", argSeed);
-        json_key_value("diff", argDifficulty);
-        json_end();
+
+
 
         if (argLevelCode > -1) {
+            log_trace("Map:Generate", lk_i("seed", argSeed), lk_i("difficulty", argDifficulty), lk_i("level", argLevelCode));
+
             d2_dump_map(argSeed, argDifficulty, argLevelCode);
         } else {
+            log_trace("Map:Generate", lk_i("seed", argSeed), lk_i("difficulty", argDifficulty));
+
             for (int levelCode = 0; levelCode < 200; levelCode++) d2_dump_map(argSeed, argDifficulty, levelCode);
         }
-        printf("\n");
         return 0;
     }
 
