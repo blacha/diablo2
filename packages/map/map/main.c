@@ -21,8 +21,7 @@ bool starts_with(const char *prefix, const char *search_string) {
     return 0;
 }
 
-char *CliUsage = "d2-map.exe [D2 Game Path] [--seed :MapSeed] [--difficulty :difficulty] [--level :levelCode] [-v]";
-
+char *CliUsage = "d2-map.exe [D2 Game Path] [--seed :MapSeed] [--difficulty :difficulty] [--level :levelCode] [--verbose]";
 
 int main(int argc, char *argv[]) {
     if (argc < 1) {
@@ -41,7 +40,7 @@ int main(int argc, char *argv[]) {
             argDifficulty = atoi(argv[++i]);
         } else if (starts_with(arg, "--level") || starts_with(arg, "-l")) {
             argMapId = atoi(argv[++i]);
-        } else if (starts_with(arg, "-v")) {
+        } else if (starts_with(arg, "--verbose") || starts_with(arg, "-v")) {
             log_level(LOG_TRACE);
         } else {
             gameFolder = arg;
@@ -79,7 +78,7 @@ int main(int argc, char *argv[]) {
                 int64_t currentTime = currentTimeMillis();
                 int64_t duration = currentTime - startTime;
                 startTime = currentTime;
-                log_trace("Map:Generation", lk_i("seed", argSeed), lk_i("difficulty", argDifficulty), lk_i("mapId", mapId), lk_i("duration", duration), lk_i("res", res));
+                log_debug("Map:Generation", lk_i("seed", argSeed), lk_i("difficulty", argDifficulty), lk_i("actId", get_act(mapId)), lk_i("mapId", mapId), lk_i("duration", duration));
             }
         }
         int64_t duration = currentTimeMillis() - totalTime;
@@ -103,7 +102,15 @@ int main(int argc, char *argv[]) {
         if (starts_with(buffer, COMMAND_EXIT) == 1) return 0;
 
         if (starts_with(buffer, COMMAND_MAP) == 1) {
-            for (int levelCode = 0; levelCode < 200; levelCode++) d2_dump_map(seed, difficulty, levelCode);
+            int64_t totalTime = currentTimeMillis();
+            int mapCount = 0;
+            for (int levelCode = 0; levelCode < 200; levelCode++) {
+                int res = d2_dump_map(seed, difficulty, levelCode);
+                if (res > 0) mapCount ++;
+            }
+            int64_t duration = currentTimeMillis() - totalTime;
+            log_info("Map:Generation:Done", lk_i("count", mapCount), lk_i("duration", duration));
+
             json_start();
             json_key_value("type", "done");
             json_end();

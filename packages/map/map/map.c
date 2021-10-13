@@ -35,7 +35,5 @@ void map_set(int x, int y, int value) {
 void map_reset() {
     MAX_SIZE_X = 0;
     MAX_SIZE_Y = 0;
-    for (int x = 0; x < MAP_ARRAY_SIZE; x++) {
-        MAP[x] = MAP_DATA_INVALID;
-    }
+    for (int x = 0; x < MAP_ARRAY_SIZE; x++) MAP[x] = MAP_DATA_INVALID;
 }

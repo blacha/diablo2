@@ -372,7 +372,7 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
     int mapWidth = pLevel->dwSizeX * 5;
     int mapHeight = pLevel->dwSizeY * 5;
 
-    log_trace("MapInit", lk_i("act", actId), lk_i("mapId", levelCode), lk_s("mapName", levelName), lk_i("originY", originY), lk_i("originX", originX), lk_i("width", mapWidth), lk_i("height", mapHeight));
+    log_trace("MapInit", lk_i("actId", actId), lk_i("mapId", levelCode), lk_s("mapName", levelName), lk_i("originY", originY), lk_i("originX", originX), lk_i("width", mapWidth), lk_i("height", mapHeight));
     map_reset();
 
     // Start JSON DUMP
