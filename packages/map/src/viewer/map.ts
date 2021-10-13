@@ -51,7 +51,7 @@ const cancel = { cancel: (): void => undefined };
 maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: unknown) => void): Cancel | void => {
   const data = urlToParams(params.url);
   if (data == null) return cb();
-  MapTiles.get(data.difficulty, data.seed).then((c) => {
+  MapTiles.get(data.difficulty, data.seed, data.act).then((c) => {
     const features: Feature[] = [];
 
     for (const z of c.zones.values()) {

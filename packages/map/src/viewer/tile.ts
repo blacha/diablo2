@@ -22,22 +22,22 @@ export class MapTiles {
   static tiles = new LruCache<Promise<unknown>>(1024);
   static maps = new LruCache<Promise<MapData>>(32);
 
-  static url(difficulty: Difficulty, seed: number): string {
-    return `v1/map/${seed}/${Difficulty[difficulty]}.json`;
+  static url(difficulty: Difficulty, seed: number, act: number): string {
+    return `v1/map/${toHex(seed, 8)}/${Difficulty[difficulty]}/${Act[act]}.json`;
   }
 
-  static get(difficulty: Difficulty, seed: number): Promise<MapData> {
-    const mapId = [toHex(difficulty, 8), seed].join('__');
+  static get(difficulty: Difficulty, seed: number, act: number): Promise<MapData> {
+    const mapId = [difficulty, toHex(seed, 8), act].join('__');
     let existing = this.maps.get(mapId);
     if (existing == null) {
-      existing = this.fetch(difficulty, seed);
+      existing = this.fetch(difficulty, seed, act);
       this.maps.set(mapId, existing);
     }
     return existing;
   }
 
-  static async fetch(difficulty: Difficulty, seed: number): Promise<MapData> {
-    const path = MapTiles.url(difficulty, seed);
+  static async fetch(difficulty: Difficulty, seed: number, act: number): Promise<MapData> {
+    const path = MapTiles.url(difficulty, seed, act);
     const url = `${MapTiles.MapHost}/${path}`;
     console.log('Fetching', { url });
 
@@ -83,7 +83,7 @@ export class MapTiles {
   }
 
   static async tileRaster(d: MapParams): Promise<ArrayBuffer | void> {
-    const map = await this.get(d.difficulty, d.seed);
+    const map = await this.get(d.difficulty, d.seed, d.act);
 
     const bounds = MapBounds.tileToSourceBounds(d.x, d.y, d.z);
     const zones = map.findMaps(d.act, bounds);
