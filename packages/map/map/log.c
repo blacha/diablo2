@@ -102,4 +102,5 @@ void log_process(int level, const char* fileName, int line, const char* msg, ...
     }
 
     fprintf(stdout, "}\n");
+    fflush(stdout);
 }
