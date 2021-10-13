@@ -40,6 +40,10 @@ DWORD GetDllOffset(int num) {
         return 0;
 
     DWORD offset = GetDllOffset(dlls[num & 0xff], num >> 8);
+    if (offset == 0) {
+        log_error("Dll:Init:Failed", lk_s("dll",dlls[num & 0xff]), lk_i("offset", offset));
+        exit(1);
+    }
     log_trace("Dll:Init", lk_s("dll",dlls[num & 0xff]), lk_i("offset", offset));
     return offset;
 }
