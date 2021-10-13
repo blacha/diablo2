@@ -1,3 +1,4 @@
+import { toHex } from 'binparse';
 import { ChildProcess, spawn, spawnSync } from 'child_process';
 import { EventEmitter } from 'events';
 import PLimit from 'p-limit';
@@ -68,11 +69,11 @@ export class Diablo2MapProcess {
     this.generatedCount = 0;
 
     const res = spawnSync(WineCommand, ['regedit', RegistryPath]);
-    log.info({ data: res.stdout.toString() }, 'RegistryUpdate');
+    log.info({ data: res.stdout.toString() }, 'Registry:Update');
 
     // const gamePath = await this.getGamePath();
     const args = [MapCommand, Diablo2Path];
-    log.info({ wineArgs: args }, 'Starting MapProcess');
+    log.info({ wineArgs: args }, 'MapProcess:Starting');
 
     return new Promise(async (resolve) => {
       const process = spawn(WineCommand, args, { cwd });
@@ -82,7 +83,7 @@ export class Diablo2MapProcess {
         Log.debug({ data: data.toString().trim() }, 'MapProcess:stderr');
       });
       process.on('error', (error) => {
-        log.fatal({ error }, 'ProcessDied');
+        log.fatal({ error }, 'MapProcess:Died');
         inter.close();
         this.process = null;
       });
@@ -90,16 +91,16 @@ export class Diablo2MapProcess {
         inter.close();
         this.process = null;
         if (exitCode == null) return;
-        if (exitCode > 0) log.fatal({ exitCode }, 'ProcessClosed');
+        if (exitCode > 0) log.fatal({ exitCode }, 'MapProcess:Closed');
       });
 
-      log.info({ pid: process.pid }, 'MapProcessStarted');
+      log.info({ pid: process.pid }, 'MapProcess:Started');
       const inter = createInterface(process.stdout).on('line', (line) => {
         const json = getJson<Diablo2MapGenMessage | LogMessage>(line);
         if (json == null) return;
         if ('time' in json) {
           if (json.level < 30) return;
-          Log.info({ ...json, log: json.msg }, 'SubProcess');
+          Log.info({ ...json, log: json.msg }, 'MapProcess:Log');
         } else if (json.type) this.events.emit(json.type, json);
       });
       await this.once('init');
@@ -119,32 +120,35 @@ export class Diablo2MapProcess {
 
   async stop(log: LogType): Promise<void> {
     if (this.process == null) return;
-    log.info({ pid: this.process.pid }, 'StoppingProcess');
+    log.info({ pid: this.process.pid }, 'MapProcess:Stop');
     this.process.kill('SIGKILL');
     this.process = null;
   }
 
-  async command(cmd: 'seed' | 'difficulty', value: number, log: LogType): Promise<void> {
+  async command(cmd: 'seed' | 'difficulty' | 'act', value: number, log: LogType): Promise<void> {
+    const startTime = Date.now();
     if (this.process == null) await this.start(log);
-    log.info({ cmd, value }, 'Command');
     const command = `$${cmd} ${value}\n`;
     const res = await this.once<MapGenMessageInfo>('info', () => this.process?.stdin?.write(command));
-    if (res[cmd] !== value)
+    if (res[cmd] !== value) {
       throw new Error(`Failed to set ${cmd}=${value} (output: ${JSON.stringify(res)}: ${command})`);
+    }
+
+    log.debug({ cmd, value, duration: Date.now() - startTime }, 'MapProcess:Command');
   }
 
-  map(seed: number, difficulty: number, log: LogType): Promise<Diablo2MapResponse> {
-    const mapKey = `${seed}_${difficulty}`;
+  map(seed: number, difficulty: number, actId: number, log: LogType): Promise<Diablo2MapResponse> {
+    const mapKey = `${seed}_${difficulty}_${actId}`;
     const cacheData = this.cache.get(mapKey);
     if (cacheData != null) return Promise.resolve(cacheData);
     return this.q(async () => {
-      const mapResult = await this.getMaps(seed, difficulty, log);
+      const mapResult = await this.getMaps(seed, difficulty, actId, log);
       this.cache.set(mapKey, mapResult);
       return mapResult;
     });
   }
 
-  private async getMaps(seed: number, difficulty: number, log: LogType): Promise<Diablo2MapResponse> {
+  private async getMaps(seed: number, difficulty: number, actId: number, log: LogType): Promise<Diablo2MapResponse> {
     if (this.generatedCount > MaxMapsToGenerate) {
       this.generatedCount = 0;
       await this.stop(log);
@@ -153,13 +157,14 @@ export class Diablo2MapProcess {
 
     await this.command('seed', seed, log);
     await this.command('difficulty', difficulty, log);
+    if (actId > -1) await this.command('act', actId, log);
 
     this.generatedCount++;
-    log.info({ seed, difficulty, generated: this.generatedCount }, 'GenerateMap');
+    log.info({ seed: toHex(seed, 8), difficulty, generated: this.generatedCount }, 'GenerateMap:Start');
     const maps: Record<string, Diablo2Map> = {};
 
     const newMap = (msg: MapGenMessageMap): void => {
-      log.trace({ mapId: msg.id }, 'GotMap');
+      log?.trace({ mapId: msg.id }, 'GenerateMap:GotMap');
       maps[msg.id] = msg;
     };
 
@@ -172,7 +177,7 @@ export class Diablo2MapProcess {
       this.events.on('done', () => {
         this.events.off('map', newMap);
         clearTimeout(failedTimer);
-        log.trace({ count: Object.keys(maps).length }, 'MapsGenerated');
+        log?.trace({ count: Object.keys(maps).length }, 'GenerateMap:Generated');
         resolve(maps);
       });
       this.process?.stdin?.write(`$map\n`);

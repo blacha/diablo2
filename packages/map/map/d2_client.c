@@ -294,6 +294,7 @@ int dump_objects(Act *pAct, Level *pLevel, Room2 *pRoom2) {
 
 void dump_map_collision(int width, int height) {
     int maxY = map_max_y();
+    int maxX = map_max_x();
     for (int y = 0; y <= maxY; y++) {
         json_array_start();
         char last = 'X';
@@ -314,6 +315,8 @@ void dump_map_collision(int width, int height) {
             count = 1;
             last = mapVal;
         }
+
+        // if (maxX < width) 
         json_array_end();
     }
 }

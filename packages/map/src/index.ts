@@ -7,7 +7,7 @@ import { Log } from './logger.js';
 import { Diablo2Path, MapCommand, MapProcess } from './map/map.process.js';
 import { HttpError, Request, Route } from './route.js';
 import { HealthRoute } from './routes/health.js';
-import { MapRoute } from './routes/map.js';
+import { MapActRoute, MapRoute } from './routes/map.js';
 
 if (!fs.existsSync(MapCommand)) Log.warn({ path: MapCommand }, `Diablo2Map:Missing`);
 if (!fs.existsSync(Diablo2Path)) Log.warn({ path: Diablo2Path }, `Diablo2Path:Missing`);
@@ -46,13 +46,13 @@ class Diablo2MapServer {
           res.status(200);
           res.json(output);
         }
-      } catch (e) {
-        if (e instanceof HttpError) {
-          req.log.warn(e.message);
-          res.status(e.status ?? 500);
-          res.json({ id: req.id, message: e.message });
+      } catch (err) {
+        if (err instanceof HttpError) {
+          req.log.warn(err.message);
+          res.status(err.status ?? 500);
+          res.json({ id: req.id, message: err.message });
         } else {
-          req.log.error({ error: e }, 'Failed to run');
+          req.log.error({ err, status: 500 }, 'Failed to run');
           res.status(500);
           res.json({ id: req.id, message: `Internal server error` });
         }
@@ -79,6 +79,8 @@ export const MapServer = new Diablo2MapServer();
 
 MapServer.bind(new HealthRoute());
 MapServer.bind(new MapRoute());
+MapServer.bind(new MapActRoute());
+
 MapServer.init().catch((e) => {
   console.log(e);
   Log.fatal({ error: e }, 'Uncaught Exception');

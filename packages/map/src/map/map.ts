@@ -37,6 +37,8 @@ export interface MapGenMessageInfo {
   type: 'info';
   seed: number;
   difficulty: number;
+  act?: number;
+  map?: number;
 }
 
 export interface MapGenMessageMap extends Diablo2Map {
