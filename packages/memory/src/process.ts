@@ -33,7 +33,7 @@ export class Process {
         const first = data.toString().split('\n')[0];
         const fileName = first.split('\t')[1];
         if (fileName.includes(name)) return pid;
-      } catch(e) {
+      } catch (e) {
         // noop
       }
     }

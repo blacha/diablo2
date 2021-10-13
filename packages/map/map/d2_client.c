@@ -193,7 +193,6 @@ void d2_game_init(char *folderName) {
     }
 
     SetCurrentDirectory(folderName);
-    log_info("Init:Done");
     return;
 }
 
@@ -326,10 +325,12 @@ int get_act(int levelCode) {
     if (levelCode < 109) return 3;
     if (levelCode < 200) return 4;
     return -1;
-
 }
+
 int d2_dump_map(int seed, int difficulty, int levelCode) {
-    log_debug("Map:Dump", lk_i("seed", seed), lk_i("difficulty", difficulty), lk_i("mapId", levelCode));
+    LevelTxt *levelData = d2common_get_level_text(gameVersion, levelCode); 
+    if (!levelData) return 1;
+
     if (gameVersion == VersionPathOfDiablo) {
         switch (levelCode) {
             // Why are these levels broken?
@@ -344,15 +345,11 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
             case 150:
                 return 1;
         }
-    }
+    } 
 
     int actId = get_act(levelCode);
-    
     Act *pAct = d2common_load_act(gameVersion, actId, seed, difficulty); 
     if (!pAct) return 1;
-
-    LevelTxt *levelData = d2common_get_level_text(gameVersion, levelCode); 
-    if (!levelData) return 1;
 
     Level *pLevel = d2_get_level(pAct->pMisc, levelCode);  // Loading Town Level
     if (!pLevel) return 1;
@@ -362,8 +359,6 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
         log_warn("Map:SkippingLevel:FailedLoading", lk_i("mapId", levelCode), lk_s("mapName", levelName));
         return 1;
     }
-
-    log_debug("Map:Loaded", lk_i("act", actId), lk_i("mapId", levelCode), lk_s("mapName", levelData->szName));
 
     if (!pLevel->pRoom2First) d2common_init_level(gameVersion, pLevel); 
     if (!pLevel->pRoom2First) {
@@ -377,7 +372,7 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
     int mapWidth = pLevel->dwSizeX * 5;
     int mapHeight = pLevel->dwSizeY * 5;
 
-    log_info("MapInit", lk_i("act", actId), lk_i("mapId", levelCode), lk_s("mapName", levelData->szName), lk_i("originY", originY), lk_i("originX", originX), lk_i("width", mapWidth), lk_i("height", mapHeight));
+    log_trace("MapInit", lk_i("act", actId), lk_i("mapId", levelCode), lk_s("mapName", levelName), lk_i("originY", originY), lk_i("originX", originX), lk_i("width", mapWidth), lk_i("height", mapHeight));
     map_reset();
 
     // Start JSON DUMP

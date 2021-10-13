@@ -36,9 +36,8 @@ DWORD GetDllOffset(const char *DllName, int Offset) {
 }
 
 DWORD GetDllOffset(int num) {
-    if ((num & 0xff) > 12)
-        return 0;
-
+    if ((num & 0xff) > 12) return 0;
+    
     DWORD offset = GetDllOffset(dlls[num & 0xff], num >> 8);
     if (offset == 0) {
         log_error("Dll:Init:Failed", lk_s("dll",dlls[num & 0xff]), lk_i("offset", offset));

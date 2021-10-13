@@ -21,10 +21,17 @@ enum
 #define log_fatal(...) log_log(LOG_FATAL, __FILE__, __LINE__, __VA_ARGS__)
 #define log_log(level, file, line, ...) ({ log_process(level, file, line, __VA_ARGS__, NULL); })
 
+
 struct log_obj *lk_i(const char *key, int value);
 struct log_obj *lk_s(const char *key, const char *value);
 struct log_obj *lk_b(const char *key, bool value);
 
+
+/** Set the current logging level */
+void log_level(int logLevel);
+/** Log a message */
 void log_process(int level, const char *fileName, int line, const char *msg, ...);
+/** Get the current time in milliseconds */
+int64_t currentTimeMillis();
 
 #endif

@@ -21,7 +21,7 @@ bool starts_with(const char *prefix, const char *search_string) {
     return 0;
 }
 
-char *CliUsage = "d2-map.exe [D2 Game Path] [--seed :MapSeed] [--difficulty :difficulty] [--level :levelCode]";
+char *CliUsage = "d2-map.exe [D2 Game Path] [--seed :MapSeed] [--difficulty :difficulty] [--level :levelCode] [-v]";
 
 
 int main(int argc, char *argv[]) {
@@ -31,17 +31,20 @@ int main(int argc, char *argv[]) {
     }
     char *gameFolder;
     int argSeed = -1;
-    int argLevelCode = -1;
+    int argMapId = -1;
     int argDifficulty = -1;
     for (int i = 0; i < argc; i++) {
-        if (starts_with(argv[i], "--seed") || starts_with(argv[i], "-s")) {
+        char* arg = argv[i];
+        if (starts_with(arg, "--seed") || starts_with(arg, "-s")) {
             argSeed = atoi(argv[++i]);
-        } else if (starts_with(argv[i], "--difficulty") || starts_with(argv[i], "-d")) {
+        } else if (starts_with(arg, "--difficulty") || starts_with(arg, "-d")) {
             argDifficulty = atoi(argv[++i]);
-        } else if (starts_with(argv[i], "--level") || starts_with(argv[i], "-l")) {
-            argLevelCode = atoi(argv[++i]);
+        } else if (starts_with(arg, "--level") || starts_with(arg, "-l")) {
+            argMapId = atoi(argv[++i]);
+        } else if (starts_with(arg, "-v")) {
+            log_level(LOG_TRACE);
         } else {
-            gameFolder = argv[i];
+            gameFolder = arg;
         }
     }
     if (!gameFolder) {
@@ -51,19 +54,36 @@ int main(int argc, char *argv[]) {
 
     log_info("Map:Init", lk_s("version", GIT_VERSION), lk_s("hash", GIT_HASH));
 
+    int64_t initStartTime = currentTimeMillis();
     d2_game_init(gameFolder);
+    int64_t duration = currentTimeMillis() - initStartTime;
+    log_info("Map:Init:Done", lk_s("version", GIT_VERSION), lk_s("hash", GIT_HASH), lk_i("duration", duration));
+
 
     /** Seed/Diff has been passed in just generate the map that is required */
     if (argSeed > 0 && argDifficulty != -1) {
-        if (argLevelCode > -1) {
-            log_trace("Map:Generate", lk_i("seed", argSeed), lk_i("difficulty", argDifficulty), lk_i("level", argLevelCode));
+        int64_t totalTime = currentTimeMillis();
 
-            d2_dump_map(argSeed, argDifficulty, argLevelCode);
+        if (argMapId > -1) {
+            int64_t startTime = currentTimeMillis();
+            d2_dump_map(argSeed, argDifficulty, argMapId);
+            int64_t duration = currentTimeMillis() - startTime;
+            log_debug("Map:Generation", lk_i("seed", argSeed), lk_i("difficulty", argDifficulty), lk_i("mapId", argMapId), lk_i("duration", duration));
+
         } else {
-            log_trace("Map:Generate", lk_i("seed", argSeed), lk_i("difficulty", argDifficulty));
+            for (int mapId = 0; mapId < 200; mapId++) {
+                int64_t startTime = currentTimeMillis();
+                int res = d2_dump_map(argSeed, argDifficulty, mapId);
+                if (res == 1) continue; // Failed to generate the map
 
-            for (int levelCode = 0; levelCode < 200; levelCode++) d2_dump_map(argSeed, argDifficulty, levelCode);
+                int64_t currentTime = currentTimeMillis();
+                int64_t duration = currentTime - startTime;
+                startTime = currentTime;
+                log_trace("Map:Generation", lk_i("seed", argSeed), lk_i("difficulty", argDifficulty), lk_i("mapId", mapId), lk_i("duration", duration), lk_i("res", res));
+            }
         }
+        int64_t duration = currentTimeMillis() - totalTime;
+        log_info("Map:Generation:Done", lk_i("duration", duration));
         printf("\n");
         return 0;
     }

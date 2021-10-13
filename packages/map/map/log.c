@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <cstdlib>
 #include <stdarg.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <sys/time.h>
 
@@ -18,9 +19,12 @@ struct log_obj
         char *char_val;
     };
 } log_obj;
-int LogLevel = LOG_TRACE;
+int LogLevel = LOG_DEBUG;
 
 
+void log_level(int logLevel) {
+    LogLevel = logLevel;
+}
 int64_t currentTimeMillis() {
     struct timeval time;
     gettimeofday(&time, NULL);
@@ -34,7 +38,6 @@ static enum {
     LOG_STRING,
     LOG_BOOLEAN
 } log_field_types;
-
 
 
 static struct log_obj* log_field_new(const char* key) {
@@ -82,13 +85,8 @@ struct log_obj* lk_b(const char* key, bool value) {
 void log_process(int level, const char* fileName, int line, const char* msg, ...) {
     if (level < LogLevel) return;
 
-    json_start(stdout);
-    json_key_value("level", level);
-    json_key_value("time", currentTimeMillis());
-    char source[512];
-    sprintf(source, "%s:%d", fileName, line);
-    json_key_value("source", source);
-    json_key_value("msg", (char*)msg);
+    int64_t time = currentTimeMillis();
+    fprintf(stdout, "{\"level\":%d,\"time\":%" PRId64 ",\"source\":\"%s:%d\",\"msg\":\"%s\"", level, time, fileName, line,  msg);
 
     va_list ap;
     va_start(ap, msg);
@@ -97,16 +95,11 @@ void log_process(int level, const char* fileName, int line, const char* msg, ...
         struct log_obj* arg = va_arg(ap, struct log_obj*);
         if (arg == NULL) break;
 
-        switch (arg->type) {
-            case LOG_INT:
-                json_key_value(arg->key, arg->int_val);
-                break;
-            case LOG_STRING:
-                json_key_value(arg->key, arg->char_val);
-                break;
-        }
+        if (arg->type == LOG_INT) fprintf(stdout, ",\"%s\":%d", arg->key, arg->int_val);
+        else if (arg->type == LOG_STRING) fprintf(stdout, ",\"%s\":\"%s\"", arg->key, arg->char_val);
+
         log_field_free(arg);
     }
 
-    json_end(false);
+    fprintf(stdout, "}\n");
 }
