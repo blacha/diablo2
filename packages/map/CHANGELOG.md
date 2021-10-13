@@ -3,6 +3,30 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.6.0](https://github.com/blacha/diablo2/compare/v0.5.0...v0.6.0) (2021-10-13)
+
+
+### Bug Fixes
+
+* **map:** die if offsets cannot be defined ([ab61cfd](https://github.com/blacha/diablo2/commit/ab61cfdb377a72cba06978bafe87dab55a2730c4))
+* **map:** force a flush after log lines are printed ([9c9a662](https://github.com/blacha/diablo2/commit/9c9a662b5ebebeaad3b457567aaea50969d0b08f))
+* **map:** increase timeout to 30seconds for map generation ([5053d46](https://github.com/blacha/diablo2/commit/5053d46a717690dbebd5af69d49fdbe876a3f18d))
+
+
+### Features
+
+* find map seed from a player name ([#124](https://github.com/blacha/diablo2/issues/124)) ([4763715](https://github.com/blacha/diablo2/commit/476371515e874024bbab730d65dd5319157c07b6))
+* **map:** add some debug timings into log generation ([3976008](https://github.com/blacha/diablo2/commit/397600879555799ebd0fd1fe277f29db57371c76))
+* **map:** include git commit and hash in cli ([#159](https://github.com/blacha/diablo2/issues/159)) ([04ac188](https://github.com/blacha/diablo2/commit/04ac188a816f44ae5e45f407ec12d9249839016a))
+* **map:** serve the index.html/js from the container ([0b0751c](https://github.com/blacha/diablo2/commit/0b0751cb91bcc5f20d3ed3c525b1baed72211628))
+* **map:** show exits and waypoints on the map ([#157](https://github.com/blacha/diablo2/issues/157)) ([a0d335f](https://github.com/blacha/diablo2/commit/a0d335f1640c99c04222ab891c668413c50e17b9))
+* **map:** support diablo2 client v1.13c ([#158](https://github.com/blacha/diablo2/issues/158)) ([2b248d9](https://github.com/blacha/diablo2/commit/2b248d93aaa867799c287bfdfc6aefbbc7245833))
+* **map:** support generating just a single act's data ([24d69ba](https://github.com/blacha/diablo2/commit/24d69ba941b18e69494fa4c46d739c211a773201))
+
+
+
+
+
 # [0.5.0](https://github.com/blacha/diablo2/compare/v0.4.0...v0.5.0) (2021-03-26)
 
 

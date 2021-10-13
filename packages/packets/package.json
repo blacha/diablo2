@@ -1,6 +1,6 @@
 {
   "name": "@diablo2/packets",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/blacha/diablo2.git",
@@ -18,7 +18,7 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "@diablo2/data": "^0.5.0",
+    "@diablo2/data": "^0.6.0",
     "binparse": "^1.2.1"
   },
   "publishConfig": {
