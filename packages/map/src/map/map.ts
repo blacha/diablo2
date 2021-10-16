@@ -22,6 +22,7 @@ export interface Diablo2MapNpc {
   x: number;
   y: number;
   name?: string;
+  isSuperUnique: boolean;
 }
 
 export interface Diablo2MapNpcSuper extends Diablo2MapNpc {

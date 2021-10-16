@@ -75,7 +75,6 @@ export class Diablo2MpqMonsters {
     'Bartuc the Bloody',
     'Ventar the Unholy',
     'Lister the Tormentor',
-    '',
   ];
 
   /** MonsterId -> Monster translation string */
