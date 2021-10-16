@@ -7,9 +7,23 @@ Most of the work is done inside `d2_client.c` this includes the D2 Game client i
 ## Usage
 
 ```
-wine bin/d2-map.exe :PathToDiablo2 --seed 10 --level 1 --difficulty 0
+Usage:
+    d2-map.exe [D2 Game Path] [options]
 
-# [  1] DumpMap   offset: 5800x5640       size: 280x200 'Rogue Encampment'
+Options:
+    --seed [-s]          Map Seed
+    --difficulty [-d]    Game Difficulty [0: Normal, 1: Nightmare, 2:Hell]
+    --act [-a]           Dump a specific act [0: ActI, 1:ActII, 2: ActIII, 3: ActIV, 4: Act5]
+    --map [-m]           Dump a specific Map [0: Rogue Encampent ...]
+    --verbose [-v]       Increase logging level
+
+Examples:
+
+    # Dump ActI from Normal mode for seed 1122334 
+    d2-map.exe /home/diablo2 --seed 1122334 --difficulty 0 --act 0
+
+    # Dump all acts from Hell mode for seed 1122334 
+    d2-map.exe /home/diablo2 --seed 1122334 --difficulty 2
 ```
 
 ```typescript
@@ -34,7 +48,7 @@ wine bin/d2-map.exe :PathToDiablo2 --seed 10 --level 1 --difficulty 0
     ],
     /** Map Collision data */
     "map": [
-        // Map data for x offset 0
+        // Map data for x offset 0 - Using run length encoding
         [1, 149] // 1 pixel of collision, 149 pixels of open space, 150 - map.size.width pixels of collision
     ]
 }

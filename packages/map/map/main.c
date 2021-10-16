@@ -22,7 +22,23 @@ bool starts_with(const char *prefix, const char *search_string) {
     return 0;
 }
 
-char *CliUsage = "d2-map.exe [D2 Game Path] [--seed :MapSeed] [--difficulty :difficulty] [--level :levelCode] [--verbose]";
+const char *CharGray = "\33[90m";
+
+char *CliUsage = "\nUsage:\n"
+    "    d2-map.exe [D2 Game Path] [options]\n"
+    "\nOptions:\n"
+    "    --seed [-s]          Map Seed\n"
+    "    --difficulty [-d]    Game Difficulty [0: Normal, 1: Nightmare, 2:Hell]\n"
+    "    --act [-a]           Dump a specific act [0: ActI, 1:ActII, 2: ActIII, 3: ActIV, 4: Act5]\n"
+    "    --map [-m]           Dump a specific Map [0: Rogue Encampent ...]\n"
+    "    --verbose [-v]       Increase logging level\n"
+
+    "\nExamples:\n"
+    "\n    \33[90m# Dump ActI from Normal mode for seed 1122334 \033[0m\n"
+    "    d2-map.exe /home/diablo2 --seed 1122334 --difficulty 0 --act 0\n"
+    "\n    \33[90m# Dump all acts from Hell mode for seed 1122334 \033[0m\n"
+    "    d2-map.exe /home/diablo2 --seed 1122334 --difficulty 2\n";
+
 
 
 void dump_info(int seed, int difficulty, int actId, int mapId) {
@@ -72,30 +88,45 @@ int main(int argc, char *argv[]) {
         printf(CliUsage);
         return 1;
     }
-    char *gameFolder;
+    char *gameFolder = NULL;
     int argSeed = 0xff00ff;
     int argMapId = -1;
     int argDifficulty = 0;
     int argActId = -1;
     int foundArgs = 0;
-    for (int i = 0; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         char* arg = argv[i];
         if (starts_with(arg, "--seed") || starts_with(arg, "-s")) {
             argSeed = atoi(argv[++i]);
+            log_debug("Cli:Arg", lk_i("seed", argSeed));
             foundArgs ++;
         } else if (starts_with(arg, "--difficulty") || starts_with(arg, "-d")) {
             argDifficulty = atoi(argv[++i]);
+            log_debug("Cli:Arg", lk_i("difficulty", argDifficulty));
             foundArgs ++;
-        } else if (starts_with(arg, "--level") || starts_with(arg, "-l")) {
+        } else if (starts_with(arg, "--map") || starts_with(arg, "-m")) {
             argMapId = atoi(argv[++i]);
+            log_debug("Cli:Arg", lk_i("mapId", argMapId));
+            foundArgs ++;
+        } else if (starts_with(arg, "--act") || starts_with(arg, "-a")) {
+            argActId = atoi(argv[++i]);
+            log_debug("Cli:Arg", lk_i("actId", argActId));
             foundArgs ++;
         } else if (starts_with(arg, "--verbose") || starts_with(arg, "-v")) {
+            log_debug("Cli:Arg", lk_b("verbose", true));
             log_level(LOG_TRACE);
         } else {
             gameFolder = arg;
+            log_debug("Cli:Arg", lk_s("game", gameFolder));
         }
     }
-    if (!gameFolder) {
+
+    if (argActId > 0 && argMapId > 0) {
+        printf("--act and --level cannot be used together\n");
+        printf(CliUsage);
+        return 1;
+    }
+    if (gameFolder == NULL) {
         printf(CliUsage);
         return 1;
     }
