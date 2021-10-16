@@ -4,6 +4,7 @@ Diablo 2 Map generator for v1.14 or v1.13c
 
 Most of the work is done inside `d2_client.c` this includes the D2 Game client init as well as exporting everything to json.
 
+
 ## Usage
 
 ```
@@ -115,9 +116,34 @@ docker run -v "/E/Games/Diablo II":/app/game -p 8899:8899 docker.io/blacha/diabl
 
 Then you can do a simple curl command to generate:
 
-`curl localhost:8899/v1/map/<seed>/<difficulty>.json`
+`curl localhost:8899/v1/map/:seed/:difficulty/:act.json`
 
-e.g. `curl localhost:8899/v1/map/3607656c/0.json`
+e.g. `curl localhost:8899/v1/map/0x3607656c/Normal/ActI.json`
+
+Numbers can be used for Act/Difficulty instead
+
+Act 1 in Normal
+```
+/v1/map/0x3607656c/0/0.json
+```
+
+Act 5 in Hell
+```
+/v1/map/0x3607656c/2/4.json
+```
+
+### Server Images
+
+The map server can also generate images
+
+`curl localhost:8899/v1/map/:seed/:difficulty/:level.png`
+
+Tower cellar level 3 in hell
+```
+http://localhost:8899/v1/map/0xff00ff/Hell/23.png
+```
+
+
 
 ### Troubleshooting:
 

@@ -134,7 +134,7 @@ export class Diablo2MapProcess {
       throw new Error(`Failed to set ${cmd}=${value} (output: ${JSON.stringify(res)}: ${command})`);
     }
 
-    log.debug({ cmd, value, duration: Date.now() - startTime }, 'MapProcess:Command');
+    log.trace({ cmd, value, duration: Date.now() - startTime }, 'MapProcess:Command');
   }
 
   map(seed: number, difficulty: number, actId: number, log: LogType): Promise<Diablo2MapResponse> {

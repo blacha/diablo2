@@ -14,7 +14,7 @@ export interface Diablo2MapObject {
   type: 'object';
   x: number;
   y: number;
-  name: 'chest' | 'Waypoint';
+  name?: 'chest' | 'Waypoint';
 }
 export interface Diablo2MapNpc {
   id: number;

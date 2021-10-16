@@ -34,6 +34,9 @@ ENV WINEDEBUG=-all
 VOLUME [ "/app/game" ]
 
 WORKDIR /app
+RUN npm init  --yes
+RUN npm install canvas@2.8.0
+
 ADD dist/ /app/
 
 COPY --from=build /build/bin/d2-map.exe /app/bin/d2-map.exe

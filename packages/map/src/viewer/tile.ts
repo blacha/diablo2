@@ -5,6 +5,7 @@ import { LruCache } from '../map/lru.js';
 import { Diablo2Map, MapRouteResponse } from '../map/map.js';
 import { AreaUtil } from './area.js';
 import { Bounds, MapBounds } from './bounds.js';
+import { MapRender } from './render.js';
 
 export interface MapParams {
   seed: number;
@@ -100,7 +101,7 @@ export class MapTiles {
     const ctx = canvas.getContext('2d');
     if (ctx == null) return;
 
-    for (const zone of zones) map.render(zone, ctx, bounds, (1 / scale) * 2);
+    for (const zone of zones) MapRender.render(zone, ctx, bounds, (1 / scale) * 2);
 
     const blob: Blob | null = await new Promise((r) => canvas.toBlob((b) => r(b), 'image/png'));
     if (blob == null) return;
@@ -136,34 +137,5 @@ class MapData {
     }
 
     return output;
-  }
-
-  render(zone: Diablo2Map, ctx: CanvasRenderingContext2D, bounds: Bounds, scale = 0.5): void {
-    ctx.fillStyle = 'white';
-    const map = zone.map;
-
-    for (let yOffset = 0; yOffset < map.length; yOffset++) {
-      const line = map[yOffset];
-      let fill = false;
-      if (line.length === 0) continue;
-
-      if (zone.offset.y + yOffset < bounds.y) continue;
-
-      let x = zone.offset.x - bounds.x;
-      const y = zone.offset.y - bounds.y + yOffset;
-
-      for (let i = 0; i < line.length; i++) {
-        const xCount = line[i];
-
-        fill = !fill;
-        if (!fill) {
-          const width = xCount * scale;
-          if (width >= 0.2) ctx.fillRect(x * scale, y * scale, width, scale);
-        }
-        x = x + xCount;
-      }
-      const xMax = zone.offset.x - bounds.x + zone.size.width;
-      if (fill && x < xMax) ctx.fillRect(x * scale, y * scale, (xMax - x) * scale, scale);
-    }
   }
 }
