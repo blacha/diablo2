@@ -47,7 +47,7 @@ void dump_info(int seed, int difficulty, int actId, int mapId) {
     json_key_value("seed", seed);
     json_key_value("difficulty", difficulty);
     if (actId > -1) json_key_value("act", actId);
-    if (mapId > -1) json_key_value("map", actId);
+    if (mapId > -1) json_key_value("map", mapId);
     json_end();
 }
 
