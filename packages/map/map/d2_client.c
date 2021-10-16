@@ -262,12 +262,7 @@ int dump_objects(Act *pAct, Level *pLevel, Room2 *pRoom2) {
             if (!objectType) continue;
             objectId = pPresetUnit->dwTxtFileNo;
             if (pPresetUnit->dwTxtFileNo < 580) {
-                ObjectTxt *txt = d2common_get_object_txt(gameVersion, pPresetUnit->dwTxtFileNo); // isPathOfDiablo ? D2COMMON_Pod_GetObjectTxt(pPresetUnit->dwTxtFileNo) : D2COMMON_Pd2_GetObjectTxt(pPresetUnit->dwTxtFileNo);
-                if (strcmp(txt->szName, "Dummy") == 0 ||
-                    strcmp(txt->szName, "dummy") == 0 ||
-                    strcmp(txt->szName, "fire") == 0) {
-                    continue;
-                }
+                ObjectTxt *txt = d2common_get_object_txt(gameVersion, pPresetUnit->dwTxtFileNo);
                 objectName = txt->szName;
             }
         } else if (pPresetUnit->dwType == UNIT_TYPE_TILE) {

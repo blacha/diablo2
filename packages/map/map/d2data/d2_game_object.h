@@ -633,6 +633,34 @@ static bool object_is_door(int id) {
 
 static bool object_is_useless(int id) {
     switch (id) {
+        case GameObject::HellLava2:
+        case GameObject::Act2BrazierTall:
+        case GameObject::Act2BrazierSmall:
+        case GameObject::MephistoBridge:
+        case GameObject::HratliEndPosition:
+        case GameObject::HratliStartPosition:
+        case GameObject::HellMesaBrazier:
+        case GameObject::StairSR:
+        case GameObject::CainStartPosition:
+        case GameObject::NatalyaStartPosition:
+        case GameObject::HellSkeletonSpawnNE:
+        case GameObject::HellBrazier2:
+        case GameObject::HellBrazier1:  
+        case GameObject::HellLightSource1:
+        case GameObject::HellLightSource2:
+        case GameObject::HellLightSource3:
+        case GameObject::Smoke:
+        case GameObject::HellBrazier3:
+        case GameObject::SiegeMachineControl:
+        case GameObject::DrehyaTownStartPosition:
+        case GameObject::DrehyaWildernessStartPosition:
+        case GameObject::NihlathakTownStartPosition:
+        case GameObject::NihlathakWildernessStartPosition:
+        case GameObject::LarzukStandard:
+        case GameObject::LarzukGreeting:
+        case GameObject::Act2Brazier:
+        case GameObject::Act2BrazierCeller:
+        case GameObject::Act3WaterFog:
         case GameObject::TestData1:
         case GameObject::LargeUrn1:
         case GameObject::Barrel:
