@@ -88,6 +88,8 @@ int main(int argc, char *argv[]) {
         printf(CliUsage);
         return 1;
     }
+    log_info("Cli:Start", lk_s("version", GIT_VERSION), lk_s("hash", GIT_HASH));
+
     char *gameFolder = NULL;
     int argSeed = 0xff00ff;
     int argMapId = -1;
@@ -131,7 +133,6 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    log_info("Map:Init", lk_s("version", GIT_VERSION), lk_s("hash", GIT_HASH));
 
     int64_t initStartTime = currentTimeMillis();
     d2_game_init(gameFolder);
