@@ -66,7 +66,7 @@ maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: un
       });
 
       for (const obj of z.objects) {
-        if (obj.type === 'object' && obj.subType === 'waypoint') {
+        if (obj.type === 'object' && obj.name?.toLowerCase() === 'waypoint') {
           const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x - 2, z.offset.y + obj.y + 2);
           features.push({
             type: 'Feature',

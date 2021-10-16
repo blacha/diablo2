@@ -52,7 +52,7 @@ export class MapRender {
         ctx.fillRect(obj.x - halfSize, obj.y - halfSize, size, size);
       }
 
-      if (obj.type === 'object' && obj.subType === 'waypoint') {
+      if (obj.type === 'object' && obj.name?.toLowerCase() === 'waypoint') {
         ctx.fillStyle = 'blue';
         ctx.fillRect(obj.x - halfSize, obj.y - halfSize, size, size);
       }

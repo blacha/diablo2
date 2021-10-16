@@ -1,13 +1,11 @@
 import { Diablo2Mpq, Diablo2MpqData } from '@diablo2/data';
 import { Mpq } from '@diablo2/mpq';
 import { StrutInfer, StrutType } from 'binparse';
-import { timeStamp } from 'console';
-import { writeFileSync } from 'fs';
 import * as path from 'path';
+import { Logger } from './log.type.js';
 import { ItemFileParser } from './readers/item.reader.js';
 import { LangReader } from './readers/lang.reader.js';
 import { LevelReader } from './readers/level.reader.js';
-import { Logger } from './log.type.js';
 import { MonsterReader, MonsterReader2 } from './readers/monster.stat.reader.js';
 import { ObjectReader } from './readers/object.reader.js';
 
@@ -47,22 +45,16 @@ export class Diablo2MpqLoader {
     this.MpqData = Mpq.load(path.join(basePath, 'd2data.mpq'));
     this.MpqExp = Mpq.load(path.join(basePath, 'd2exp.mpq'));
 
-    const mpq = await this.getMpq('data/global/excel/objects.bin');
-
-    if (mpq) {
-      const binFile = await mpq?.extract('data/global/excel/objects.bin');
-      writeFileSync('./objects.bin', binFile!);
-
-      const txtFile = await mpq?.extract('data/global/excel/objects.txt');
-      writeFileSync('./objects.txt', txtFile!);
-      return data;
-    }
-
     data.basePath = basePath;
-    await this.initLang(data, log);
-    await this.initLevels(data, log);
-    await this.initMonsters(data, log);
-    await this.initItems(data, log);
+
+    await Promise.all([
+      this.initLang(data, log),
+      this.initLevels(data, log),
+      this.initObjects(data, log),
+      this.initMonsters(data, log),
+      this.initItems(data, log),
+    ]);
+
     return data;
   }
 
@@ -80,6 +72,7 @@ export class Diablo2MpqLoader {
 
     logger?.debug({ file: 'levels.bin', records: data.levels.size, duration: res.duration }, 'Mpq:Load:Levels');
   }
+
   static async initObjects(data: Diablo2MpqData, logger?: Logger): Promise<void> {
     const res = await this.readAndParse('data/global/excel/objects.bin', ObjectReader);
     if (res == null) return logger?.warn({ file: 'data/global/excel/objects.bin' }, 'Mpq:Load:Failed');

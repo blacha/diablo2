@@ -1,4 +1,5 @@
 import { Diablo2MpqData } from '@diablo2/data';
+import { Diablo2MpqLoader } from '@diablo2/bintools';
 import { toHex } from 'binparse';
 import { ChildProcess, spawn } from 'child_process';
 import { EventEmitter } from 'events';
@@ -70,6 +71,8 @@ export class Diablo2MapProcess {
       return;
     }
     this.generatedCount = 0;
+
+    this.mpq = await Diablo2MpqLoader.load(Diablo2Path, log);
 
     const res = await run(WineCommand, ['regedit', RegistryPath]);
     log.info({ data: res.stdout }, 'Registry:Update');
@@ -189,14 +192,15 @@ export class Diablo2MapProcess {
   /** Correct the names of npcs and objects */
   fixMap(map: MapGenMessageMap): MapGenMessageMap {
     for (const obj of map.objects) {
-      if (obj.type === 'npc') {
-        obj.name = this.mpq.monsters.name(obj.id);
-      }
+      if (obj.type === 'npc') obj.name = this.mpq.monsters.name(obj.id)?.trim();
 
       // Force lowercase all the sub types
-      if (obj.type === 'object' && obj.subType != null) {
-        obj.subType = obj.subType.toLowerCase() as 'chest';
-        // obj.name = this.mpq.objects.name(obj.id);
+      if (obj.type === 'object') {
+        obj.name = this.mpq.objects.get(obj.id)?.name.trim();
+      }
+
+      if (obj.type === 'exit') {
+        obj.name = this.mpq.levels.get(obj.id)?.name.trim();
       }
     }
 
