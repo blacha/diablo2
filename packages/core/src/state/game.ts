@@ -62,7 +62,7 @@ export class Diablo2State {
     const player = this.players.get(this.playerId);
     if (player) return player;
 
-    console.trace('Invalid player state, resetting');
+    // console.trace('Invalid player state, resetting');
     this.playerId = -1;
     const resetPlayer = {
       id: -1,
@@ -150,7 +150,7 @@ export class Diablo2State {
 
     player.updatedAt = Date.now();
     if (player.x === x && player.y === y) return;
-    this.log.debug({ packet: pkt?.packet.name, player: player.name, id, x, y }, 'Player:Move');
+    this.log.trace({ packet: pkt?.packet.name, player: player.name, id, x, y }, 'Player:Move');
 
     player.x = x;
     player.y = y;
