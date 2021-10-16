@@ -75,14 +75,7 @@ export class Diablo2MpqMonsters {
     'Bartuc the Bloody',
     'Ventar the Unholy',
     'Lister the Tormentor',
-    'Root of all Evil',
-    'Act1 Altar',
-    'Ursa Bloodthirst',
-    'Act2 Altar',
-    'Act3 Altar',
-    'Blood Huntress',
-    'Crazed Sorcerer',
-    'Dark Wanderer',
+    '',
   ];
 
   /** MonsterId -> Monster translation string */
@@ -90,25 +83,29 @@ export class Diablo2MpqMonsters {
   /** baseMonsterId -> Monster state */
   state: Map<number, number[]> = new Map();
 
-  maxId = -1;
   mpq: Diablo2MpqData;
 
   constructor(mpq: Diablo2MpqData) {
     this.mpq = mpq;
   }
 
+  /**
+   * Number of normal monsters
+   * For v1.13c diablo2 this is 734
+   */
+  size = 0;
+
   superUniqueName(superUniqueId: number): string | undefined {
     return this.superUniques[superUniqueId];
   }
 
   name(monsterId: number): string | undefined {
-    // This doesn't quite work is there another array in between
-    // if (monsterId > this.maxId) return this.superUniques[monsterId - this.maxId];
+    if (monsterId >= this.size) return this.superUniques[monsterId - this.size];
     return this.mpq.t(this.monsters.get(monsterId)?.nameLangId);
   }
 
   add(monsterId: number, mon: Diablo2MpqMonster): void {
-    if (monsterId > this.maxId) this.maxId = monsterId;
+    this.size++;
     this.monsters.set(monsterId, mon);
   }
 

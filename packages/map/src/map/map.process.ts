@@ -8,7 +8,7 @@ import { createInterface } from 'readline';
 import { Log, LogType } from '../logger.js';
 import { run } from './child.process.js';
 import { LruCache } from './lru.js';
-import { Diablo2Map, Diablo2MapGenMessage, MapGenMessageInfo, MapGenMessageMap } from './map.js';
+import { Diablo2Map, Diablo2MapGenMessage, Diablo2MapNpcSuper, MapGenMessageInfo, MapGenMessageMap } from './map.js';
 
 export const MapCommand = './bin/d2-map.exe';
 export const Diablo2Path = '/app/game';
@@ -193,7 +193,19 @@ export class Diablo2MapProcess {
   fixMap(map: MapGenMessageMap): MapGenMessageMap {
     map.name = this.mpq.levels.get(map.id)?.name.trim() ?? map.name;
     for (const obj of map.objects) {
-      if (obj.type === 'npc') obj.name = this.mpq.monsters.name(obj.id)?.trim();
+      if (obj.type === 'npc') {
+        if (obj.id >= this.mpq.monsters.size) {
+          const superId = obj.id - this.mpq.monsters.size;
+
+          if (superId < this.mpq.monsters.superUniques.length) {
+            obj.name = this.mpq.monsters.superUniqueName(superId);
+            (obj as Diablo2MapNpcSuper).isSuperUnique = true;
+            (obj as Diablo2MapNpcSuper).superId = superId;
+          }
+        } else {
+          obj.name = this.mpq.monsters.name(obj.id)?.trim();
+        }
+      }
 
       // Force lowercase all the sub types
       if (obj.type === 'object') {

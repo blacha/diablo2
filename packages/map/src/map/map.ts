@@ -7,7 +7,7 @@ export interface Diablo2Map {
   size: { width: number; height: number };
 }
 
-export type Diablo2Object = Diablo2MapObject | Diablo2MapNpc | Diablo2MapExit;
+export type Diablo2Object = Diablo2MapObject | Diablo2MapNpc | Diablo2MapExit | Diablo2MapNpcSuper;
 
 export interface Diablo2MapObject {
   id: number;
@@ -23,6 +23,12 @@ export interface Diablo2MapNpc {
   y: number;
   name?: string;
 }
+
+export interface Diablo2MapNpcSuper extends Diablo2MapNpc {
+  isSuperUnique: true;
+  superId: number;
+}
+
 export interface Diablo2MapExit {
   id: number;
   type: 'exit';
