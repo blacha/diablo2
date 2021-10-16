@@ -21,6 +21,11 @@ export const AreaUtil = {
 
   getAct(f?: string | null): Act | null {
     if (f == null) return null;
+    const num = Number(f);
+    if (!isNaN(num)) {
+      if (num in Act) return num;
+      return null;
+    }
     switch (f?.toLowerCase()) {
       case 'acti':
         return Act.ActI;

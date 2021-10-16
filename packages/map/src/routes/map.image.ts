@@ -1,16 +1,18 @@
 import * as NodeCanvas from 'canvas';
 import { MapProcess } from '../map/map.process.js';
 import { HttpError, Request, Route } from '../route.js';
+import { AreaUtil } from '../viewer/area.js';
 import { AreaLevel } from '../viewer/area.name.js';
 import { MapRender } from '../viewer/render.js';
-import { getDifficulty, isInSeedRange } from './map.js';
+import { isInSeedRange } from './map.js';
 
 export class MapImageRoute implements Route {
   url = '/v1/map/:seed/:difficulty/:level.png';
 
   async process(req: Request): Promise<Buffer> {
     const { seed, difficulty, level } = await MapImageRoute.validateParams(req);
-    const maps = await MapProcess.map(seed, difficulty, req.log);
+    const act = AreaUtil.getActLevel(level);
+    const maps = await MapProcess.map(seed, difficulty, act, req.log);
     const zone = maps[level];
     if (zone == null) throw new HttpError(422, 'Invalid level');
 
@@ -20,7 +22,8 @@ export class MapImageRoute implements Route {
 
     ctx.fillStyle = 'black';
     ctx.fillRect(0, 0, zone.size.width, zone.size.height);
-    await MapRender.render(zone, ctx, { ...zone.offset, ...zone.size });
+    MapRender.render(zone, ctx, { ...zone.offset, ...zone.size }, 1);
+    MapRender.renderObjects(zone, ctx, { ...zone.offset, ...zone.size }, 1);
 
     const zoneName = AreaLevel[zone.id];
 
@@ -45,7 +48,7 @@ export class MapImageRoute implements Route {
     const seed = Number(req.params.seed);
     if (isNaN(seed) || !isInSeedRange(seed)) throw new HttpError(422, 'Invalid seed');
 
-    const difficulty = getDifficulty(req.params.difficulty);
+    const difficulty = AreaUtil.getDifficulty(req.params.difficulty);
     if (difficulty == null) throw new HttpError(422, 'Invalid difficulty');
 
     const level = Number(req.params.level);

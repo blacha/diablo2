@@ -58,7 +58,7 @@ class Diablo2MapServer {
           res.status(e.status ?? 500);
           res.json({ id: req.id, message: e.message });
         } else {
-          req.log.error({ error: e }, 'Failed to run');
+          req.log.error({ err: e }, 'Failed to run');
           res.status(500);
           res.json({ id: req.id, message: `Internal server error` });
         }

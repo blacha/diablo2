@@ -43,4 +43,4 @@ async function main(): Promise<void> {
   await sniffer.start(Log);
 }
 
-main().catch((e) => Log.fatal(e, 'FailedToRun'));
+main().catch((err) => Log.fatal({ err }, 'FailedToRun'));

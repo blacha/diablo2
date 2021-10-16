@@ -20,7 +20,6 @@
     "bundle": "yarn run bundle-server && yarn run bundle-www && cp static/* dist/www/",
     "bundle-server": "esbuild src/index.ts --platform=node --target=node16 --bundle --external:canvas --outdir=dist",
     "bundle-www": "esbuild src/viewer/index.ts --platform=node --target=node16 --bundle --outdir=dist/www",
-    "bundle-canvas": "cd dist && yarn init . --yes && yarn add canvas",
     "build-docker": "yarn bundle && docker build . -t blacha/diablo2"
   },
   "dependencies": {
