@@ -232,7 +232,6 @@ void add_collision_data(CollMap *pCol, int originX, int originY) {
 
 char *get_object_type(int code) {
     if (object_is_useless(code)) return NULL;
-    if (object_is_door(code)) return NULL;
     return "object";
 }
 
