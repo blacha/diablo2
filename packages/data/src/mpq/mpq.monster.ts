@@ -90,21 +90,24 @@ export class Diablo2MpqMonsters {
   /** baseMonsterId -> Monster state */
   state: Map<number, number[]> = new Map();
 
+  maxId = -1;
   mpq: Diablo2MpqData;
 
   constructor(mpq: Diablo2MpqData) {
     this.mpq = mpq;
   }
 
-  getSuperUniqueName(superUniqueId: number): string | undefined {
+  superUniqueName(superUniqueId: number): string | undefined {
     return this.superUniques[superUniqueId];
   }
 
-  getMonsterName(monsterId: number): string | undefined {
+  name(monsterId: number): string | undefined {
+    if (monsterId > this.maxId) return this.superUniques[monsterId - this.maxId];
     return this.mpq.t(this.monsters.get(monsterId)?.nameLangId);
   }
 
   add(monsterId: number, mon: Diablo2MpqMonster): void {
+    if (monsterId > this.maxId) this.maxId = monsterId;
     this.monsters.set(monsterId, mon);
   }
 

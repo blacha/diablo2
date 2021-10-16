@@ -93,7 +93,7 @@ export class DataTypeNpc extends StrutBase<NpcInfo> {
 
     if (flags.isSuperUnique) {
       const superUniqueId = br.bits(16);
-      npc.name = Diablo2Mpq.monsters.getSuperUniqueName(superUniqueId);
+      npc.name = Diablo2Mpq.monsters.superUniqueName(superUniqueId);
     }
     if (Object.keys(flags).length === 0) delete npc.flags;
 
