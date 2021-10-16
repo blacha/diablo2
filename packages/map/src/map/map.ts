@@ -14,19 +14,22 @@ export interface Diablo2MapObject {
   type: 'object';
   x: number;
   y: number;
-  name?: 'chest' | 'Waypoint';
+  subType?: 'chest' | 'waypoint';
+  // name?: string;
 }
 export interface Diablo2MapNpc {
   id: number;
   type: 'npc';
   x: number;
   y: number;
+  name?: string;
 }
 export interface Diablo2MapExit {
   id: number;
   type: 'exit';
   x: number;
   y: number;
+  name?: string;
 }
 
 export interface MapGenMessageInit {

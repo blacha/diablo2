@@ -1,5 +1,4 @@
-import { Act } from '@diablo2/data/src/act.js';
-import { Difficulty } from '@diablo2/data/src/difficulty';
+import { Act, Difficulty } from '@diablo2/data';
 
 const ActLevels = {
   ActI: 40,
