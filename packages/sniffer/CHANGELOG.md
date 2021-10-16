@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/blacha/diablo2/compare/v0.6.0...v0.7.0) (2021-10-16)
+
+
+### Features
+
+* **map:** render map to png using canvas ([#160](https://github.com/blacha/diablo2/issues/160)) ([90c36a1](https://github.com/blacha/diablo2/commit/90c36a1cdc328f8430921c9a42bd06f1bd64d0a0))
+
+
+
+
+
 # [0.6.0](https://github.com/blacha/diablo2/compare/v0.5.0...v0.6.0) (2021-10-13)
 
 

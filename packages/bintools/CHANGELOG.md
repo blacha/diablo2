@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/blacha/diablo2/compare/v0.6.0...v0.7.0) (2021-10-16)
+
+
+### Features
+
+* **map:** load object/exit/level names from mpq and add to map ([#185](https://github.com/blacha/diablo2/issues/185)) ([5510753](https://github.com/blacha/diablo2/commit/5510753d0f67fc78a534a4f67784c420fcd5a2a6))
+
+
+
+
+
 # [0.6.0](https://github.com/blacha/diablo2/compare/v0.5.0...v0.6.0) (2021-10-13)
 
 

@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/blacha/diablo2/compare/v0.6.0...v0.7.0) (2021-10-16)
+
+
+### Features
+
+* **memory:** die after too many errors ([4d1fab2](https://github.com/blacha/diablo2/commit/4d1fab223e21f08a5f636ad3ceb0911570d3bb7a))
+
+
+
+
+
 # [0.6.0](https://github.com/blacha/diablo2/compare/v0.5.0...v0.6.0) (2021-10-13)
 
 

@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.7.0](https://github.com/blacha/diablo2/compare/v0.6.0...v0.7.0) (2021-10-16)
+
+
+### Bug Fixes
+
+* **data:** super unique ids are not quite right ([8b71cb0](https://github.com/blacha/diablo2/commit/8b71cb0baaf902d162fc6342761f70f97a1baa5f))
+
+
+### Features
+
+* **map:** expose the location of super uniques ([93f1ea9](https://github.com/blacha/diablo2/commit/93f1ea96d4b8e1f312d518bc1f554d8162ef533b))
+* **map:** load object/exit/level names from mpq and add to map ([#185](https://github.com/blacha/diablo2/issues/185)) ([5510753](https://github.com/blacha/diablo2/commit/5510753d0f67fc78a534a4f67784c420fcd5a2a6))
+
+
+
+
+
 # [0.6.0](https://github.com/blacha/diablo2/compare/v0.5.0...v0.6.0) (2021-10-13)
 
 
