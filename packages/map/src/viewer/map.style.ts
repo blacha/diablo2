@@ -62,6 +62,34 @@ export class VectorMap {
       },
       filter: ['==', 'type', 'exit'],
     });
+
+    map.addLayer({
+      id: this.layerName('super-unique'),
+      source: this.source,
+      type: 'circle',
+      paint: {
+        'circle-radius': 3,
+        'circle-color': '#9b4dca',
+        'circle-stroke-color': 'rgba(0,0,0,0.87)',
+        'circle-stroke-width': 1,
+        'circle-opacity': 0.5,
+      },
+      filter: ['==', 'type', 'super-unique'],
+    });
+    map.addLayer({
+      id: this.layerName('super-unique-name'),
+      source: this.source,
+      type: 'symbol',
+      minzoom: 3,
+      layout: {
+        'icon-image': 'custom-marker',
+        'text-field': ['get', 'name'],
+        'text-font': ['Open Sans Bold'],
+        'text-offset': [0, 0],
+        'text-anchor': 'bottom-left',
+      },
+      filter: ['==', 'type', 'super-unique'],
+    });
   }
 
   static remove(map: any): void {

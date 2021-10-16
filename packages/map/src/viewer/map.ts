@@ -74,12 +74,22 @@ maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: un
             properties: { type: 'waypoint' },
           });
         }
+
+        if (obj.type === 'npc' && obj.isSuperUnique && obj.name !== null) {
+          const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x - 2, z.offset.y + obj.y + 2);
+          features.push({
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
+            properties: { type: 'super-unique', name: obj.name },
+          });
+        }
+
         if (obj.type === 'exit') {
           const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x - 2, z.offset.y + obj.y + 2);
           features.push({
             type: 'Feature',
             geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
-            properties: { type: 'exit', name: AreaLevel[obj.id] },
+            properties: { type: 'exit', name: obj.name },
           });
         }
       }
