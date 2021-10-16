@@ -80,7 +80,7 @@ export class Diablo2MpqLoader {
       const r = res.value.objects[i];
       data.objects.set(i, r);
     }
-    logger?.debug({ file: 'objects.bin', records: data.levels.size, duration: res.duration }, 'Mpq:Load:Levels');
+    logger?.debug({ file: 'objects.bin', records: data.objects.size, duration: res.duration }, 'Mpq:Load:Objects');
   }
 
   /** Load in the lang files */
