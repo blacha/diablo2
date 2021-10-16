@@ -102,7 +102,8 @@ export class Diablo2MpqMonsters {
   }
 
   name(monsterId: number): string | undefined {
-    if (monsterId > this.maxId) return this.superUniques[monsterId - this.maxId];
+    // This doesn't quite work is there another array in between
+    // if (monsterId > this.maxId) return this.superUniques[monsterId - this.maxId];
     return this.mpq.t(this.monsters.get(monsterId)?.nameLangId);
   }
 
