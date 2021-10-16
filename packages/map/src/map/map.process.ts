@@ -191,6 +191,7 @@ export class Diablo2MapProcess {
 
   /** Correct the names of npcs and objects */
   fixMap(map: MapGenMessageMap): MapGenMessageMap {
+    map.name = this.mpq.levels.get(map.id)?.name.trim() ?? map.name;
     for (const obj of map.objects) {
       if (obj.type === 'npc') obj.name = this.mpq.monsters.name(obj.id)?.trim();
 

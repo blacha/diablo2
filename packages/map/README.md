@@ -30,22 +30,27 @@ Examples:
 ```typescript
 {
     /** Level code */
-    "id": 1,
+    "id": 74,
     /** Name given back by diablo2 client */
-    "name": "Rogue Encampment",
+    "name": "Arcane Sanctuary",
     /** how far offset this map is from the top left of the game world */
     "offset": {
-        "x": 5800,
-        "y": 5640
+        "x": 25000,
+        "y": 5000
     },
     /** Dimensions of the map */
     "size": {
-        "width": 280,
-        "height": 200
+        "width": 1000,
+        "height": 1000
     },
     /** Important objects / NPCs found in this level */
     "objects": [
-        {"id":119, "type":"object", "x":84, "y":69, "name":"Waypoint"}
+        {"id": 53, "type": "exit", "x": 137, "y": 0, "name": "Palace Cellar Level 2" },
+        {"id": 250, "type": "npc", "x": 440, "y": 20, "name": "The Summoner"},
+        {"id": 371, "type": "npc", "x": 458, "y": 203, "name": "Lightning Spire"},
+        {"id": 305, "type": "object", "x": 237, "y": 401, "name": "teleportation pad", "op": 27}
+        {"id": 402, "type": "object", "x": 449, "y": 449, "name": "Waypoint", "op": 23},
+        {"id": 298, "type": "object", "x": 427, "y": 426, "name": "portal", "op": 34}
     ],
     /** Map Collision data */
     "map": [
