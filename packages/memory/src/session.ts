@@ -27,6 +27,7 @@ export class Diablo2GameSessionMemory {
   async start(logger: LogType): Promise<void> {
     logger.info({ pid: this.d2.process.pid }, 'Session:Start');
 
+    let errorCount = 0;
     while (true) {
       try {
         const player = await this.waitForPlayer(logger);
@@ -34,8 +35,12 @@ export class Diablo2GameSessionMemory {
 
         await this.updateState(player, logger);
         await sleep(this.tickSpeed);
+        errorCount = 0;
       } catch (err) {
         logger.error({ pid: this.d2.process.pid, err }, 'Session:Error');
+        errorCount++;
+        await sleep(this.tickSpeed * errorCount);
+        if (errorCount > 5) break;
       }
     }
   }
