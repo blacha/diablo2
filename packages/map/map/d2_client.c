@@ -245,6 +245,7 @@ int dump_objects(Act *pAct, Level *pLevel, Room2 *pRoom2) {
     for (PresetUnit *pPresetUnit = pRoom2->pPreset; pPresetUnit; pPresetUnit = pPresetUnit->pPresetNext) {
         char *objectType = NULL;
         char *objectName = NULL;
+        int opCode = 0;
 
         int objectId = -1;
 
@@ -263,6 +264,7 @@ int dump_objects(Act *pAct, Level *pLevel, Room2 *pRoom2) {
             if (pPresetUnit->dwTxtFileNo < 580) {
                 ObjectTxt *txt = d2common_get_object_txt(gameVersion, pPresetUnit->dwTxtFileNo);
                 objectName = txt->szName;
+                if (txt->nSelectable0) opCode = txt->nOperateFn;
             }
         } else if (pPresetUnit->dwType == UNIT_TYPE_TILE) {
             for (RoomTile *pRoomTile = pRoom2->pRoomTiles; pRoomTile; pRoomTile = pRoomTile->pNext) {
@@ -280,6 +282,7 @@ int dump_objects(Act *pAct, Level *pLevel, Room2 *pRoom2) {
             json_key_value("x", coordX);
             json_key_value("y", coordY);
             if (objectName) json_key_value("name", objectName);
+            if (opCode) json_key_value("op", opCode);
             json_object_end();
         }
     }
