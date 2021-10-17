@@ -1,7 +1,7 @@
 import { Act, ActUtil, Difficulty, DifficultyUtil } from '@diablo2/data';
 import { toHex } from 'binparse/build/src/hex.js';
 import { VectorMap } from './map.style.js';
-import './map.protocol.js';
+import { registerMapProtocols } from './map.protocol.js';
 import { MapLocation } from './bounds.js';
 
 declare const maplibregl: any;
@@ -15,6 +15,8 @@ export class Diablo2MapViewer {
   updateUrlTimer: unknown;
 
   constructor(el: string) {
+    registerMapProtocols(maplibregl);
+
     this.map = new maplibregl.Map({
       container: el,
       zoom: 0,
@@ -40,6 +42,7 @@ export class Diablo2MapViewer {
       this.map.on('render', this.render);
     });
   }
+
   /**
    * Support parsing of zooms with `z14` or `14z`
    * @param zoom string to parse zoom from
