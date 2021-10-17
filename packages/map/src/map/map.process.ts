@@ -2,6 +2,7 @@ import { Diablo2MpqData } from '@diablo2/data';
 import { Diablo2MpqLoader } from '@diablo2/bintools';
 import { toHex } from 'binparse';
 import { ChildProcess, spawn } from 'child_process';
+import { promises as fs } from 'fs';
 import { EventEmitter } from 'events';
 import PLimit from 'p-limit';
 import { createInterface } from 'readline';
@@ -9,8 +10,9 @@ import { Log, LogType } from '../logger.js';
 import { run } from './child.process.js';
 import { LruCache } from './lru.js';
 import { Diablo2Map, Diablo2MapGenMessage, Diablo2MapNpcSuper, MapGenMessageInfo, MapGenMessageMap } from './map.js';
+import { F_OK } from 'constants';
 
-export const MapCommand = './bin/d2-map.exe';
+export const MapCommand = ['./bin/d2-map.exe', '../bin/d2-map.exe'];
 export const Diablo2Path = '/app/game';
 export const RegistryPath = '/app/d2.install.reg';
 export const WineCommand = 'wine';
@@ -42,6 +44,14 @@ function getJson<T>(s: string): T | null {
 
 export type Diablo2MapResponse = { [key: string]: Diablo2Map };
 
+function fileExists(f: string): Promise<boolean> {
+  return fs
+    .access(f, F_OK)
+    .then(() => true)
+    .catch(() => false);
+}
+
+// Disable wine debug logging
 const cwd = process.cwd();
 export class Diablo2MapProcess {
   cache: LruCache<Diablo2MapResponse> = new LruCache(100);
@@ -50,6 +60,8 @@ export class Diablo2MapProcess {
   generatedCount = 0;
   events: EventEmitter = new EventEmitter();
   mpq: Diablo2MpqData;
+
+  isFirstStart = true;
   /**
    * Limit the map generation to a single thread
    * TODO having a pool of these map processes would be quite nice
@@ -60,47 +72,68 @@ export class Diablo2MapProcess {
   async version(log: LogType): Promise<string> {
     const versionResponse = await run(WineCommand, ['--version']);
     const version = versionResponse.stdout;
-    log.info({ version, command: WineCommand }, 'WineVersion');
+    log.info({ version, command: WineCommand }, 'MapProcess:WineVersion');
     return version;
+  }
+
+  async findD2MapExe(): Promise<string | null> {
+    for (const mc of MapCommand) {
+      if (await fileExists(mc)) return mc;
+    }
+
+    return null;
   }
 
   /** Start the map process waiting for the `init` event before allowing anything to continue */
   async start(log: LogType): Promise<void> {
     if (this.process != null) {
-      Log.warn({ pid: this.process.pid }, 'MapProcess already started');
+      Log.warn({ pid: this.process.pid }, 'MapProcess:AlreadyStarted');
       return;
     }
     this.generatedCount = 0;
 
     if (this.mpq == null) this.mpq = await Diablo2MpqLoader.load(Diablo2Path, log);
 
-    const res = await run(WineCommand, ['regedit', RegistryPath]);
-    log.info({ data: res.stdout }, 'Registry:Update');
+    const mapCommand = await this.findD2MapExe();
+    if (mapCommand == null) {
+      Log.fatal('MapProcess:MissingMapExe');
+      return;
+    }
 
-    const args = [MapCommand, Diablo2Path];
+    log.info({ exe: mapCommand }, 'MapProcess:ExeFound');
+
+    if ((await fileExists(RegistryPath)) && this.isFirstStart) {
+      const res = await run(WineCommand, ['regedit', RegistryPath]);
+      log.info({ data: res.stdout }, 'MapProcess:Registry:Update');
+    }
+
+    const args = [mapCommand, Diablo2Path];
     log.info({ wineArgs: args }, 'MapProcess:Starting');
+    this.isFirstStart = false;
 
     return new Promise(async (resolve) => {
-      const process = spawn(WineCommand, args, { cwd });
-      if (process == null || process.stdout == null) throw new Error('Failed to start command');
-      this.process = process;
-      process.stderr.on('data', (data) => {
-        Log.debug({ data: data.toString().trim() }, 'MapProcess:stderr');
+      const proc = spawn(WineCommand, args, { cwd, env: { WINEPREFIX: process.env['WINEPREFIX'], WINEDEBUG: '-all' } });
+      if (proc == null || proc.stdout == null) throw new Error('Failed to start command');
+      this.process = proc;
+      proc.stderr.on('data', (data) => {
+        const line = data.toString().trim();
+        if (line.includes('FS volume label and serial are not available')) return;
+        Log.debug({ data: line }, 'MapProcess:stderr');
       });
-      process.on('error', (error) => {
+      proc.on('error', (error) => {
         log.fatal({ error }, 'MapProcess:Died');
         inter.close();
         this.process = null;
       });
-      process.on('close', (exitCode) => {
+      proc.on('close', (exitCode) => {
         inter.close();
         this.process = null;
         if (exitCode == null) return;
         if (exitCode > 0) log.fatal({ exitCode }, 'MapProcess:Closed');
       });
 
-      log.info({ pid: process.pid }, 'MapProcess:Started');
-      const inter = createInterface(process.stdout).on('line', (line) => {
+      log.info({ pid: proc.pid }, 'MapProcess:Started');
+      const inter = createInterface(proc.stdout).on('line', (line) => {
         const json = getJson<Diablo2MapGenMessage | LogMessage>(line);
         if (json == null) return;
         if ('time' in json) {
