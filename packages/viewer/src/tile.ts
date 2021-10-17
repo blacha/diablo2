@@ -59,8 +59,8 @@ export class Diablo2MapTiles {
 
   static async tileRaster(d: MapParams): Promise<ArrayBuffer | void> {
     const map = await this.get(d.difficulty, d.seed, d.act);
-    const tileId = ['raster', toHex(d.difficulty, 8), Act[d.act], d.seed, d.z, d.x, d.y].join('__');
-    const startTime = Date.now();
+    // const tileId = ['raster', toHex(d.difficulty, 8), Act[d.act], d.seed, d.z, d.x, d.y].join('__');
+    // const startTime = Date.now();
 
     const bounds = LevelBounds.tileToSourceBounds(d.x, d.y, d.z);
     const zones = map.findMaps(d.act, bounds);
@@ -77,16 +77,16 @@ export class Diablo2MapTiles {
     const ctx = canvas.getContext('2d');
     if (ctx == null) return;
 
-    console.time('RenderZone:' + tileId);
+    // console.time('RenderLevel:' + tileId);
     for (const zone of zones) LevelRender.render(zone, ctx, bounds, (1 / scale) * 2);
-    console.timeEnd('RenderZone:' + tileId);
+    // console.timeEnd('RenderLevel:' + tileId);
 
     // TODO 99% of the time for rendering a map is this conversion into a PNG
     // When maplibre lets us we should just return a canvas object
     const blob: Blob | null = await new Promise((r) => canvas.toBlob((b) => r(b), 'image/png'));
     if (blob == null) return;
     const buf = blob.arrayBuffer();
-    console.log(tileId, { duration: Date.now() - startTime });
+    // console.log(tileId, { duration: Date.now() - startTime });
     return buf;
   }
 }

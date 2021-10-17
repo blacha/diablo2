@@ -50,6 +50,8 @@ export function registerMapProtocols(maplibregl: any): void {
       const vectorId = ['vector', toHex(data.difficulty, 8), Act[data.act], data.seed].join('__');
       console.time(vectorId);
       const vector = toGeoJson(c, data.act);
+
+      (window as any).Diablo2Features = vector;
       console.timeEnd(vectorId);
       cb(null, vector);
     });

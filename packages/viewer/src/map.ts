@@ -1,8 +1,8 @@
 import { Act, ActUtil, Difficulty, DifficultyUtil } from '@diablo2/data';
 import { toHex } from 'binparse/build/src/hex.js';
-import { VectorMap } from './map.style.js';
-import { registerMapProtocols } from './map.protocol.js';
 import { MapLocation } from './bounds.js';
+import { MapLayers } from './map.objects.js';
+import { registerMapProtocols } from './map.protocol.js';
 
 declare const maplibregl: any;
 
@@ -122,7 +122,7 @@ export class Diablo2MapViewer {
       this.map.removeLayer('layer-diablo2-collision');
       this.map.removeSource('source-diablo2-collision');
 
-      VectorMap.remove(this.map);
+      for (const layer of MapLayers) this.map.removeLayer(layer.id);
       this.map.removeSource('source-diablo2-vector');
     }
     this.map.addSource('source-diablo2-collision', { type: 'raster', tiles: [`d2r://${d2Url}`], maxzoom: 14 });
@@ -130,7 +130,10 @@ export class Diablo2MapViewer {
 
     this.map.addLayer({ id: 'layer-diablo2-collision', type: 'raster', source: 'source-diablo2-collision' });
 
-    VectorMap.add(this.map);
+    for (const layer of MapLayers) {
+      layer.source = 'source-diablo2-vector';
+      this.map.addLayer(layer);
+    }
   }
 
   setAct(a: string): void {
