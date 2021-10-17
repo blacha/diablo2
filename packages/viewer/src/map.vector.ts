@@ -3,7 +3,7 @@ import { toFeatureCollection } from '@linzjs/geojson';
 import type { Feature } from 'geojson';
 import { LevelBounds } from './bounds.js';
 import { FeatureMaker } from './map.features.js';
-import { MapExits, MapFeatureFilter, MapObjects } from './map.objects.js';
+import { MapFeatureFilter, MapObjects } from './map.objects.js';
 import { LevelData } from './tile.js';
 
 function pointToPolygon(x: number, y: number, width = 1, height = 1, xOffset = 0, yOffset = 0): GeoJSON.Polygon {
@@ -51,14 +51,9 @@ function makeFeature(obj: Diablo2LevelObject, z: Diablo2Level): GeoJSON.Feature 
     if (fm) return toFeature(obj, z, fm);
   }
 
-  if (obj.type === 'exit') {
-    const fm = MapExits.get(obj.id);
-    if (fm) return toFeature(obj, z, fm);
-  }
-
   for (const filter of MapFeatureFilter) {
     const fm = filter(obj);
-    if (fm === false) return false;
+    if (fm === false) return null;
     if (fm) return toFeature(obj, z, fm);
   }
 
@@ -81,31 +76,8 @@ export function toGeoJson(c: LevelData, act: Act): GeoJSON.FeatureCollection {
 
     for (const obj of z.objects) {
       const feat = makeFeature(obj, z);
-      if (feat === false) continue;
-      if (feat != null) {
-        features.push(feat);
-        continue;
-      }
-
-      const latLng = LevelBounds.sourceToLatLng(z.offset.x + obj.x, z.offset.y + obj.y);
-      const geometry = { type: 'Point', coordinates: [latLng.lng, latLng.lat] } as GeoJSON.Point;
-
-      // if (obj.type === 'exit') {
-      //   features.push({
-      //     type: 'Feature',
-      //     geometry,
-      //     properties: { type: 'exit', name: `${toHex(obj.id)} ${obj.name}`, id: obj.id },
-      //   });
-      //   console.log('FeatureHit', obj.id, features[features.length - 1].properties);
-
-      //   continue;
-      // }
-
-      features.push({
-        type: 'Feature',
-        geometry,
-        properties: { type: 'unknown', name: `${toHex(obj.id)} - ${obj.type} - ${obj.name}`, id: obj.id },
-      });
+      if (feat == null || feat === false) continue;
+      features.push(feat);
     }
   }
   return toFeatureCollection(features);

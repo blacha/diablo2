@@ -2,7 +2,7 @@ import { Diablo2LevelObject } from '@diablo2/data';
 import { FeatureMaker, MapObjectFilter } from './map.features.js';
 
 export const MapObjects = new Map<number, FeatureMaker>();
-export const MapExits = new Map<number, FeatureMaker>();
+// export const MapExits = new Map<number, FeatureMaker>();
 
 export const MapFeatureFilter: MapObjectFilter[] = [];
 
@@ -24,24 +24,14 @@ MapObjects.set(0x19, { feature: 'polygon', width: 6, height: 2, xOffset: -3, lay
 MapObjects.set(0x1b, { feature: 'polygon', width: 9, height: 2, xOffset: -3, yOffset: 2, layer: 'door' });
 
 // Waypoints
-MapObjects.set(119, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(145, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(156, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(157, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(237, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(238, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(288, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(323, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(324, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(398, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(402, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(429, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(494, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(496, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(511, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
-MapObjects.set(539, { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' });
+function generalWaypoint(f: Diablo2LevelObject): FeatureMaker | void {
+  if (f.type !== 'object') return;
+  if (!f.name?.toLowerCase().includes('waypoint')) return;
+  return { feature: 'polygon', width: 12, height: 12, xOffset: -2, yOffset: -2, layer: 'waypoint' };
+}
+MapFeatureFilter.push(generalWaypoint);
 
-// General exits make a square
+// Exits make a square
 function generalExit(f: Diablo2LevelObject): FeatureMaker | void {
   if (f.type !== 'exit') return;
   return { feature: 'polygon', width: 9, height: 9, xOffset: -4, yOffset: -4, layer: 'exit' };
@@ -73,43 +63,43 @@ const TextSymbol = {
 };
 
 export interface StyleJsonObject extends Record<string, unknown> {
-  id: string;
   type: 'symbol' | 'fill' | 'circle';
 }
 
-export const MapLayers: StyleJsonObject[] = [];
+export const MapLayers: Map<string, StyleJsonObject> = new Map();
 /** Level text eg "Blood Moor" */
-MapLayers.push({ id: 'level-name', type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'level-name'] });
+MapLayers.set('level-name', { type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'level-name'] });
 
 /** Show waypoints as the polygon and the text */
-MapLayers.push({
-  id: 'waypoint',
+MapLayers.set('waypoint', {
   type: 'fill',
   paint: { 'fill-color': '#06d6a0', 'fill-opacity': 0.87 },
   filter: ['==', 'type', 'waypoint'],
 });
-MapLayers.push({ id: 'waypoint-name', type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'waypoint'] });
+MapLayers.set('waypoint-name', {
+  id: 'waypoint-name',
+  type: 'symbol',
+  layout: TextSymbol,
+  filter: ['==', 'type', 'waypoint'],
+});
 
 /** Show exits as a block and as names */
-MapLayers.push({
-  id: 'exit',
+MapLayers.set('exit', {
   type: 'fill',
   paint: { 'fill-color': '#ef476f', 'fill-opacity': 0.87 },
   filter: ['==', 'type', 'exit'],
 });
-MapLayers.push({ id: 'exit-name', type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'exit'] });
+MapLayers.set('exit-name', { type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'exit'] });
 
 /** Show doors as a light orange blocks */
-MapLayers.push({
-  id: 'door',
+MapLayers.set('door', {
   type: 'fill',
   paint: { 'fill-color': '#f77f00', 'fill-opacity': 0.87 },
   filter: ['==', 'type', 'door'],
 });
 
 /** Show exits as a super uniques a cirlce and name */
-MapLayers.push({
-  id: 'super-unique',
+MapLayers.set('super-unique', {
   type: 'circle',
   paint: {
     'circle-radius': 3,
@@ -120,11 +110,10 @@ MapLayers.push({
   },
   filter: ['==', 'type', 'super-unique'],
 });
-MapLayers.push({ id: 'super-unique-name', type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'super-unique'] });
+MapLayers.set('super-unique-name', { type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'super-unique'] });
 
 /** Show exits as a unknowns as a and name */
-MapLayers.push({
-  id: 'unknown',
+MapLayers.set('unknown', {
   type: 'circle',
   minzoom: 6,
   paint: {
@@ -136,8 +125,7 @@ MapLayers.push({
   },
   filter: ['==', 'type', 'unknown'],
 });
-MapLayers.push({
-  id: 'unknown-name',
+MapLayers.set('unknown-name', {
   minzoom: 6,
   type: 'symbol',
   layout: TextSymbol,

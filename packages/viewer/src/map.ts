@@ -122,7 +122,7 @@ export class Diablo2MapViewer {
       this.map.removeLayer('layer-diablo2-collision');
       this.map.removeSource('source-diablo2-collision');
 
-      for (const layer of MapLayers) this.map.removeLayer(layer.id);
+      for (const layerId of MapLayers.keys()) this.map.removeLayer(layerId);
       this.map.removeSource('source-diablo2-vector');
     }
     this.map.addSource('source-diablo2-collision', { type: 'raster', tiles: [`d2r://${d2Url}`], maxzoom: 14 });
@@ -130,8 +130,9 @@ export class Diablo2MapViewer {
 
     this.map.addLayer({ id: 'layer-diablo2-collision', type: 'raster', source: 'source-diablo2-collision' });
 
-    for (const layer of MapLayers) {
+    for (const [layerId, layer] of MapLayers) {
       layer.source = 'source-diablo2-vector';
+      layer.id = layerId;
       this.map.addLayer(layer);
     }
   }
