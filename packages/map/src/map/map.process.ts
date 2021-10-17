@@ -19,7 +19,7 @@ export const WineCommand = 'wine';
 
 /** Wait at most 10 seconds for things to work */
 const ProcessTimeout = 30_000;
-const MaxMapsToGenerate = 10;
+const MaxMapsToGenerate = 50;
 
 interface LogMessage {
   time: number;
