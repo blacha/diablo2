@@ -43,4 +43,4 @@ COPY --from=build /build/bin/d2-map.exe /app/bin/d2-map.exe
 
 # Make sure InstallPath exists inside the registry
 COPY d2.install.reg /app/
-CMD ["node", "index.js"]
+CMD ["node", "cli.js"]
