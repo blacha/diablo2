@@ -11,13 +11,10 @@ export class VectorMap {
     map.addLayer({
       id: this.layerName('waypoint'),
       source: this.source,
-      type: 'circle',
+      type: 'fill',
       paint: {
-        'circle-radius': 3,
-        'circle-color': '#ff00ff',
-        'circle-stroke-color': 'white',
-        'circle-stroke-width': 1,
-        'circle-opacity': 0.5,
+        'fill-color': '#ff00ff',
+        'fill-opacity': 0.5,
       },
       filter: ['==', 'type', 'waypoint'],
     });
@@ -27,7 +24,7 @@ export class VectorMap {
       type: 'symbol',
       layout: {
         'icon-image': 'custom-marker',
-        'text-field': 'Waypoint',
+        'text-field': ['get', 'name'],
         'text-font': ['Open Sans Bold'],
         'text-offset': [0, 0.6],
         'text-anchor': 'top',
@@ -134,6 +131,18 @@ export class VectorMap {
         'text-anchor': 'top',
       },
       filter: ['==', 'type', 'unknown'],
+    });
+
+    map.addLayer({
+      id: this.layerName('door'),
+      source: this.source,
+      type: 'fill',
+      minzoom: 6,
+      paint: {
+        'fill-color': '#f3722c',
+        'fill-opacity': 0.5,
+      },
+      filter: ['==', 'type', 'door'],
     });
   }
 

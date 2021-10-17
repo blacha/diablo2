@@ -1,120 +1,12 @@
-import { Act, Difficulty } from '@diablo2/data';
-import { toFeatureCollection } from '@linzjs/geojson';
+import { Act, ActUtil, Difficulty, DifficultyUtil } from '@diablo2/data';
 import { toHex } from 'binparse/build/src/hex.js';
-import type { Feature } from 'geojson';
-import { AreaUtil } from './area.js';
-import { AreaLevel } from './area.name.js';
-import { MapBounds } from './bounds.js';
 import { VectorMap } from './map.style.js';
-import { MapParams, MapTiles } from './tile.js';
+import { registerMapProtocols } from './map.protocol.js';
+import { MapLocation } from './bounds.js';
 
 declare const maplibregl: any;
 
-function urlToParams(url: string): null | MapParams {
-  const chunks = url.split('/');
-
-  const seed = Number(chunks[2]);
-  if (isNaN(seed)) return null;
-
-  const difficulty = AreaUtil.getDifficulty(chunks[3]);
-  if (difficulty == null) return null;
-
-  const act = AreaUtil.getAct(chunks[4]);
-  if (act == null) return null;
-  return { seed, difficulty, act } as MapParams;
-}
-
-function urlToXyzParams(url: string): null | MapParams {
-  const chunks = url.split('/');
-
-  const seed = Number(chunks[2]);
-  if (isNaN(seed)) return null;
-
-  const difficulty = AreaUtil.getDifficulty(chunks[3]);
-  if (difficulty == null) return null;
-
-  const act = AreaUtil.getAct(chunks[4]);
-  if (act == null) return null;
-
-  const z = Number(chunks[5]);
-  const x = Number(chunks[6]);
-  const y = Number(chunks[7]);
-  // console.log({ z, x, y });
-
-  if (isNaN(x) || isNaN(x) || isNaN(z)) return null;
-
-  return { seed, difficulty, act, x, y, z };
-}
-
-export type Cancel = { cancel: () => void };
-const cancel = { cancel: (): void => undefined };
-maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: unknown) => void): Cancel | void => {
-  const data = urlToParams(params.url);
-  if (data == null) return cb();
-  MapTiles.get(data.difficulty, data.seed, data.act).then((c) => {
-    const features: Feature[] = [];
-
-    for (const z of c.zones.values()) {
-      const mapAct = AreaUtil.getActLevel(z.id);
-      if (mapAct !== data.act) continue;
-
-      const latLng = MapBounds.sourceToLatLng(z.offset.x, z.offset.y);
-      features.push({
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
-        properties: { name: AreaLevel[z.id], type: 'zone-name' },
-      });
-
-      for (const obj of z.objects) {
-        const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x, z.offset.y + obj.y);
-        const geometry = { type: 'Point', coordinates: [latLng.lng, latLng.lat] } as GeoJSON.Point;
-
-        if (obj.type === 'object' && obj.name?.toLowerCase() === 'waypoint') {
-          features.push({ type: 'Feature', geometry, properties: { type: 'waypoint' } });
-          continue;
-        }
-
-        if (obj.type === 'npc' && obj.isSuperUnique && obj.name !== null) {
-          features.push({ type: 'Feature', geometry, properties: { type: 'super-unique', name: obj.name } });
-          continue;
-        }
-
-        if (obj.type === 'exit') {
-          features.push({ type: 'Feature', geometry, properties: { type: 'exit', name: obj.name } });
-          continue;
-        }
-
-        features.push({
-          type: 'Feature',
-          geometry,
-          properties: { ...obj, type: 'unknown', name: `${obj.name ?? ''} ${obj.id}` },
-        });
-      }
-    }
-
-    return cb(null, toFeatureCollection(features));
-  });
-
-  return cancel;
-});
-maplibregl.addProtocol('d2r', (params: { url: string }, cb: (e?: unknown, d?: unknown) => void): Cancel | void => {
-  const data = urlToXyzParams(params.url);
-  if (data == null) return cb();
-
-  MapTiles.getRaster(data).then((d) => cb(null, d));
-  return cancel;
-});
-
-export interface LonLat {
-  lat: number;
-  lon: number;
-}
-
-export interface MapLocation extends LonLat {
-  zoom: number;
-}
-
-export class D2MapViewer {
+export class Diablo2MapViewer {
   map: any;
 
   difficulty = Difficulty.Nightmare;
@@ -123,6 +15,8 @@ export class D2MapViewer {
   updateUrlTimer: unknown;
 
   constructor(el: string) {
+    registerMapProtocols(maplibregl);
+
     this.map = new maplibregl.Map({
       container: el,
       zoom: 0,
@@ -148,6 +42,7 @@ export class D2MapViewer {
       this.map.on('render', this.render);
     });
   }
+
   /**
    * Support parsing of zooms with `z14` or `14z`
    * @param zoom string to parse zoom from
@@ -184,8 +79,8 @@ export class D2MapViewer {
 
     this.seed = Number(urlParams.get('seed'));
     if (isNaN(this.seed) || this.seed <= 0) this.seed = 0x00ff00ff;
-    this.act = AreaUtil.getAct(urlParams.get('act')) ?? Act.ActI;
-    this.difficulty = AreaUtil.getDifficulty(urlParams.get('difficulty')) ?? Difficulty.Normal;
+    this.act = ActUtil.fromString(urlParams.get('act')) ?? Act.ActI;
+    this.difficulty = DifficultyUtil.fromString(urlParams.get('difficulty')) ?? Difficulty.Normal;
 
     if (window.location.hash == null) return;
 
@@ -239,14 +134,14 @@ export class D2MapViewer {
   }
 
   setAct(a: string): void {
-    const act = AreaUtil.getAct(a);
+    const act = ActUtil.fromString(a);
     if (act == null || this.act === act) return;
     this.act = act;
     this.update();
   }
 
   setDifficulty(a: string): void {
-    const difficulty = AreaUtil.getDifficulty(a);
+    const difficulty = DifficultyUtil.fromString(a);
     if (difficulty == null || this.difficulty === difficulty) return;
     this.difficulty = difficulty;
     this.update();
@@ -265,7 +160,7 @@ export class D2MapViewer {
   updateDom(): void {
     const acts = document.querySelectorAll('button.options__act') as NodeListOf<HTMLButtonElement>;
     acts.forEach((f: HTMLButtonElement) => {
-      if (AreaUtil.getAct(f.value) === this.act) {
+      if (ActUtil.fromString(f.value) === this.act) {
         f.classList.add('button-outline');
         f.classList.remove('button-clear');
       } else {
@@ -279,7 +174,7 @@ export class D2MapViewer {
 
     const difficulties = document.querySelectorAll('button.options__difficulty') as NodeListOf<HTMLButtonElement>;
     difficulties.forEach((f: HTMLButtonElement) => {
-      if (AreaUtil.getDifficulty(f.value) === this.difficulty) {
+      if (DifficultyUtil.fromString(f.value) === this.difficulty) {
         f.classList.add('button-outline');
         f.classList.remove('button-clear');
       } else {

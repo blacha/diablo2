@@ -2,7 +2,7 @@ export const WebMercatorBounds = 20037500;
 export const EarthRadius = 6378137;
 const RadToDeg = 180 / Math.PI;
 
-export class MapBounds {
+export class LevelBounds {
   static Size = 2 ** 15;
   static TileSize = 256;
 
@@ -11,18 +11,18 @@ export class MapBounds {
   }
   static tileToSourceBounds(tX: number, tY: number, tZ: number): Bounds {
     const scale = this.getScale(tZ);
-    const size = scale * MapBounds.TileSize;
+    const size = scale * LevelBounds.TileSize;
     return { x: tX * size, y: tY * size, width: size, height: size };
   }
 
   static sourceToLatLng(sX: number, sY: number): { lat: number; lng: number } {
-    const wm = MapBounds.sourceToWebMercator(sX, sY);
-    return MapBounds.webMercatorToLatLong(wm.x, wm.y);
+    const wm = LevelBounds.sourceToWebMercator(sX, sY);
+    return LevelBounds.webMercatorToLatLong(wm.x, wm.y);
   }
 
   // Map the map bounding box into EPSG:3857 WebMercator so it can be transformed into a lat lng
   static sourceToWebMercator(sX: number, sY: number): { x: number; y: number } {
-    const halfSize = MapBounds.Size / 2;
+    const halfSize = LevelBounds.Size / 2;
     const x = ((sX - halfSize) / halfSize) * WebMercatorBounds;
     const y = ((halfSize - sY) / halfSize) * WebMercatorBounds;
     return { x, y };
@@ -34,7 +34,7 @@ export class MapBounds {
   }
 
   static getScale(z: number): number {
-    return MapBounds.Size / (2 ** z * MapBounds.TileSize);
+    return LevelBounds.Size / (2 ** z * LevelBounds.TileSize);
   }
 }
 
@@ -43,4 +43,13 @@ export interface Bounds {
   y: number;
   width: number;
   height: number;
+}
+
+export interface LonLat {
+  lat: number;
+  lon: number;
+}
+
+export interface MapLocation extends LonLat {
+  zoom: number;
 }

@@ -1,5 +1,5 @@
-import { D2MapViewer } from './map.js';
+import { Diablo2MapViewer } from '@diablo2/viewer';
 
-document.addEventListener('DOMContentLoaded', async () => {
-  new D2MapViewer('main-map');
+document.addEventListener('DOMContentLoaded', () => {
+  new Diablo2MapViewer('main-map');
 });
