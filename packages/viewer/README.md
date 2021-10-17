@@ -1,7 +1,9 @@
 # @diablo2/viewer
 
 
-Maplibre based web viewer for `@diablo2/map` data
+Maplibre based web viewer for `@diablo2/map` 
+
+![Map Preview](./static/2021-10-18-map-render.png)
 
 
 ## Usage
