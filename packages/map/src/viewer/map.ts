@@ -66,7 +66,7 @@ maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: un
       });
 
       for (const obj of z.objects) {
-        const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x - 2, z.offset.y + obj.y + 2);
+        const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x, z.offset.y + obj.y);
         const geometry = { type: 'Point', coordinates: [latLng.lng, latLng.lat] } as GeoJSON.Point;
 
         if (obj.type === 'object' && obj.name?.toLowerCase() === 'waypoint') {
