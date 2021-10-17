@@ -39,7 +39,7 @@ function urlToXyzParams(url: string): null | MapParams {
   const z = Number(chunks[5]);
   const x = Number(chunks[6]);
   const y = Number(chunks[7]);
-  console.log({ z, x, y });
+  // console.log({ z, x, y });
 
   if (isNaN(x) || isNaN(x) || isNaN(z)) return null;
 
@@ -66,32 +66,29 @@ maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: un
       });
 
       for (const obj of z.objects) {
+        const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x - 2, z.offset.y + obj.y + 2);
+        const geometry = { type: 'Point', coordinates: [latLng.lng, latLng.lat] } as GeoJSON.Point;
+
         if (obj.type === 'object' && obj.name?.toLowerCase() === 'waypoint') {
-          const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x - 2, z.offset.y + obj.y + 2);
-          features.push({
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
-            properties: { type: 'waypoint' },
-          });
+          features.push({ type: 'Feature', geometry, properties: { type: 'waypoint' } });
+          continue;
         }
 
         if (obj.type === 'npc' && obj.isSuperUnique && obj.name !== null) {
-          const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x - 2, z.offset.y + obj.y + 2);
-          features.push({
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
-            properties: { type: 'super-unique', name: obj.name },
-          });
+          features.push({ type: 'Feature', geometry, properties: { type: 'super-unique', name: obj.name } });
+          continue;
         }
 
         if (obj.type === 'exit') {
-          const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x - 2, z.offset.y + obj.y + 2);
-          features.push({
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
-            properties: { type: 'exit', name: obj.name },
-          });
+          features.push({ type: 'Feature', geometry, properties: { type: 'exit', name: obj.name } });
+          continue;
         }
+
+        features.push({
+          type: 'Feature',
+          geometry,
+          properties: { ...obj, type: 'unknown', name: `${obj.name ?? ''} ${obj.id}` },
+        });
       }
     }
 
@@ -108,12 +105,22 @@ maplibregl.addProtocol('d2r', (params: { url: string }, cb: (e?: unknown, d?: un
   return cancel;
 });
 
+export interface LonLat {
+  lat: number;
+  lon: number;
+}
+
+export interface MapLocation extends LonLat {
+  zoom: number;
+}
+
 export class D2MapViewer {
   map: any;
 
   difficulty = Difficulty.Nightmare;
   act = Act.ActV;
   seed = 0x00ff00ff;
+  updateUrlTimer: unknown;
 
   constructor(el: string) {
     this.map = new maplibregl.Map({
@@ -139,7 +146,38 @@ export class D2MapViewer {
       this.trackDom();
       this.updateFromUrl();
       this.update();
+      this.map.on('render', this.render);
     });
+  }
+  /**
+   * Support parsing of zooms with `z14` or `14z`
+   * @param zoom string to parse zoom from
+   */
+  parseZoom(zoom: string | null): number {
+    if (zoom == null || zoom === '') return NaN;
+    if (zoom.startsWith('z')) return parseFloat(zoom.slice(1));
+    if (zoom.endsWith('z')) return parseFloat(zoom);
+    return NaN;
+  }
+
+  /** Parse a location from window.hash if it exists */
+  fromHash(str: string): Partial<MapLocation> {
+    const output: Partial<MapLocation> = {};
+    const hash = str.replace('#@', '');
+    const [latS, lonS, zoomS] = hash.split(',');
+    const lat = parseFloat(latS);
+    const lon = parseFloat(lonS);
+    if (!isNaN(lat) && !isNaN(lon)) {
+      output.lat = lat;
+      output.lon = lon;
+    }
+
+    const newZoom = this.parseZoom(zoomS);
+    if (!isNaN(newZoom)) {
+      output.zoom = newZoom;
+    }
+
+    return output;
   }
 
   updateFromUrl(): void {
@@ -149,6 +187,12 @@ export class D2MapViewer {
     if (isNaN(this.seed) || this.seed <= 0) this.seed = 0x00ff00ff;
     this.act = AreaUtil.getAct(urlParams.get('act')) ?? Act.ActI;
     this.difficulty = AreaUtil.getDifficulty(urlParams.get('difficulty')) ?? Difficulty.Normal;
+
+    if (window.location.hash == null) return;
+
+    const location = this.fromHash(window.location.hash);
+    if (location.zoom) this.map.setZoom(location.zoom);
+    if (location.lat) this.map.setCenter(location);
   }
 
   updateUrl(): void {
@@ -156,8 +200,21 @@ export class D2MapViewer {
     urlParams.set('seed', toHex(this.seed, 8));
     urlParams.set('act', Act[this.act]);
     urlParams.set('difficulty', Difficulty[this.difficulty]);
-    window.history.replaceState(null, '', '?' + urlParams.toString());
+    const center = this.map.getCenter();
+    if (center == null) throw new Error('Invalid Map location');
+    const zoom = Math.floor((this.map.getZoom() ?? 0) * 10e3) / 10e3;
+    window.history.replaceState(
+      null,
+      '',
+      '?' + urlParams.toString() + `#@${center.lat.toFixed(7)},${center.lng.toFixed(7)},z${zoom}`,
+    );
+    this.updateUrlTimer = null;
   }
+
+  render = (): void => {
+    if (this.updateUrlTimer != null) return;
+    this.updateUrlTimer = setTimeout(() => this.updateUrl(), 1000);
+  };
 
   lastUrl: string | null;
   update(): void {

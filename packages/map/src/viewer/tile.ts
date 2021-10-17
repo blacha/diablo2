@@ -49,25 +49,6 @@ export class MapTiles {
     return new MapData(json);
   }
 
-  static getVector(d: MapParams): Promise<unknown> {
-    const tileId = ['vector', toHex(d.difficulty, 8), Act[d.act], d.seed, d.z, d.x, d.y].join('__');
-    let existing = this.tiles.get(tileId);
-    if (existing == null) {
-      const startTime = Date.now();
-      existing = this.tileVector(d);
-
-      existing.then((r) => {
-        if (r) console.log(tileId, { duration: Date.now() - startTime });
-      });
-      this.tiles.set(tileId, existing);
-    }
-    return existing;
-  }
-  static async tileVector(d: MapParams): Promise<unknown | void> {
-    console.log('Tile', d);
-    return;
-  }
-
   static getRaster(d: MapParams): Promise<unknown> {
     const tileId = ['raster', toHex(d.difficulty, 8), Act[d.act], d.seed, d.z, d.x, d.y].join('__');
     let existing = this.tiles.get(tileId);

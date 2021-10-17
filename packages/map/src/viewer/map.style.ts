@@ -90,6 +90,38 @@ export class VectorMap {
       },
       filter: ['==', 'type', 'super-unique'],
     });
+
+    map.addLayer({
+      id: this.layerName('unknown'),
+      source: this.source,
+      minzoom: 3,
+      type: 'circle',
+      paint: {
+        'circle-radius': 3,
+        'circle-color': '#f3722c',
+        'circle-stroke-color': '#f8961e',
+        'circle-stroke-width': 1,
+        'circle-opacity': 0.5,
+      },
+      filter: ['==', 'type', 'unknown'],
+    });
+
+    map.addLayer({
+      id: this.layerName('unknown-name'),
+      source: this.source,
+      type: 'symbol',
+      minzoom: 3,
+      layout: {
+        'text-padding': 2,
+        'text-offset': [0, 0.6],
+        'icon-image': 'custom-marker',
+        'text-field': ['get', 'name'],
+        'text-font': ['Open Sans Bold'],
+        // 'text-offset': [0, 0],
+        'text-anchor': 'top',
+      },
+      filter: ['==', 'type', 'unknown'],
+    });
   }
 
   static remove(map: any): void {
