@@ -53,12 +53,7 @@ export class MapTiles {
     const tileId = ['raster', toHex(d.difficulty, 8), Act[d.act], d.seed, d.z, d.x, d.y].join('__');
     let existing = this.tiles.get(tileId);
     if (existing == null) {
-      const startTime = Date.now();
       existing = this.tileRaster(d);
-
-      existing.then((r) => {
-        if (r) console.log(tileId, { duration: Date.now() - startTime });
-      });
       this.tiles.set(tileId, existing);
     }
     return existing;
@@ -66,6 +61,8 @@ export class MapTiles {
 
   static async tileRaster(d: MapParams): Promise<ArrayBuffer | void> {
     const map = await this.get(d.difficulty, d.seed, d.act);
+    const tileId = ['raster', toHex(d.difficulty, 8), Act[d.act], d.seed, d.z, d.x, d.y].join('__');
+    const startTime = Date.now();
 
     const bounds = MapBounds.tileToSourceBounds(d.x, d.y, d.z);
     const zones = map.findMaps(d.act, bounds);
@@ -86,7 +83,9 @@ export class MapTiles {
 
     const blob: Blob | null = await new Promise((r) => canvas.toBlob((b) => r(b), 'image/png'));
     if (blob == null) return;
-    return blob.arrayBuffer();
+    const buf = blob.arrayBuffer();
+    console.log(tileId, { duration: Date.now() - startTime });
+    return buf;
   }
 }
 

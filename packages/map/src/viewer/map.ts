@@ -48,7 +48,14 @@ const cancel = { cancel: (): void => undefined };
 maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: unknown) => void): Cancel | void => {
   const data = urlToParams(params.url);
   if (data == null) return cb();
-  MapTiles.get(data.difficulty, data.seed, data.act).then((c) => cb(null, toGeoJson(c, data.act)));
+
+  MapTiles.get(data.difficulty, data.seed, data.act).then((c) => {
+    const vectorId = ['vector', toHex(data.difficulty, 8), Act[data.act], data.seed].join('__');
+    console.time(vectorId);
+    const vector = toGeoJson(c, data.act);
+    console.timeEnd(vectorId);
+    cb(null, vector);
+  });
   return cancel;
 });
 
