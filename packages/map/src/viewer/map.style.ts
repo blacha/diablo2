@@ -85,8 +85,8 @@ export class VectorMap {
         'icon-image': 'custom-marker',
         'text-field': ['get', 'name'],
         'text-font': ['Open Sans Bold'],
-        'text-offset': [0, 0],
-        'text-anchor': 'bottom-left',
+        'text-offset': [0, 0.6],
+        'text-anchor': 'top',
       },
       filter: ['==', 'type', 'super-unique'],
     });
