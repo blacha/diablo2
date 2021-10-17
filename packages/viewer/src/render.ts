@@ -1,5 +1,5 @@
-import { Diablo2Map } from '../map/map';
 import { Bounds } from './bounds';
+import { Diablo2Level } from '@diablo2/data';
 
 function isInBounds(pt: { x: number; y: number }, bounds: Bounds): boolean {
   if (pt.x < bounds.x) return false;
@@ -9,22 +9,22 @@ function isInBounds(pt: { x: number; y: number }, bounds: Bounds): boolean {
   return true;
 }
 
-export class MapRender {
+export class LevelRender {
   static ExitSize = 12;
 
-  static render(zone: Diablo2Map, ctx: CanvasRenderingContext2D, bounds: Bounds, scale = 0.5): void {
+  static render(level: Diablo2Level, ctx: CanvasRenderingContext2D, bounds: Bounds, scale = 0.5): void {
     ctx.fillStyle = 'white';
-    const map = zone.map;
+    const map = level.map;
 
     for (let yOffset = 0; yOffset < map.length; yOffset++) {
       const line = map[yOffset];
       let fill = false;
       if (line.length === 0) continue;
 
-      if (zone.offset.y + yOffset < bounds.y) continue;
+      if (level.offset.y + yOffset < bounds.y) continue;
 
-      let x = zone.offset.x - bounds.x;
-      const y = zone.offset.y - bounds.y + yOffset;
+      let x = level.offset.x - bounds.x;
+      const y = level.offset.y - bounds.y + yOffset;
 
       for (let i = 0; i < line.length; i++) {
         const xCount = line[i];
@@ -36,13 +36,13 @@ export class MapRender {
         }
         x = x + xCount;
       }
-      const xMax = zone.offset.x - bounds.x + zone.size.width;
+      const xMax = level.offset.x - bounds.x + level.size.width;
       if (fill && x < xMax) ctx.fillRect(x * scale, y * scale, (xMax - x) * scale, scale);
     }
   }
 
-  static renderObjects(zone: Diablo2Map, ctx: CanvasRenderingContext2D, bounds: Bounds, scale = 0.5): void {
-    const size = MapRender.ExitSize * scale;
+  static renderObjects(zone: Diablo2Level, ctx: CanvasRenderingContext2D, bounds: Bounds, scale = 0.5): void {
+    const size = LevelRender.ExitSize * scale;
     const halfSize = size / 2;
     for (const obj of zone.objects) {
       if (!isInBounds({ x: obj.x + zone.offset.x, y: obj.y + zone.offset.y }, bounds)) continue;

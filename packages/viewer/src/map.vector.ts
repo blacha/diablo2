@@ -1,15 +1,12 @@
-import { Act } from '@diablo2/data';
+import { Act, ActUtil, Diablo2Level, Diablo2LevelObject } from '@diablo2/data';
 import { toFeatureCollection } from '@linzjs/geojson';
 import type { Feature } from 'geojson';
-import { Diablo2Map, Diablo2Object } from '../index.js';
-import { AreaUtil } from './area.js';
-import { AreaLevel } from './area.name.js';
-import { MapBounds } from './bounds.js';
-import { MapData } from './tile.js';
+import { LevelBounds } from './bounds.js';
+import { LevelData } from './tile.js';
 
 function pointToPolygon(x: number, y: number, width = 1, height = 1, xOffset = 0, yOffset = 0): GeoJSON.Polygon {
-  const topLeft = MapBounds.sourceToLatLng(x + xOffset, y + yOffset);
-  const bottomRight = MapBounds.sourceToLatLng(x + xOffset + width, y + yOffset + height);
+  const topLeft = LevelBounds.sourceToLatLng(x + xOffset, y + yOffset);
+  const bottomRight = LevelBounds.sourceToLatLng(x + xOffset + width, y + yOffset + height);
 
   return {
     type: 'Polygon',
@@ -26,10 +23,10 @@ function pointToPolygon(x: number, y: number, width = 1, height = 1, xOffset = 0
 }
 
 // some doors do not align properly like door: 24 / 27 in the tamoe highlands or secret doors like door: 129
-const DoorVertical = new Set([13, 15, 23, 64]);
-const DoorHorizontal = new Set([14, 16, 24]);
+const DoorVertical = new Set([13, 15, 23, 64, 433]);
+const DoorHorizontal = new Set([14, 16, 24, 432]);
 
-function doorToFeature(obj: Diablo2Object, z: Diablo2Map): GeoJSON.Feature | null {
+function doorToFeature(obj: Diablo2LevelObject, z: Diablo2Level): GeoJSON.Feature | null {
   if (DoorVertical.has(obj.id)) {
     return {
       type: 'Feature',
@@ -51,7 +48,7 @@ function doorToFeature(obj: Diablo2Object, z: Diablo2Map): GeoJSON.Feature | nul
   return null;
 }
 
-function waypointToFeature(obj: Diablo2Object, z: Diablo2Map): GeoJSON.Feature | null {
+function waypointToFeature(obj: Diablo2LevelObject, z: Diablo2Level): GeoJSON.Feature | null {
   if (obj.type !== 'object') return null;
   if (obj.name?.toLowerCase() !== 'waypoint') return null;
 
@@ -64,7 +61,7 @@ function waypointToFeature(obj: Diablo2Object, z: Diablo2Map): GeoJSON.Feature |
 
 // Todo should really have a switch case for rendering to make this way faster
 const Makers = [doorToFeature, waypointToFeature];
-function makeFeature(obj: Diablo2Object, z: Diablo2Map): GeoJSON.Feature | null {
+function makeFeature(obj: Diablo2LevelObject, z: Diablo2Level): GeoJSON.Feature | null {
   for (const maker of Makers) {
     const feat = maker(obj, z);
     if (feat) return feat;
@@ -72,28 +69,29 @@ function makeFeature(obj: Diablo2Object, z: Diablo2Map): GeoJSON.Feature | null 
   return null;
 }
 
-export function toGeoJson(c: MapData, act: Act): GeoJSON.FeatureCollection {
+export function toGeoJson(c: LevelData, act: Act): GeoJSON.FeatureCollection {
   const features: Feature[] = [];
 
-  for (const z of c.zones.values()) {
-    const mapAct = AreaUtil.getActLevel(z.id);
+  for (const z of c.levels.values()) {
+    const mapAct = ActUtil.fromLevel(z.id);
     if (mapAct !== act) continue;
 
-    const latLng = MapBounds.sourceToLatLng(z.offset.x, z.offset.y);
+    const latLng = LevelBounds.sourceToLatLng(z.offset.x, z.offset.y);
     features.push({
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
-      properties: { name: AreaLevel[z.id], type: 'zone-name' },
+      properties: { name: z.name, type: 'zone-name' },
     });
 
     for (const obj of z.objects) {
+      //   if (obj.id > 800) continue;
       const feat = makeFeature(obj, z);
       if (feat != null) {
         features.push(feat);
         continue;
       }
 
-      const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x, z.offset.y + obj.y);
+      const latLng = LevelBounds.sourceToLatLng(z.offset.x + obj.x, z.offset.y + obj.y);
       const geometry = { type: 'Point', coordinates: [latLng.lng, latLng.lat] } as GeoJSON.Point;
 
       if (obj.type === 'object' && obj.name?.toLowerCase() === 'waypoint') {
@@ -118,7 +116,7 @@ export function toGeoJson(c: MapData, act: Act): GeoJSON.FeatureCollection {
       features.push({
         type: 'Feature',
         geometry,
-        properties: { ...obj, type: 'unknown', name: `${obj.name ?? ''} ${obj.id}`, id: obj.id },
+        properties: { type: 'unknown', name: `${obj.name ?? ''} ${obj.id}`, id: obj.id },
       });
     }
   }

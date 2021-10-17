@@ -8,6 +8,7 @@
         { "path": "./packages/packets" },
         { "path": "./packages/core" },
         { "path": "./packages/sniffer" },
+        { "path": "./packages/viewer" },
         { "path": "./packages/map" },
         { "path": "./packages/memory" },
 

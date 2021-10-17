@@ -6,5 +6,5 @@
         "outDir": "./build"
     },
     "include": ["src/**/*"],
-    "references": [{ "path": "../core"}, {"path": "../viewer"}]
+    "references": [{ "path": "../core"}]
 }
