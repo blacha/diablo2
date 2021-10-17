@@ -38,6 +38,13 @@ export class Diablo2MpqLoader {
     return null;
   }
 
+  /** Find and load the raw bytes for a path */
+  static async get(path: string): Promise<Buffer | null> {
+    const mpq = await this.getMpq(path);
+    if (mpq == null) return null;
+    return mpq.extract(path);
+  }
+
   static async load(basePath: string, log?: Logger, data = Diablo2Mpq): Promise<Diablo2MpqData> {
     log?.info({ mpq: basePath }, 'Mpq:Load');
 
