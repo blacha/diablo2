@@ -1,11 +1,8 @@
 import { Act, Difficulty } from '@diablo2/data';
-import { toFeatureCollection } from '@linzjs/geojson';
 import { toHex } from 'binparse/build/src/hex.js';
-import type { Feature } from 'geojson';
 import { AreaUtil } from './area.js';
-import { AreaLevel } from './area.name.js';
-import { MapBounds } from './bounds.js';
 import { VectorMap } from './map.style.js';
+import { toGeoJson } from './map.vector.js';
 import { MapParams, MapTiles } from './tile.js';
 
 declare const maplibregl: any;
@@ -39,7 +36,6 @@ function urlToXyzParams(url: string): null | MapParams {
   const z = Number(chunks[5]);
   const x = Number(chunks[6]);
   const y = Number(chunks[7]);
-  // console.log({ z, x, y });
 
   if (isNaN(x) || isNaN(x) || isNaN(z)) return null;
 
@@ -48,59 +44,18 @@ function urlToXyzParams(url: string): null | MapParams {
 
 export type Cancel = { cancel: () => void };
 const cancel = { cancel: (): void => undefined };
+/** Vector layer, convert all the useful points into a geojson structure for rendering */
 maplibregl.addProtocol('d2v', (params: { url: string }, cb: (e?: unknown, d?: unknown) => void): Cancel | void => {
   const data = urlToParams(params.url);
   if (data == null) return cb();
-  MapTiles.get(data.difficulty, data.seed, data.act).then((c) => {
-    const features: Feature[] = [];
-
-    for (const z of c.zones.values()) {
-      const mapAct = AreaUtil.getActLevel(z.id);
-      if (mapAct !== data.act) continue;
-
-      const latLng = MapBounds.sourceToLatLng(z.offset.x, z.offset.y);
-      features.push({
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
-        properties: { name: AreaLevel[z.id], type: 'zone-name' },
-      });
-
-      for (const obj of z.objects) {
-        const latLng = MapBounds.sourceToLatLng(z.offset.x + obj.x, z.offset.y + obj.y);
-        const geometry = { type: 'Point', coordinates: [latLng.lng, latLng.lat] } as GeoJSON.Point;
-
-        if (obj.type === 'object' && obj.name?.toLowerCase() === 'waypoint') {
-          features.push({ type: 'Feature', geometry, properties: { type: 'waypoint' } });
-          continue;
-        }
-
-        if (obj.type === 'npc' && obj.isSuperUnique && obj.name !== null) {
-          features.push({ type: 'Feature', geometry, properties: { type: 'super-unique', name: obj.name } });
-          continue;
-        }
-
-        if (obj.type === 'exit') {
-          features.push({ type: 'Feature', geometry, properties: { type: 'exit', name: obj.name } });
-          continue;
-        }
-
-        features.push({
-          type: 'Feature',
-          geometry,
-          properties: { ...obj, type: 'unknown', name: `${obj.name ?? ''} ${obj.id}` },
-        });
-      }
-    }
-
-    return cb(null, toFeatureCollection(features));
-  });
-
+  MapTiles.get(data.difficulty, data.seed, data.act).then((c) => cb(null, toGeoJson(c, data.act)));
   return cancel;
 });
+
+/** Raster layer, Create a canvas collision layer */
 maplibregl.addProtocol('d2r', (params: { url: string }, cb: (e?: unknown, d?: unknown) => void): Cancel | void => {
   const data = urlToXyzParams(params.url);
   if (data == null) return cb();
-
   MapTiles.getRaster(data).then((d) => cb(null, d));
   return cancel;
 });

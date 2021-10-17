@@ -90,7 +90,7 @@ export class MapTiles {
   }
 }
 
-class MapData {
+export class MapData {
   data: MapRouteResponse;
   zones: Map<number, Diablo2Map> = new Map();
   constructor(data: MapRouteResponse) {
