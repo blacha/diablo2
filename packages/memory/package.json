@@ -1,6 +1,6 @@
 {
   "name": "@diablo2/memory",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/blacha/diablo2.git",
@@ -18,7 +18,7 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "@diablo2/core": "^0.7.0",
+    "@diablo2/core": "^0.8.0",
     "@types/split2": "^3.2.1",
     "binparse": "^1.2.1",
     "split2": "^4.0.0",

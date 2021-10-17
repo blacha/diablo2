@@ -3,6 +3,23 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.8.0](https://github.com/blacha/diablo2/compare/v0.7.0...v0.8.0) (2021-10-17)
+
+
+### Features
+
+* **map:** render super uniques and names on the map ([9cb2c09](https://github.com/blacha/diablo2/commit/9cb2c09c6de9693d0ae5aa2d97a9dd8aef1f069f))
+* split map into map server and map viewer ([#186](https://github.com/blacha/diablo2/issues/186)) ([b92efb9](https://github.com/blacha/diablo2/commit/b92efb9c012527fc4d9b36eb286dadcbc52f0be9))
+
+
+### BREAKING CHANGES
+
+* this splits the map viewer out into @diablo2/viewer and moves a lot of types around
+
+
+
+
+
 # [0.7.0](https://github.com/blacha/diablo2/compare/v0.6.0...v0.7.0) (2021-10-16)
 
 
