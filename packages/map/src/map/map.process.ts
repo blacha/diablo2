@@ -72,7 +72,7 @@ export class Diablo2MapProcess {
     }
     this.generatedCount = 0;
 
-    this.mpq = await Diablo2MpqLoader.load(Diablo2Path, log);
+    if (this.mpq == null) this.mpq = await Diablo2MpqLoader.load(Diablo2Path, log);
 
     const res = await run(WineCommand, ['regedit', RegistryPath]);
     log.info({ data: res.stdout }, 'Registry:Update');
