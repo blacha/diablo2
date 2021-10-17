@@ -142,7 +142,6 @@ export class D2MapViewer {
     (window as any).map = this.map;
 
     this.map.on('load', () => {
-      console.log('Loaded');
       this.trackDom();
       this.updateFromUrl();
       this.update();

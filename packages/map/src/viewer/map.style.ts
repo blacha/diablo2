@@ -22,6 +22,20 @@ export class VectorMap {
       filter: ['==', 'type', 'waypoint'],
     });
     map.addLayer({
+      id: this.layerName('waypoint-name'),
+      source: this.source,
+      type: 'symbol',
+      layout: {
+        'icon-image': 'custom-marker',
+        'text-field': 'Waypoint',
+        'text-font': ['Open Sans Bold'],
+        'text-offset': [0, 0.6],
+        'text-anchor': 'top',
+      },
+      filter: ['==', 'type', 'waypoint'],
+    });
+
+    map.addLayer({
       id: this.layerName('zone-name'),
       source: this.source,
       type: 'symbol',
@@ -43,8 +57,8 @@ export class VectorMap {
         'icon-image': 'custom-marker',
         'text-field': ['get', 'name'],
         'text-font': ['Open Sans Bold'],
-        'text-offset': [0, 0],
-        'text-anchor': 'bottom-left',
+        'text-offset': [0, 0.6],
+        'text-anchor': 'top',
       },
       filter: ['==', 'type', 'exit'],
     });
@@ -94,7 +108,7 @@ export class VectorMap {
     map.addLayer({
       id: this.layerName('unknown'),
       source: this.source,
-      minzoom: 3,
+      minzoom: 6,
       type: 'circle',
       paint: {
         'circle-radius': 3,
@@ -110,7 +124,7 @@ export class VectorMap {
       id: this.layerName('unknown-name'),
       source: this.source,
       type: 'symbol',
-      minzoom: 3,
+      minzoom: 6,
       layout: {
         'text-padding': 2,
         'text-offset': [0, 0.6],
