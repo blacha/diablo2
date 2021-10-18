@@ -44,13 +44,14 @@ export class Diablo2MapViewer {
   }
 
   /**
-   * Support parsing of zooms with `z14` or `14z`
-   * @param zoom string to parse zoom from
+   * Support parsing of zooms, pitches, bearings with `z14` or `14z`, etc
+   * @param value string to parse value from
+   * @param prefixSuffix prefix or suffix for the map property
    */
-  parseZoom(zoom: string | null): number {
-    if (zoom == null || zoom === '') return NaN;
-    if (zoom.startsWith('z')) return parseFloat(zoom.slice(1));
-    if (zoom.endsWith('z')) return parseFloat(zoom);
+   parseMapControlValue(value: string | null, prefixSuffix: string): number {
+    if (value == null || value === '') return NaN;
+    if (value.startsWith(prefixSuffix)) return parseFloat(value.slice(1));
+    if (value.endsWith(prefixSuffix)) return parseFloat(value);
     return NaN;
   }
 
@@ -58,7 +59,7 @@ export class Diablo2MapViewer {
   fromHash(str: string): Partial<MapLocation> {
     const output: Partial<MapLocation> = {};
     const hash = str.replace('#@', '');
-    const [latS, lonS, zoomS] = hash.split(',');
+    const [latS, lonS, zoomS, pitchS, bearingS] = hash.split(',');
     const lat = parseFloat(latS);
     const lon = parseFloat(lonS);
     if (!isNaN(lat) && !isNaN(lon)) {
@@ -66,11 +67,20 @@ export class Diablo2MapViewer {
       output.lon = lon;
     }
 
-    const newZoom = this.parseZoom(zoomS);
+    const newZoom = this.parseMapControlValue(zoomS,'z');
     if (!isNaN(newZoom)) {
       output.zoom = newZoom;
     }
 
+    const newPitch = this.parseMapControlValue(pitchS,'p');
+    if (!isNaN(newPitch)) {
+      output.pitch = newPitch;
+    }
+
+    const newBearing = this.parseMapControlValue(bearingS,'b');
+    if (!isNaN(newBearing)) {
+      output.bearing = newBearing;
+    }
     return output;
   }
 
@@ -86,6 +96,8 @@ export class Diablo2MapViewer {
 
     const location = this.fromHash(window.location.hash);
     if (location.zoom) this.map.setZoom(location.zoom);
+    if (location.pitch) this.map.setPitch(location.pitch);
+    if (location.bearing) this.map.setBearing(location.bearing);
     if (location.lat) this.map.setCenter(location);
   }
 
@@ -97,10 +109,13 @@ export class Diablo2MapViewer {
     const center = this.map.getCenter();
     if (center == null) throw new Error('Invalid Map location');
     const zoom = Math.floor((this.map.getZoom() ?? 0) * 10e3) / 10e3;
+    const pitch = this.map.getPitch();
+    const bearing = this.map.getBearing();
+    
     window.history.replaceState(
       null,
       '',
-      '?' + urlParams.toString() + `#@${center.lat.toFixed(7)},${center.lng.toFixed(7)},z${zoom}`,
+      '?' + urlParams.toString() + `#@${center.lat.toFixed(7)},${center.lng.toFixed(7)},z${zoom},p${pitch},b${bearing}`,
     );
     this.updateUrlTimer = null;
   }

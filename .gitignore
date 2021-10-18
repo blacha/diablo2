@@ -6,3 +6,5 @@ dist
 cdk.context.json
 test-data
 *.ndjson
+package-lock.json
+yarn-error.log
