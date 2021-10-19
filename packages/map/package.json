@@ -18,8 +18,8 @@
   "scripts": {
     "test": "ospec --globs 'build/**/*.test.js'",
     "bundle": "yarn run bundle-server && yarn run bundle-www && cp static/* dist/www/",
-    "bundle-server": "esbuild src/cli.ts --platform=node --target=node16 --bundle --external:canvas --outdir=dist",
-    "bundle-www": "esbuild src/viewer/index.ts --platform=node --target=node16 --bundle --outdir=dist/www",
+    "bundle-server": "esbuild src/cli.ts --platform=node --target=node16 --bundle --external:canvas --outfile=dist/cli.cjs",
+    "bundle-www": "esbuild src/viewer/index.ts --platform=node --target=node16 --bundle --outfile=dist/www/index.js",
     "build-docker": "yarn bundle && docker build . -t blacha/diablo2"
   },
   "dependencies": {
