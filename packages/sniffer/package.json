@@ -23,7 +23,7 @@
     "@diablo2/packets": "^0.8.0",
     "@types/pino": "^6.3.0",
     "ansi-colors": "^4.1.1",
-    "pino": "^6.5.1",
+    "pino": "^7.0.2",
     "pretty-json-log": "^1.0.0"
   },
   "publishConfig": {
