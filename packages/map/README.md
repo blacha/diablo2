@@ -149,6 +149,10 @@ http://localhost:8899/v1/map/0xff00ff/Hell/23.png
 ```
 
 
+### Multiple processes
+
+The server can control multiple map processes, when starting the server the `$DIABLO2_CLUSTER_SIZE` environment variable controls how many map processes to start.
+
 
 ### Troubleshooting:
 

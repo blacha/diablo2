@@ -3,7 +3,7 @@ import * as express from 'express';
 import 'source-map-support/register.js';
 import * as ulid from 'ulid';
 import { Log } from './logger.js';
-import { MapProcess } from './map/map.process.js';
+import { MapCluster } from './map/map.process.js';
 import { HttpError, Request, Route } from './route.js';
 import { HealthRoute } from './routes/health.js';
 import { MapImageRoute } from './routes/map.image.js';
@@ -58,11 +58,9 @@ class Diablo2MapServer {
     this.bind(new MapActRoute());
     this.bind(new MapImageRoute());
 
-    await MapProcess.version(Log);
-    await MapProcess.start(Log);
     await new Promise<void>((resolve) => {
       this.server.listen(this.port, () => {
-        Log.info({ port: this.port }, 'Server started...');
+        Log.info({ port: this.port, processes: MapCluster.ProcessCount }, 'Server started...');
         resolve();
       });
     });
