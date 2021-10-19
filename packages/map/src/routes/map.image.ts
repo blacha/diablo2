@@ -1,5 +1,5 @@
 import * as NodeCanvas from 'canvas';
-import { MapProcess } from '../map/map.process.js';
+import { MapCluster } from '../map/map.process.js';
 import { HttpError, Request, Route } from '../route.js';
 import { LevelRender } from '@diablo2/viewer';
 import { isInSeedRange } from './map.js';
@@ -11,7 +11,7 @@ export class MapImageRoute implements Route {
   async process(req: Request): Promise<Buffer> {
     const { seed, difficulty, level } = await MapImageRoute.validateParams(req);
     const act = ActUtil.fromLevel(level);
-    const maps = await MapProcess.map(seed, difficulty, act, req.log);
+    const maps = await MapCluster.map(seed, difficulty, act, req.log);
     const zone = maps[level];
     if (zone == null) throw new HttpError(422, 'Invalid level');
 
