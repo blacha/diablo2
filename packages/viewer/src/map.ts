@@ -12,6 +12,7 @@ export class Diablo2MapViewer {
   difficulty = Difficulty.Nightmare;
   act = Act.ActV;
   seed = 0x00ff00ff;
+  color = 'white';
   updateUrlTimer: unknown;
 
   constructor(el: string) {
@@ -48,7 +49,7 @@ export class Diablo2MapViewer {
    * @param value string to parse value from
    * @param prefixSuffix prefix or suffix for the map property
    */
-   parseMapControlValue(value: string | null, prefixSuffix: string): number {
+  parseMapControlValue(value: string | null, prefixSuffix: string): number {
     if (value == null || value === '') return NaN;
     if (value.startsWith(prefixSuffix)) return parseFloat(value.slice(1));
     if (value.endsWith(prefixSuffix)) return parseFloat(value);
@@ -67,20 +68,21 @@ export class Diablo2MapViewer {
       output.lon = lon;
     }
 
-    const newZoom = this.parseMapControlValue(zoomS,'z');
+    const newZoom = this.parseMapControlValue(zoomS, 'z');
     if (!isNaN(newZoom)) {
       output.zoom = newZoom;
     }
 
-    const newPitch = this.parseMapControlValue(pitchS,'p');
+    const newPitch = this.parseMapControlValue(pitchS, 'p');
     if (!isNaN(newPitch)) {
       output.pitch = newPitch;
     }
 
-    const newBearing = this.parseMapControlValue(bearingS,'b');
+    const newBearing = this.parseMapControlValue(bearingS, 'b');
     if (!isNaN(newBearing)) {
       output.bearing = newBearing;
     }
+
     return output;
   }
 
@@ -91,6 +93,7 @@ export class Diablo2MapViewer {
     if (isNaN(this.seed) || this.seed <= 0) this.seed = 0x00ff00ff;
     this.act = ActUtil.fromString(urlParams.get('act')) ?? Act.ActI;
     this.difficulty = DifficultyUtil.fromString(urlParams.get('difficulty')) ?? Difficulty.Normal;
+    this.color = urlParams.get('color') || 'white';
 
     if (window.location.hash == null) return;
 
@@ -106,12 +109,13 @@ export class Diablo2MapViewer {
     urlParams.set('seed', toHex(this.seed, 8));
     urlParams.set('act', Act[this.act]);
     urlParams.set('difficulty', Difficulty[this.difficulty]);
+    urlParams.set('color', this.color);
     const center = this.map.getCenter();
     if (center == null) throw new Error('Invalid Map location');
     const zoom = Math.floor((this.map.getZoom() ?? 0) * 10e3) / 10e3;
-    const pitch = this.map.getPitch();
-    const bearing = this.map.getBearing();
-    
+    const pitch = Math.floor((this.map.getPitch() ?? 0) * 10e3) / 10e3;
+    const bearing = Math.floor((this.map.getBearing() ?? 0) * 10e3) / 10e3;
+
     window.history.replaceState(
       null,
       '',
@@ -129,7 +133,7 @@ export class Diablo2MapViewer {
   update(): void {
     this.updateUrl();
     this.updateDom();
-    const d2Url = `${toHex(this.seed, 8)}/${Difficulty[this.difficulty]}/${Act[this.act]}/{z}/{x}/{y}`;
+    const d2Url = `${toHex(this.seed, 8)}/${Difficulty[this.difficulty]}/${Act[this.act]}/{z}/{x}/{y}/${this.color}`;
     if (this.lastUrl === d2Url) return;
     this.lastUrl = d2Url;
 
@@ -202,4 +206,5 @@ export class Diablo2MapViewer {
       }
     });
   }
+
 }

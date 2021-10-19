@@ -1,5 +1,6 @@
 import { Bounds } from './bounds';
 import { Diablo2Level } from '@diablo2/data';
+import { MapParams } from './tile';
 
 function isInBounds(pt: { x: number; y: number }, bounds: Bounds): boolean {
   if (pt.x < bounds.x) return false;
@@ -12,8 +13,17 @@ function isInBounds(pt: { x: number; y: number }, bounds: Bounds): boolean {
 export class LevelRender {
   static ExitSize = 12;
 
-  static render(level: Diablo2Level, ctx: CanvasRenderingContext2D, bounds: Bounds, scale = 0.5): void {
+  static render(
+    level: Diablo2Level,
+    ctx: CanvasRenderingContext2D,
+    bounds: Bounds,
+    scale = 0.5,
+    mapParams?: MapParams,
+  ): void {
     ctx.fillStyle = 'white';
+
+    if (mapParams?.rasterFillColor) ctx.fillStyle = String(mapParams?.rasterFillColor).replace('0x', '#');
+
     const map = level.map;
 
     for (let yOffset = 0; yOffset < map.length; yOffset++) {
