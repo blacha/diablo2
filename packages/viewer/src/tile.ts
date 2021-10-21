@@ -11,6 +11,7 @@ export interface MapParams {
   x: number;
   y: number;
   z: number;
+  rasterFillColor: string;
 }
 
 process = typeof process === 'undefined' ? ({ env: {} } as any) : process;
@@ -48,7 +49,7 @@ export class Diablo2MapTiles {
   }
 
   static getRaster(d: MapParams): Promise<unknown> {
-    const tileId = ['raster', toHex(d.difficulty, 8), Act[d.act], d.seed, d.z, d.x, d.y].join('__');
+    const tileId = ['raster', toHex(d.difficulty, 8), Act[d.act], d.seed, d.z, d.x, d.y, d.rasterFillColor].join('__');
     let existing = this.tiles.get(tileId);
     if (existing == null) {
       existing = this.tileRaster(d);
@@ -78,7 +79,7 @@ export class Diablo2MapTiles {
     if (ctx == null) return;
 
     // console.time('RenderLevel:' + tileId);
-    for (const zone of zones) LevelRender.render(zone, ctx, bounds, (1 / scale) * 2);
+    for (const zone of zones) LevelRender.render(zone, ctx, bounds, (1 / scale) * 2, d);
     // console.timeEnd('RenderLevel:' + tileId);
 
     // TODO 99% of the time for rendering a map is this conversion into a PNG
