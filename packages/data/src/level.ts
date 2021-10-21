@@ -55,6 +55,12 @@ export interface Diablo2LevelNpcSuper extends Diablo2LevelNpc {
 export interface Diablo2LevelExit extends Diablo2LevelBase {
   type: 'exit';
   name?: string;
+  /**
+   * Is this the correct exit for quests
+   * - The Correct tomb
+   * - The Ruined temple
+   */
+  isGoodExit?: boolean;
 }
 
 /** collection of maps to make up a act */

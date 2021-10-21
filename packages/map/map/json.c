@@ -47,6 +47,12 @@ void json_key_value(char *key, char *value) {
     json_key_raw(key);
     JSON_PRINT("\"%s\"", value);
 }
+void json_key_value(char *key, bool value) {
+    json_comma();
+    json_key_raw(key);
+    JSON_PRINT("%s", value ? "true" : "false");
+}
+
 void json_array_start() {
     json_comma();
     json_comma_enabled = false;
