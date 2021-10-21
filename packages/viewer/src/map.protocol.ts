@@ -32,9 +32,11 @@ function urlToXyzParams(url: string): null | MapParams {
   const x = Number(chunks[6]);
   const y = Number(chunks[7]);
 
-  if (isNaN(x) || isNaN(x) || isNaN(z)) return null;
+  const rasterFillColor = chunks[8];
 
-  return { seed, difficulty, act, x, y, z };
+  if (isNaN(x) || isNaN(y) || isNaN(z)) return null;
+
+  return { seed, difficulty, act, x, y, z, rasterFillColor };
 }
 
 export type Cancel = { cancel: () => void };

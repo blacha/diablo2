@@ -52,4 +52,6 @@ export interface LonLat {
 
 export interface MapLocation extends LonLat {
   zoom: number;
+  pitch: number;
+  bearing: number;
 }
