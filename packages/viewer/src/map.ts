@@ -206,5 +206,4 @@ export class Diablo2MapViewer {
       }
     });
   }
-
 }
