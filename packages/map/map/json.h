@@ -11,6 +11,7 @@ void json_comma();
 void json_value(int value);
 void json_key_raw(char *key);
 void json_key_value(char *key, int value);
+void json_key_value(char *key, unsigned int value);
 void json_key_value(char *key, int64_t value);
 void json_key_value(char *key, char *value);
 void json_key_value(char* key, bool value);

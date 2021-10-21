@@ -15,6 +15,7 @@ struct log_obj
     char *key;
     union
     {
+        unsigned int uint_val;
         int int_val;
         char *char_val;
     };
@@ -35,6 +36,7 @@ int64_t currentTimeMillis() {
 
 static enum {
     LOG_INT,
+    LOG_UINT,
     LOG_STRING,
     LOG_BOOLEAN
 } log_field_types;
@@ -61,6 +63,14 @@ struct log_obj* lk_i(const char* key, int value) {
     field->int_val = value;
     return field;
 }
+
+struct log_obj* lk_ui(const char* key, unsigned int value) {
+    struct log_obj* field = log_field_new(key);
+    field->type = LOG_UINT;
+    field->uint_val = value;
+    return field;
+}
+
 struct log_obj* lk_s(const char* key, const char* value) {
     struct log_obj* field = log_field_new(key);
     field->type = LOG_STRING;
@@ -95,7 +105,9 @@ void log_process(int level, const char* fileName, int line, const char* msg, ...
         struct log_obj* arg = va_arg(ap, struct log_obj*);
         if (arg == NULL) break;
 
+
         if (arg->type == LOG_INT) fprintf(stdout, ",\"%s\":%d", arg->key, arg->int_val);
+        else if (arg->type == LOG_UINT) fprintf(stdout, ",\"%s\":%u", arg->key, arg->uint_val);
         else if (arg->type == LOG_STRING) fprintf(stdout, ",\"%s\":\"%s\"", arg->key, arg->char_val);
 
         log_field_free(arg);

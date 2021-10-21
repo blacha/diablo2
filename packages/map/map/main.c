@@ -41,7 +41,7 @@ char *CliUsage = "\nUsage:\n"
 
 
 
-void dump_info(int seed, int difficulty, int actId, int mapId) {
+void dump_info(unsigned int seed, int difficulty, int actId, int mapId) {
     json_start();
     json_key_value("type", "info");
     json_key_value("seed", seed);
@@ -52,7 +52,7 @@ void dump_info(int seed, int difficulty, int actId, int mapId) {
 }
 
 
-void dump_maps(int seed, int difficulty, int actId, int mapId) {
+void dump_maps(unsigned int seed, int difficulty, int actId, int mapId) {
     int64_t totalTime = currentTimeMillis();
     int mapCount = 0;
     if (mapId > -1) {
@@ -60,7 +60,7 @@ void dump_maps(int seed, int difficulty, int actId, int mapId) {
         int res = d2_dump_map(seed, difficulty, mapId);
         if (res == 0) mapCount ++;
         int64_t duration = currentTimeMillis() - startTime;
-        log_debug("Map:Generation", lk_i("seed", seed), lk_i("difficulty", difficulty), lk_i("mapId", mapId), lk_i("duration", duration));
+        log_debug("Map:Generation", lk_ui("seed", seed), lk_i("difficulty", difficulty), lk_i("mapId", mapId), lk_i("duration", duration));
     } else {
         for (int mapId = 0; mapId < 200; mapId++) {
             // Skip map if its not part of the current act
@@ -74,11 +74,11 @@ void dump_maps(int seed, int difficulty, int actId, int mapId) {
             int64_t currentTime = currentTimeMillis();
             int64_t duration = currentTime - startTime;
             startTime = currentTime;
-            log_debug("Map:Generation", lk_i("seed", seed), lk_i("difficulty", difficulty), lk_i("actId", get_act(mapId)), lk_i("mapId", mapId), lk_i("duration", duration));
+            log_debug("Map:Generation", lk_ui("seed", seed), lk_i("difficulty", difficulty), lk_i("actId", get_act(mapId)), lk_i("mapId", mapId), lk_i("duration", duration));
         }
     }
     int64_t duration = currentTimeMillis() - totalTime;
-    log_info("Map:Generation:Done", lk_i("seed", seed), lk_i("difficulty", difficulty), lk_i("count", mapCount), lk_i("duration", duration));
+    log_info("Map:Generation:Done", lk_ui("seed", seed), lk_i("difficulty", difficulty), lk_i("count", mapCount), lk_i("duration", duration));
     printf("\n");
 }
 
@@ -90,8 +90,10 @@ int main(int argc, char *argv[]) {
     }
     log_info("Cli:Start", lk_s("version", GIT_VERSION), lk_s("hash", GIT_HASH));
 
+    char c[INPUT_BUFFER];
+
     char *gameFolder = NULL;
-    int argSeed = 0xff00ff;
+    DWORD argSeed = 0xff00ff00;
     int argMapId = -1;
     int argDifficulty = 0;
     int argActId = -1;
@@ -99,8 +101,8 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i < argc; i++) {
         char* arg = argv[i];
         if (starts_with(arg, "--seed") || starts_with(arg, "-s")) {
-            argSeed = atoi(argv[++i]);
-            log_debug("Cli:Arg", lk_i("seed", argSeed));
+            sscanf(argv[++i], "%u", &argSeed);
+            log_debug("Cli:Arg", lk_ui("seed", argSeed));
             foundArgs ++;
         } else if (starts_with(arg, "--difficulty") || starts_with(arg, "-d")) {
             argDifficulty = atoi(argv[++i]);
@@ -122,6 +124,7 @@ int main(int argc, char *argv[]) {
             log_debug("Cli:Arg", lk_s("game", gameFolder));
         }
     }
+
 
     if (argActId > 0 && argMapId > 0) {
         printf("--act and --level cannot be used together\n");
@@ -154,7 +157,6 @@ int main(int argc, char *argv[]) {
     char buffer[INPUT_BUFFER];
 
     int rtn;
-    char c[INPUT_BUFFER];
     /** Read in seed/Difficulty then generate all the maps */
     while (fgets(buffer, INPUT_BUFFER, stdin) != NULL) {
         if (starts_with(buffer, COMMAND_EXIT) == 1) return 0;
@@ -167,7 +169,7 @@ int main(int argc, char *argv[]) {
             json_key_value("type", "done");
             json_end();
         } else if (starts_with(buffer, COMMAND_SEED) == 1) {
-            rtn = sscanf(buffer, "%s %d", &c, &argSeed);
+            rtn = sscanf(buffer, "%s %u", &c, &argSeed);
             dump_info(argSeed, argDifficulty, argActId, argMapId);
         } else if (starts_with(buffer, COMMAND_DIFF) == 1) {
             rtn = sscanf(buffer, "%s %d", &c, &argDifficulty);
