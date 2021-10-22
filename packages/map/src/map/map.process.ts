@@ -19,12 +19,22 @@ export const WineCommand = 'wine';
 
 /** Wait at most 10 seconds for things to work */
 const ProcessTimeout = 30_000;
-const MaxMapsToGenerate = 50;
+/** Attempt to generate the map 3 times */
+const MaxAttempts = 3;
+const MaxMapsToGenerate = 5000;
 
 interface LogMessage {
   time: number;
   level: number;
   msg: string;
+  id?: string;
+}
+
+export function isLogMessage(x: unknown): x is LogMessage {
+  if (typeof x !== 'object') return false;
+  if (x == null) return false;
+  if ('time' in x) return true;
+  return false;
 }
 
 async function timeOut(message: string, timeout: number): Promise<void> {
@@ -89,10 +99,7 @@ export class Diablo2MapProcess {
 
   /** Start the map process waiting for the `init` event before allowing anything to continue */
   async start(log: LogType): Promise<void> {
-    if (this.process != null) {
-      Log.warn({ proc: this.id, pid: this.process.pid }, 'MapProcess:AlreadyStarted');
-      return;
-    }
+    if (this.isRunning) return;
     this.generatedCount = 0;
 
     const args = [this.mapCommand, Diablo2Path];
@@ -105,6 +112,7 @@ export class Diablo2MapProcess {
         const line = data.toString().trim();
         if (line.includes('FS volume label and serial are not available')) return;
         Log.debug({ proc: this.id, data: line }, 'MapProcess:stderr');
+        if (line.includes('We got a big Error here')) this.stop(log);
       });
       proc.on('error', (error) => {
         log.fatal({ proc: this.id, error }, 'MapProcess:Died');
@@ -114,18 +122,18 @@ export class Diablo2MapProcess {
       proc.on('close', (exitCode) => {
         inter.close();
         this.process = null;
+        this.events.emit('close');
         if (exitCode == null) return;
         if (exitCode > 0) log.fatal({ proc: this.id, exitCode }, 'MapProcess:Closed');
       });
 
       log.info({ proc: this.id, processId: this.process.pid }, 'MapProcess:Started');
-      const inter = createInterface(proc.stdout).on('line', (line) => {
+      const inter = createInterface(proc.stdout).on('line', (line): unknown => {
         const json = getJson<Diablo2MapGenMessage | LogMessage>(line);
         if (json == null) return;
-        if ('time' in json) {
-          if (json.level < 30) return;
-          Log.info({ proc: this.id, ...json, log: json.msg }, 'MapProcess:Log');
-        } else if (json.type) this.events.emit(json.type, json);
+        if (isLogMessage(json)) return this.events.emit('log', json);
+        if (json.type) return this.events.emit(json.type, json);
+        return;
       });
       await this.once('init');
       resolve();
@@ -172,12 +180,21 @@ export class Diablo2MapProcess {
     });
   }
 
-  private async getMaps(seed: number, difficulty: number, actId: number, log: LogType): Promise<Diablo2Level[]> {
+  private async getMaps(
+    seed: number,
+    difficulty: number,
+    actId: number,
+    log: LogType,
+    attempt = 0,
+  ): Promise<Diablo2Level[]> {
     if (this.generatedCount > MaxMapsToGenerate) {
+      log.warn('GenerateMap:Restart');
       this.generatedCount = 0;
       await this.stop(log);
       await this.start(log);
     }
+
+    if (!this.isRunning) await this.start(log);
 
     await this.command('seed', seed, log);
     await this.command('difficulty', difficulty, log);
@@ -193,14 +210,29 @@ export class Diablo2MapProcess {
     };
 
     return await new Promise((resolve, reject) => {
-      const failedTimer = setTimeout(() => {
+      const errorHandle = (err: unknown): void => {
         this.events.off('map', newMap);
-        reject();
-      }, ProcessTimeout);
+        log.info({ proc: this.id, seed: toHex(seed, 8), difficulty, attempt, err }, 'GenerateMap:Error');
+        if (attempt < MaxAttempts) {
+          this.getMaps(seed, difficulty, actId, log, attempt + 1)
+            .then(resolve)
+            .catch(reject);
+        } else {
+          console.log('Reject', { attempt, MaxAttempts });
+          reject(err);
+        }
+      };
+      const logLine = (json: LogMessage): void => {
+        if (json.level < 30) return;
+        log.info({ proc: this.id, ...json, log: json.msg }, 'MapProcess:Log');
+      };
+      this.events.once('close', errorHandle);
       this.events.on('map', newMap);
+      this.events.on('log', logLine);
       this.events.once('done', () => {
         this.events.off('map', newMap);
-        clearTimeout(failedTimer);
+        this.events.off('close', errorHandle);
+        this.events.off('log', logLine);
         log?.trace({ proc: this.id, count: Object.keys(maps).length }, 'GenerateMap:Generated');
         resolve([...maps.values()]);
       });
