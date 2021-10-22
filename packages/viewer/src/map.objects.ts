@@ -15,6 +15,7 @@ MapObjects.set(0x40, { feature: 'polygon', width: 1, height: 5, yOffset: -2, lay
 MapObjects.set(0x17, { feature: 'polygon', width: 2, height: 7, yOffset: -3, layer: 'door' });
 MapObjects.set(0x5b, { feature: 'polygon', width: 1, height: 5, layer: 'door' });
 MapObjects.set(0x81, { feature: 'polygon', width: 1, height: 6, yOffset: -3, xOffset: -1, layer: 'door' });
+MapObjects.set(0x122, { feature: 'polygon', width: 1, height: 5, yOffset: -2, layer: 'door' });
 MapObjects.set(0x124, { feature: 'polygon', width: 1, height: 5, yOffset: -2, layer: 'door' });
 MapObjects.set(0x126, { feature: 'polygon', width: 1, height: 5, yOffset: -2, layer: 'door' });
 
@@ -28,12 +29,12 @@ MapObjects.set(0x19, { feature: 'polygon', width: 6, height: 2, xOffset: -3, lay
 MapObjects.set(0x2f, { feature: 'polygon', width: 8, height: 2, xOffset: -3, layer: 'door' });
 
 MapObjects.set(0x5c, { feature: 'polygon', width: 5, height: 1, layer: 'door' });
+MapObjects.set(0x123, { feature: 'polygon', width: 5, height: 1, xOffset: -2, layer: 'door' });
 MapObjects.set(0x125, { feature: 'polygon', width: 5, height: 1, xOffset: -2, layer: 'door' });
 MapObjects.set(0x127, { feature: 'polygon', width: 5, height: 1, xOffset: -3, layer: 'door' });
 
 MapObjects.set(0x1b, { feature: 'polygon', width: 9, height: 2, xOffset: -3, yOffset: 2, layer: 'door' });
 
-console.log('Hereere');
 // Waypoints
 function generalWaypoint(f: Diablo2LevelObject): FeatureMaker | void {
   if (f.type !== 'object') return;
