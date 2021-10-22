@@ -103,6 +103,12 @@ MapLayers.set('exit', {
 });
 MapLayers.set('exit-name', { type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'exit'] });
 
+MapLayers.set('exit-good', {
+  type: 'fill',
+  paint: { 'fill-color': '#0000ac', 'fill-opacity': 0.87 },
+  filter: ['==', 'isGoodExit', true],
+});
+
 /** Show doors as a light orange blocks */
 MapLayers.set('door', {
   type: 'fill',
