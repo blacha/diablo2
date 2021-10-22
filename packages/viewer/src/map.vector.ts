@@ -29,7 +29,7 @@ function toFeature(obj: Diablo2LevelObject, z: Diablo2Level, fm: FeatureMaker): 
     return {
       type: 'Feature',
       geometry: pointToPolygon(z.offset.x + obj.x, z.offset.y + obj.y, fm.width, fm.height, fm.xOffset, fm.yOffset),
-      properties: { type: fm.layer, name: `${toHex(obj.id)} ${obj.name ?? ''}`, id: obj.id },
+      properties: { ...obj, type: fm.layer, name: `${toHex(obj.id)} ${obj.name ?? ''}` },
     };
   }
 
@@ -38,7 +38,7 @@ function toFeature(obj: Diablo2LevelObject, z: Diablo2Level, fm: FeatureMaker): 
     return {
       type: 'Feature',
       geometry: { type: 'Point', coordinates: [latLng.lng, latLng.lat] },
-      properties: { type: fm.layer, name: `${toHex(obj.id)} ${obj.name ?? ''}`, id: obj.id },
+      properties: { ...obj, type: fm.layer, name: `${toHex(obj.id)} ${obj.name ?? ''}` },
     };
   }
 

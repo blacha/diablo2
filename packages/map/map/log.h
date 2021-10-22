@@ -23,6 +23,7 @@ enum
 
 
 struct log_obj *lk_i(const char *key, int value);
+struct log_obj *lk_ui(const char *key, unsigned int value);
 struct log_obj *lk_s(const char *key, const char *value);
 struct log_obj *lk_b(const char *key, bool value);
 
