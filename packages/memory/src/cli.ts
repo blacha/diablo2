@@ -6,6 +6,9 @@ import { Diablo2Process } from './d2.js';
 import { Log } from './logger.js';
 import { Diablo2GameSessionMemory } from './session.js';
 import { Pointer } from './struts/pointer.js';
+import de from 'dotenv';
+
+de.config();
 
 function usage(err?: string): void {
   if (err) console.log(`Error ${err} \n`);

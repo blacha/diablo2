@@ -13,8 +13,8 @@ export class Diablo2Process {
   process: Process;
 
   lastGoodAddress = {
-    name: 0x7fffd0724060,
-    player: 0x23b8f2c0,
+    name: Number(process.env.D2_MEMORY_PLAYER_NAME ?? 0),
+    player: Number(process.env.D2_MEMORY_PLAYER_UNIT ?? 0),
   };
 
   constructor(proc: Process) {
