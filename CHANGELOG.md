@@ -3,6 +3,31 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/blacha/diablo2/compare/v0.8.0...v0.9.0) (2021-10-22)
+
+
+### Bug Fixes
+
+* **map:** bundle as .cjs so nodejs will load the cli while under esm mode ([09c387d](https://github.com/blacha/diablo2/commit/09c387da36e0e8affc58ad83ac55253743e1f8f9))
+* **map:** correctly parse the seed as a unsigned int not a signed int ([d5efb34](https://github.com/blacha/diablo2/commit/d5efb34de3dd6bc6410bfbd04a2703e7367e46cc))
+* **map:** log unsigned ints as hex ([45943ff](https://github.com/blacha/diablo2/commit/45943ff74070498bf08ad2d4ff1aec5d176bc2be))
+* **map:** unload act if seed or difficulty changes ([9293907](https://github.com/blacha/diablo2/commit/9293907498bf5a73df6ca9138b7849230af1cc33))
+
+
+### Features
+
+* **map:** add den of evil as good exit ([50634e0](https://github.com/blacha/diablo2/commit/50634e065ba8fc3f80a0168d6c29b3622e94f915))
+* **map:** add isGoodExit for common exits which are important ([2925ed3](https://github.com/blacha/diablo2/commit/2925ed323f0d274ef909e4f91ebf1ff65c68bd0a))
+* **map:** restart map process quickly if it crashes rather than waiting for timeout ([fed0797](https://github.com/blacha/diablo2/commit/fed07970bcc178b7c36c5ee43b0d2c64079f4bf4))
+* **map:** start multiple map processes if required ([a2202ff](https://github.com/blacha/diablo2/commit/a2202ff644240316c8f12bf48cd903fdb51644ce))
+* **viewer:** add more doors ([5ede0bb](https://github.com/blacha/diablo2/commit/5ede0bbecdc70af990be84b1e413f8f363fdb351))
+* **viewer:** honor pitch and bearing in addition to zoom ([#188](https://github.com/blacha/diablo2/issues/188)) ([fde7fee](https://github.com/blacha/diablo2/commit/fde7fee30d11bd119dcfa752e16bd1ced4b261db))
+* **viewer:** include all object properties in rendering ([ccdc3f1](https://github.com/blacha/diablo2/commit/ccdc3f1d3cd12644cc3074aaa30500358ff7367f))
+
+
+
+
+
 # [0.8.0](https://github.com/blacha/diablo2/compare/v0.7.0...v0.8.0) (2021-10-17)
 
 

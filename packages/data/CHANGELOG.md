@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.9.0](https://github.com/blacha/diablo2/compare/v0.8.0...v0.9.0) (2021-10-22)
+
+
+### Features
+
+* **map:** add isGoodExit for common exits which are important ([2925ed3](https://github.com/blacha/diablo2/commit/2925ed323f0d274ef909e4f91ebf1ff65c68bd0a))
+
+
+
+
+
 # [0.8.0](https://github.com/blacha/diablo2/compare/v0.7.0...v0.8.0) (2021-10-17)
 
 
