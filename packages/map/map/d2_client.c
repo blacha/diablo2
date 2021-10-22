@@ -236,6 +236,58 @@ char *get_object_type(int code) {
     return "object";
 }
 
+char *get_object_class(int code, char* name, int operateFn) {
+    switch (operateFn){
+        case 1: return "casket";
+        case 2: return "shrine";
+        case 3: return "urn";
+
+        case 5: return "barrel";
+        case 7: return "barrel-exploding";
+        case 14: return "bolder";
+        case 19: return "rack-armor";
+        case 20: return "rack-weapon";
+        case 22: return "well";
+        case 23: return "waypoint";
+        case 68: return "urn-evil";
+        case 30: return "chest-exploding";
+        case 40:
+        case 41:
+        case 59:
+        case 58:
+        case 4: 
+            return "chest";
+        case 8: 
+        case 18:
+        case 29:
+            return "door";
+        /** Diablo Seals */
+        case 54:
+        case 52:
+        case 55:
+        case 56:
+        /** Trist stones */
+        case 9:
+
+        /* complelling orb */
+        case 53:
+        /* Horiadric orifice */
+        case 25:
+        /* Sewer Lever */
+        case 45:
+        // /* Hell forge */
+        case 49:
+        /** Tome */
+        case 28:
+        /** Sun altar */
+        case 24: 
+            return "quest";
+    }
+
+    if (code == 580 || code == 581) return "chest-super";
+    return NULL;
+}
+
 bool is_good_exit(Act *pAct, Level *pLevel, int exitId) {
     // Act 1
     // BloodMoor -> Den of evil
@@ -282,6 +334,7 @@ int dump_objects(Act *pAct, Level *pLevel, Room2 *pRoom2) {
     for (PresetUnit *pPresetUnit = pRoom2->pPreset; pPresetUnit; pPresetUnit = pPresetUnit->pPresetNext) {
         char *objectType = NULL;
         char *objectName = NULL;
+        char *objectClass = NULL;
         bool isGoodExit = false;
         int operateFn = -1;
 
@@ -304,6 +357,7 @@ int dump_objects(Act *pAct, Level *pLevel, Room2 *pRoom2) {
                 objectName = txt->szName;
                 if (txt->nSelectable0) operateFn = txt->nOperateFn;
             }
+            objectClass = get_object_class(pPresetUnit->dwTxtFileNo, objectName, operateFn);
         } else if (pPresetUnit->dwType == UNIT_TYPE_TILE) {
             for (RoomTile *pRoomTile = pRoom2->pRoomTiles; pRoomTile; pRoomTile = pRoomTile->pNext) {
                 if (*pRoomTile->nNum == pPresetUnit->dwTxtFileNo) {
@@ -323,6 +377,7 @@ int dump_objects(Act *pAct, Level *pLevel, Room2 *pRoom2) {
             if (objectName) json_key_value("name", objectName);
             if (operateFn > -1) json_key_value("op", operateFn);
             if (isGoodExit) json_key_value("isGoodExit", true);
+            if (objectClass) json_key_value("class", objectClass);
             json_object_end();
         }
     }

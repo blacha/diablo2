@@ -33,8 +33,29 @@ export interface Diablo2LevelBase {
   y: number;
 }
 
+export type Diablo2ItemClasses =
+  | 'casket' // OpCode 1
+  /* Chests dead barb etc.. but not super chests @see "chest:super" */
+  | 'chest' // OpCode 4
+  | 'chest-super' // ItemCode: 580 or 581
+  | 'chest-exploding'
+  | 'door'
+  | 'shrine' // OpCode 2
+  | 'well' // OpCode 22
+  /** Useful quest items like hordiric orifice */
+  | 'quest'
+  /** Small items like ajar or basket */
+  | 'urn' // OpCode 3
+  | 'waypoint' // OpCode 22
+  | 'urn-evil' // OpCode 68
+  | 'barrel' // OpCode  5
+  | 'barrel-exploding' // OpCode 7
+  | 'rack-weapon' // OpCode 20
+  | 'rack-armor'; // OpCode 19
+
 export interface Diablo2LevelObjectObject extends Diablo2LevelBase {
   type: 'object';
+  class: Diablo2ItemClasses;
   name?: string;
 }
 export interface Diablo2LevelNpc extends Diablo2LevelBase {
