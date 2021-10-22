@@ -238,6 +238,9 @@ char *get_object_type(int code) {
 
 bool is_good_exit(Act *pAct, Level *pLevel, int exitId) {
     // Act 1
+    // BloodMoor -> Den of evil
+    if (pLevel->dwLevelNo == AreaLevel::BloodMoor && exitId == AreaLevel::DenOfEvil) return true;
+
     // Tamoe Highlands -> Pit
     if (pLevel->dwLevelNo == AreaLevel::TamoeHighland && exitId == AreaLevel::PitLevel1) return true;
     // Black Forest -> ForgottenTower
