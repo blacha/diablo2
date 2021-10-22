@@ -107,7 +107,7 @@ void log_process(int level, const char* fileName, int line, const char* msg, ...
 
 
         if (arg->type == LOG_INT) fprintf(stdout, ",\"%s\":%d", arg->key, arg->int_val);
-        else if (arg->type == LOG_UINT) fprintf(stdout, ",\"%s\":%u", arg->key, arg->uint_val);
+        else if (arg->type == LOG_UINT) fprintf(stdout, ",\"%s\": \"%#08x\"", arg->key, arg->uint_val);
         else if (arg->type == LOG_STRING) fprintf(stdout, ",\"%s\":\"%s\"", arg->key, arg->char_val);
 
         log_field_free(arg);
