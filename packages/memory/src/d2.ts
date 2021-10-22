@@ -53,7 +53,15 @@ export class Diablo2Process {
         if (!strut.waypoint.normal.isValid) continue;
         if (!strut.waypoint.nightmare.isValid) continue;
         if (!strut.waypoint.hell.isValid) continue;
+
+        // These should be pretty similar blocks of memory every single time
+        if (strut.quest.nightmare.offset - strut.quest.normal.offset !== 224) continue;
+        if (strut.quest.hell.offset - strut.quest.nightmare.offset !== 224) continue;
+        if (strut.waypoint.nightmare.offset - strut.waypoint.normal.offset !== 224) continue;
+        if (strut.waypoint.hell.offset - strut.waypoint.nightmare.offset !== 224) continue;
+
         logger.info({ offset: toHex(nameOffset + mem.map.start) }, 'Player:Offset');
+
         const pointerBuf = ScannerBuffer.lu64(playerNameOffset);
 
         const lastPlayer = this.lastGoodAddress.player;
