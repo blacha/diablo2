@@ -1,11 +1,8 @@
 # @diablo2/map 
 
-Diablo 2 Map generator for v1.14 or v1.13c
+Diablo 2 Map generator for v1.13c
 
-Most of the work is done inside `d2_client.c` this includes the D2 Game client init as well as exporting everything to json.
-
-
-## Usage
+## Command line
 
 ```
 Usage:
@@ -13,9 +10,9 @@ Usage:
 
 Options:
     --seed [-s]          Map Seed
-    --difficulty [-d]    Game Difficulty [0: Normal, 1: Nightmare, 2:Hell]
-    --act [-a]           Dump a specific act [0: ActI, 1:ActII, 2: ActIII, 3: ActIV, 4: Act5]
-    --map [-m]           Dump a specific Map [0: Rogue Encampent ...]
+    --difficulty [-d]    Game Difficulty [0: Normal, 1: Nightmare, 2: Hell]
+    --act [-a]           Dump a specific act [0: ActI, 1: ActII, 2: ActIII, 3: ActIV, 4: Act5]
+    --map [-m]           Dump a specific Map [0: Rogue Encampment ...]
     --verbose [-v]       Increase logging level
 
 Examples:
@@ -59,6 +56,39 @@ Examples:
     ]
 }
 ```
+### Map Data
+
+Collision maps are encoded using a simple run length encoding to save on space
+
+Given this small map
+```
+[1,5,1],
+[2,3,2],
+[1,5,1]
+```
+
+It would generate the following word where `X` is collision and `.` is open space
+```
+X.....X
+XX...XX
+X.....X
+```
+
+A simple rendering engine could be using a `HTMLCanvas` `ctx.fillRect(x, y, width, height)` to fill a single  per colom
+
+```typescript
+for (let y = 0; y < map.length; y++){
+    let x = 0;
+    let fill = true;
+    for (const offset of row) {
+        if (fill) ctx.fillRect(x, y, offset, 1, "black");
+        x = x + offset;
+        fill = !fill
+    }
+}
+```
+
+
 
 ## Getting started
 
