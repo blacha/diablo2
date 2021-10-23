@@ -22,8 +22,8 @@ MapServer.server.get('/index.js', (ex: express.Request, res: express.Response) =
 });
 
 if (process.env['DIABLO2_CLUSTER_SIZE']) {
-  const clusterSize = Number('DIABLO2_CLUSTER_SIZE');
-  if (isNaN(clusterSize)) MapCluster.ProcessCount = clusterSize;
+  const clusterSize = Number(process.env['DIABLO2_CLUSTER_SIZE']);
+  if (!isNaN(clusterSize)) MapCluster.ProcessCount = clusterSize;
 }
 
 MapServer.init().catch((e) => {
