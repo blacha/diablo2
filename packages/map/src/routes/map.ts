@@ -1,4 +1,4 @@
-import { Act, ActUtil, Difficulty, DifficultyUtil, toHex, Diablo2Map, Diablo2Level, ActLevels } from '@diablo2/data';
+import { Act, ActUtil, Diablo2Level, Diablo2Map, Difficulty, DifficultyUtil, toHex } from '@diablo2/data';
 import { MapCluster } from '../map/map.process.js';
 import { HttpError, Request, Route } from '../route.js';
 
