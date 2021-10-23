@@ -1,9 +1,10 @@
-import { Act, ActUtil, Difficulty, DifficultyUtil, toHex, Diablo2Map } from '@diablo2/data';
+import { Act, ActUtil, Difficulty, DifficultyUtil, toHex, Diablo2Map, Diablo2Level, ActLevels } from '@diablo2/data';
 import { MapCluster } from '../map/map.process.js';
 import { HttpError, Request, Route } from '../route.js';
 
 export const isInSeedRange = (seed: number): boolean => seed > 0 && seed < 0xffffffff;
 
+/** Dump the entire world for a difficulty/seed */
 export class MapRoute implements Route {
   url = '/v1/map/:seed/:difficulty.json';
 
@@ -24,7 +25,7 @@ export class MapRoute implements Route {
     return { seed, difficulty };
   }
 }
-
+/** Grab a specific act form a difficulty */
 export class MapActRoute implements Route {
   url = '/v1/map/:seed/:difficulty/:act.json';
 
@@ -40,5 +41,28 @@ export class MapActRoute implements Route {
     if (act == null) throw new HttpError(422, 'Invalid act');
 
     return { ...MapRoute.validateParams(req), act };
+  }
+}
+
+/** Grab a specific level form a act */
+export class MapActLevelRoute implements Route {
+  url = '/v1/map/:seed/:difficulty/:act/:level.json';
+
+  async process(req: Request): Promise<Diablo2Map> {
+    const { seed, difficulty, act, mapId } = await MapActLevelRoute.validateParams(req);
+    const levels = await MapCluster.map(seed, difficulty, act, req.log);
+    req.log = req.log.child({ seed: toHex(seed, 8), difficulty: Difficulty[difficulty], act: Act[act], mapId });
+
+    const found: Diablo2Level[] = [];
+    for (const level of levels) if (level.id === mapId) found.push(level);
+    return { id: req.id, seed, difficulty, levels: found, act };
+  }
+
+  static validateParams(req: Request): { seed: number; difficulty: number; act: number; mapId: number } {
+    const params = MapActRoute.validateParams(req);
+    const mapId = Number(req.params.level);
+    if (mapId == null || ActUtil.fromLevel(mapId) !== params.act) throw new HttpError(422, 'Invalid map id');
+
+    return { ...params, mapId };
   }
 }
