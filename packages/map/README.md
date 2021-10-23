@@ -74,7 +74,7 @@ XX...XX
 X.....X
 ```
 
-A simple rendering engine could be using a `HTMLCanvas` `ctx.fillRect(x, y, width, height)` to fill a single  per colom
+A simple rendering engine could be using a `HTMLCanvas`'s `ctx.fillRect(x, y, width, height)` function to draw one row at a time
 
 ```typescript
 for (let y = 0; y < map.length; y++){
