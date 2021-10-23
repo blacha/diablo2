@@ -41,6 +41,12 @@ ADD dist/ /app/
 
 COPY --from=build /build/bin/d2-map.exe /app/bin/d2-map.exe
 
+ARG GIT_VERSION
+ENV GIT_VERSION ${GIT_VERSION}
+
+ARG GIT_HASH
+ENV GIT_HASH ${GIT_HASH}
+
 # Make sure InstallPath exists inside the registry
 COPY d2.install.reg /app/
 CMD ["node", "cli.cjs"]

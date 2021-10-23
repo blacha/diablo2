@@ -60,7 +60,15 @@ class Diablo2MapServer {
 
     await new Promise<void>((resolve) => {
       this.server.listen(this.port, () => {
-        Log.info({ port: this.port, processes: MapCluster.ProcessCount }, 'Server started...');
+        Log.info(
+          {
+            port: this.port,
+            processes: MapCluster.ProcessCount,
+            version: process.env.GIT_VERSION,
+            hash: process.env.GIT_HASH,
+          },
+          'Server started...',
+        );
         resolve();
       });
     });
