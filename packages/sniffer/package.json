@@ -32,7 +32,5 @@
   "files": [
     "build/"
   ],
-  "peerDependencies": {
-    "pcap": "^3.1.0"
-  }
+  "peerDependencies": {}
 }

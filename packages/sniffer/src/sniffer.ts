@@ -5,9 +5,10 @@ import { networkInterfaces } from 'os';
 import { LogType } from './logger.js';
 import { PacketLine } from './packet.line.js';
 import { AutoClosingStream } from './replay.tracker.js';
+import { createRequire } from 'module';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const pcap = require('pcap');
+const req = createRequire(import.meta.url);
+const pcap: any = req('pcap');
 
 export function findLocalIps(): { address: string; interface: string }[] {
   const output: { address: string; interface: string }[] = [];
