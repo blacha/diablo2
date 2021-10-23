@@ -4,11 +4,11 @@
 
 Tools to work with diablo2 
 
-- [bintools](./packages/bintools) - Binary parsers to read the `.bin` files
+- [bintools](./packages/bintools) - Diablo2 (Classic) Binary parsers to read the `.bin` files  
 - [huffman](./packages/huffman) - Diablo2 (Classic) Decompressor for network data
-- [packets](./packages/packets) - Diablo2 (classicC network protocol
+- [packets](./packages/packets) - Diablo2 (Classic) network protocol
 - [mpq](./packages/mpq) - MPQ reader / extractor
-- [map](./packages/map) - Diablo2 map generation api (Docker based)
+- [map](./packages/map) - Diablo2 (Classic & Resurrected)  map generation api (Docker based) 
 - [sniffer](./packages/sniffer) - Diablo2 (Classic) network sniffer
 - [memory](./packages/memory) - Diablo2 (Resurrected) Memory reader
 
@@ -38,6 +38,7 @@ Sniffs packets from the game client to create a overview of the world around.
 
 
 Building with yarn
+
 ```
 yarn
 yarn build
