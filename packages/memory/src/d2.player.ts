@@ -2,8 +2,8 @@ import { Attribute, toHex } from '@diablo2/data';
 import { Diablo2Process } from './d2.js';
 import { Pointer } from './index.js';
 import { LogType } from './logger.js';
-import { ActS, ActStrut, PathS, PathStrut, StatListStrut, StatStrut, UnitPlayer } from './structures.js';
-import { D2RStrut } from './struts/d2r.js';
+import { UnitPlayer } from './structures.js';
+import { ActS, PathS } from './struts/common.js';
 
 export class Diablo2Player {
   d2: Diablo2Process;
@@ -32,7 +32,7 @@ export class Diablo2Player {
   }
 
   get player(): Promise<UnitPlayer> {
-    return this.d2.readStrutAt(this.offset, D2RStrut.UnitPlayer);
+    return this.d2.readStrutAt(this.offset, this.d2.strut.UnitPlayer);
   }
 
   getStats(player: UnitPlayer, logger: LogType): Promise<Map<Attribute, number>> {
@@ -43,11 +43,12 @@ export class Diablo2Player {
     if (!player.pStats.isValid) logger.error({ offset: toHex(player.pStats.offset) }, 'Player:OffsetInvalid:Stats');
     const stats = new Map<Attribute, number>();
 
-    const statList = await this.d2.readStrutAt(player.pStats.offset, StatListStrut);
-    const buf = await this.d2.process.read(statList.pStat.offset, StatStrut.size * statList.count);
+    const strut = this.d2.strut;
+    const statList = await this.d2.readStrutAt(player.pStats.offset, strut.StatList);
+    const buf = await this.d2.process.read(statList.pStats.offset, strut.Stat.size * statList.count);
 
     for (let i = 0; i < statList.count; i++) {
-      const stat = StatStrut.raw(buf, i * StatStrut.size);
+      const stat = strut.Stat.raw(buf, i * strut.Stat.size);
       stats.set(stat.code, stat.value);
     }
 
@@ -56,11 +57,11 @@ export class Diablo2Player {
 
   getAct(player: UnitPlayer, logger: LogType): Promise<ActS> {
     if (!player.pAct.isValid) logger.error({ offset: toHex(player.pAct.offset) }, 'Player:OffsetInvalid:Act');
-    return this.d2.readStrutAt(player.pAct.offset, ActStrut);
+    return this.d2.readStrutAt(player.pAct.offset, this.d2.strut.Act);
   }
 
   getPath(player: UnitPlayer, logger: LogType): Promise<PathS> {
     if (!player.pPath.isValid) logger.error({ offset: toHex(player.pPath.offset) }, 'Player:OffsetInvalid:Path');
-    return this.d2.readStrutAt(player.pPath.offset, PathStrut);
+    return this.d2.readStrutAt(player.pPath.offset, this.d2.strut.Path);
   }
 }

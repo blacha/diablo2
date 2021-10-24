@@ -2,7 +2,7 @@ import { Diablo2MpqLoader } from '@diablo2/bintools';
 import { Difficulty } from '@diablo2/data';
 import { bp } from 'binparse';
 import 'source-map-support/register.js';
-import { Diablo2Process } from './d2.js';
+import { Diablo2Process, Diablo2Version } from './d2.js';
 import { Log } from './logger.js';
 import { Diablo2GameSessionMemory } from './session.js';
 import { Pointer } from './struts/pointer.js';
@@ -24,6 +24,15 @@ function getPlayerName(): string | null {
   return null;
 }
 
+async function findProcess(version: Diablo2Version): Promise<Diablo2Process> {
+  if (version === Diablo2Version.Resurrected) Pointer.type = bp.lu64;
+  if (version === Diablo2Version.Classic) Pointer.type = bp.lu32;
+
+  const proc = await Diablo2Process.find(version);
+  if (proc == null) throw new Error('Cannot find Game.exe');
+  return proc;
+}
+
 async function main(): Promise<void> {
   if (process.argv.length < 3) return usage();
   if (process.argv.includes('--nightmare')) Diablo2GameSessionMemory.Difficulty = Difficulty.Nightmare;
@@ -33,18 +42,9 @@ async function main(): Promise<void> {
   const playerName = getPlayerName();
   if (playerName == null) return usage('Missing player name');
 
-  if (process.env['DIABLO2_PATH']) {
-    await Diablo2MpqLoader.load(process.env['DIABLO2_PATH'], Log);
-  }
+  if (process.env['DIABLO2_PATH']) await Diablo2MpqLoader.load(process.env['DIABLO2_PATH'], Log);
 
-  let proc = await Diablo2Process.find('Game.exe');
-  if (proc == null || process.argv.includes('--d2r')) {
-    proc = await Diablo2Process.find('D2R.exe');
-    if (proc == null) throw new Error('Cannot find D2R.exe or Game.exe');
-
-    // D2R uses 64bit pointers
-    Pointer.type = bp.lu64;
-  }
+  const proc = await findProcess(process.argv.includes('--d2c') ? Diablo2Version.Classic : Diablo2Version.Resurrected);
 
   Log.info({ procId: proc.process.pid }, 'Process:Found');
   const session = new Diablo2GameSessionMemory(proc, playerName);

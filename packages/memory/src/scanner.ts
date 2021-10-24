@@ -1,4 +1,5 @@
 import { StrutAny, StrutInfer, StrutTypeObject } from 'binparse';
+import { Pointer } from './index.js';
 import { Process } from './process.js';
 
 export const Scanner = {
@@ -60,6 +61,11 @@ export const Scanner = {
 };
 
 export const ScannerBuffer = {
+  pointer(offset: number): Buffer {
+    if (Pointer.type.size === 4) return ScannerBuffer.lu32(offset);
+    return ScannerBuffer.lu64(offset);
+  },
+
   lu32(offset: number): Buffer {
     const buf = Buffer.alloc(4);
     buf.writeUInt32LE(offset);

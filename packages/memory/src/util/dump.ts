@@ -47,8 +47,11 @@ export function dump(buf: Buffer, title = ''): void {
     const outChars = [];
     for (let i = 0; i < b.length; i++) {
       const c = b[i];
+      let outputChar = NonStringChar;
+      if (isChar(c)) outputChar = String.fromCharCode(c);
+      if (c === 0x00) outputChar = ' ';
       output.push(toHexColor(b[i]).padStart(4, ' '));
-      outChars.push(isChar(c) ? String.fromCharCode(c) : NonStringChar);
+      outChars.push(outputChar);
       if ((i + 1) % 4 === 0) output.push('  ');
       else output.push(' ');
     }
@@ -61,7 +64,7 @@ export function dump(buf: Buffer, title = ''): void {
 export function dumpStrut(obj: StrutTypeObject<Record<string, StrutAny>>): void {
   let offset = 0;
   for (const [field, type] of obj.fields) {
-    console.log(toHex(offset), field, type.size);
+    console.log(toHex(offset), field, { size: type.size });
     offset += type.size;
   }
 }

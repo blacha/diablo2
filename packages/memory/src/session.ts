@@ -58,7 +58,7 @@ export class Diablo2GameSessionMemory {
       await sleep(Math.min(backOff * 500, 5_000));
       backOff++;
 
-      this.player = await this.d2.scanForPlayerD2r(this.playerName, logger);
+      this.player = await this.d2.scanForPlayer(this.playerName, logger);
       if (this.player == null) continue;
       return this.player;
     }
