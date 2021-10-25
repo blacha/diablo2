@@ -21,7 +21,7 @@ export class Diablo2Player {
         {
           unit: toHex(this.offset),
           act: toHex(player.pAct.offset),
-          player: toHex(player.pPlayer.offset),
+          player: toHex(player.pData.offset),
           path: toHex(player.pPath.offset),
         },
         'InvalidOffset',

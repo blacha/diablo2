@@ -38,7 +38,7 @@ export const D2rUnitAnyPlayerStrut = bp.object('D2rUnitAnyPlayer', {
   unitId: bp.lu32, // 0x08
   mode: bp.lu32, // 0x0c
   /** Pointer to PlayerStrut */
-  pPlayer: new Pointer(D2rPlayerDataStrut), //0x10
+  pData: new Pointer(D2rPlayerDataStrut), //0x10
   actId: bp.lu32, // 0x18
   // New??
   unk1: bp.lu32, // 0x1c

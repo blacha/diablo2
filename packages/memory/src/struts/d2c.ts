@@ -23,13 +23,15 @@ export const D2cRoom1 = bp.object('D2cRoom1', {
   pRoomNear: new Pointer(bp.lu32), // 0x00
   skip1: bp.skip(3 * 4), // 0x04
   pRoom2: new Pointer(D2cRoom2), // 0x10
-  skip2: bp.skip(0x4c - (0x10 + 4)),
+  skip2: bp.skip(0x24 - (0x10 + 4)),
+  roomCount: bp.lu32,
+  skip3: bp.skip(0x4c - 0x28),
   x: bp.lu32, //0x4c
   y: bp.lu32,
   width: bp.lu32,
   height: bp.lu32,
 
-  skip3: bp.skip(6 * 4),
+  skip4: bp.skip(6 * 4),
   pUnit: new Pointer(bp.lu32),
 });
 
@@ -46,17 +48,25 @@ export const D2cPlayerDataStrut = bp.object('D2rPlayerData', {
 export const D2cActStrut = bp.object('Act', {
   unk1: bp.skip(12), // 0x00
   mapSeed: bp.lu32, //  0x0c
-  room1: new Pointer(D2cRoom1), // 0x10
+  pRoom1: new Pointer(D2cRoom1), // 0x10
   act: bp.lu32, // 0x14
+});
+
+export const D2cMonsterData = bp.object('D2cMonsterData', {
+  skip: bp.skip(22), //  0x00
+  flags: bp.array('Flags', bp.u8, 5),
+  /** Pointer to PlayerStrut */
+  pData: new Pointer(D2cPlayerDataStrut), //0x10
 });
 
 export const D2cUnitAnyPlayerStrut = bp.object('UnitAnyPlayer', {
   type: bp.lu32, //  0x00
   txtFileNo: bp.lu32, // 0x04
+  unk1: bp.lu32,
   unitId: bp.lu32, // 0x08
   mode: bp.lu32, // 0x0c
   /** Pointer to PlayerStrut */
-  pPlayer: new Pointer(D2cPlayerDataStrut), //0x10
+  pData: new Pointer(D2cPlayerDataStrut), //0x10
   actId: bp.lu32, // 0x14
   /** Pointer to Act */
   pAct: new Pointer(D2cActStrut), // 0x18
@@ -89,4 +99,6 @@ export const D2cStrut = {
   Stat: D2StatStrut,
   Act: D2cActStrut,
   Path: D2PathStrut,
+  Room1: D2cRoom1,
+  Room2: D2cRoom2,
 };

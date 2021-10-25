@@ -19,7 +19,7 @@ export class Diablo2Process {
   process: Process;
 
   lastGoodAddress = {
-    name: 0, //Number(process.env.D2_MEMORY_PLAYER_NAME ?? 0),
+    name: 0xeeace00, //Number(process.env.D2_MEMORY_PLAYER_NAME ?? 0),
     player: 0, //Number(process.env.D2_MEMORY_PLAYER_UNIT ?? 0),
   };
 
@@ -77,7 +77,8 @@ export class Diablo2Process {
           (f) => lastPlayer === 0 || Math.abs(f.start - lastPlayer) < 0x0f_ff_ff_ff,
         )) {
           for (const off of ScannerBuffer.buffer(p.buffer, pointerBuf)) {
-            const playerStrutOffset = off - 16;
+            const verOffset = this.version === Diablo2Version.Classic ? 20 : 16;
+            const playerStrutOffset = off - verOffset;
 
             const unit = struts.UnitPlayer.raw(p.buffer, playerStrutOffset);
             logger.info(
