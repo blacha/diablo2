@@ -1,7 +1,7 @@
 import { Logger } from '@diablo2/bintools';
 import { Difficulty } from '@diablo2/data';
 import { Diablo2ParsedPacket } from '@diablo2/packets';
-import * as GameJson from './json.js';
+import * as GameJson from '@diablo2/state';
 
 type OnCloseEvent = (game: Diablo2State) => void;
 const MaxAgeMs = 5 * 60_000;
@@ -13,14 +13,14 @@ export class Diablo2State {
   endedAt?: number;
 
   playerId = -1;
-  players: Map<number, GameJson.PlayerJson> = new Map();
-  units: Map<number, GameJson.UnitJson> = new Map();
-  objects: Map<number, GameJson.ObjectJson> = new Map();
-  items: Map<number, GameJson.ItemJson> = new Map();
+  players: Map<number, GameJson.Diablo2PlayerJson> = new Map();
+  units: Map<number, GameJson.Diablo2UnitJson> = new Map();
+  objects: Map<number, GameJson.Diablo2ObjectJson> = new Map();
+  items: Map<number, GameJson.Diablo2ItemJson> = new Map();
 
-  map: GameJson.MapJson = { id: -1, act: -1, difficulty: -1, isHardcore: false };
+  map: GameJson.Diablo2MapJson = { id: -1, act: -1, difficulty: -1, isHardcore: false };
 
-  kills: Map<number, GameJson.KillJson> = new Map();
+  kills: Map<number, GameJson.Diablo2KillJson> = new Map();
 
   onChange?: () => void;
   id: string;
@@ -58,7 +58,7 @@ export class Diablo2State {
     if (this.endedAt == null) return -1;
     return this.endedAt - this.createdAt;
   }
-  get player(): GameJson.PlayerJson {
+  get player(): GameJson.Diablo2PlayerJson {
     const player = this.players.get(this.playerId);
     if (player) return player;
 
@@ -73,7 +73,7 @@ export class Diablo2State {
       updatedAt: Date.now(),
       life: -1,
       xp: { current: -1, start: -1 },
-    } as GameJson.PlayerJson;
+    } as GameJson.Diablo2PlayerJson;
     this.players.set(this.playerId, resetPlayer);
     return resetPlayer;
   }
@@ -97,7 +97,7 @@ export class Diablo2State {
         updatedAt: Date.now(),
         life: -1,
         xp: { current: -1, start: -1, diff: 0 },
-      } as GameJson.PlayerJson;
+      } as GameJson.Diablo2PlayerJson;
     }
     if (x !== -1) {
       existing.x = x;
@@ -117,7 +117,7 @@ export class Diablo2State {
     this.dirty();
   }
 
-  trackItem(itm: GameJson.ItemJson): void {
+  trackItem(itm: GameJson.Diablo2ItemJson): void {
     let existing = this.items.get(itm.id);
     if (existing == null) {
       existing = itm;
@@ -127,7 +127,7 @@ export class Diablo2State {
     this.dirty();
   }
 
-  trackNpc(npc: GameJson.NpcJson | GameJson.PlayerJson): void {
+  trackNpc(npc: GameJson.Diablo2NpcJson | GameJson.Diablo2PlayerJson): void {
     let existing = this.units.get(npc.id);
     if (existing == null) {
       existing = npc;
@@ -157,7 +157,7 @@ export class Diablo2State {
     this.dirty();
   }
 
-  trackKill(u: GameJson.NpcJson): void {
+  trackKill(u: GameJson.Diablo2NpcJson): void {
     if (u.code === -1) return;
     let kill = this.kills.get(u.code);
     if (kill == null) {
@@ -245,7 +245,7 @@ export class Diablo2State {
     return this.endedAt != null;
   }
 
-  toJSON(): GameJson.GameStateJson {
+  toJSON(): GameJson.Diablo2GameStateJson {
     const unitRemove = this.filterOld(this.units);
     if (unitRemove > 0) this.log.info({ units: unitRemove }, 'CleanUp');
     return {
@@ -260,7 +260,7 @@ export class Diablo2State {
       kills: [...this.kills.values()],
     };
   }
-  filterOld(items: Map<unknown, GameJson.BaseGameJson>): number {
+  filterOld(items: Map<unknown, GameJson.Diablo2BaseGameJson>): number {
     const player = this.player;
 
     const timeNow = Date.now();
@@ -277,6 +277,6 @@ export class Diablo2State {
   }
 }
 
-function latestUpdated(a: GameJson.BaseGameJson, b: GameJson.BaseGameJson): number {
+function latestUpdated(a: GameJson.Diablo2BaseGameJson, b: GameJson.Diablo2BaseGameJson): number {
   return b.updatedAt - a.updatedAt;
 }

@@ -1,21 +1,21 @@
 import { Act, ActUtil, Difficulty, DifficultyUtil } from '@diablo2/data';
 import { toHex } from 'binparse/build/src/hex.js';
-import { MapLocation } from './bounds.js';
+import { LevelBounds, MapLocation } from './bounds.js';
 import { MapLayers } from './map.objects.js';
 import { registerMapProtocols } from './map.protocol.js';
+import { Diablo2GameState } from '@diablo2/state';
 
 declare const maplibregl: any;
 
 export class Diablo2MapViewer {
   map: any;
 
-  difficulty = Difficulty.Nightmare;
-  act = Act.ActV;
-  seed = 0x00ff00ff;
   color = 'white';
   updateUrlTimer: unknown;
+  ctx: Diablo2GameState;
 
   constructor(el: string) {
+    this.ctx = new Diablo2GameState('');
     registerMapProtocols(maplibregl);
 
     this.map = new maplibregl.Map({
@@ -88,11 +88,11 @@ export class Diablo2MapViewer {
 
   updateFromUrl(): void {
     const urlParams = new URLSearchParams(window.location.search);
-
-    this.seed = Number(urlParams.get('seed'));
-    if (isNaN(this.seed) || this.seed <= 0) this.seed = 0x00ff00ff;
-    this.act = ActUtil.fromString(urlParams.get('act')) ?? Act.ActI;
-    this.difficulty = DifficultyUtil.fromString(urlParams.get('difficulty')) ?? Difficulty.Normal;
+    const state = this.ctx.state;
+    state.map.id = Number(urlParams.get('seed'));
+    if (isNaN(state.map.id) || state.map.id <= 0) state.map.id = 0x00ff00ff;
+    state.map.act = ActUtil.fromString(urlParams.get('act')) ?? Act.ActI;
+    state.map.difficulty = DifficultyUtil.fromString(urlParams.get('difficulty')) ?? Difficulty.Normal;
     this.color = urlParams.get('color') || 'white';
 
     if (window.location.hash == null) return;
@@ -105,10 +105,12 @@ export class Diablo2MapViewer {
   }
 
   updateUrl(): void {
+    const state = this.ctx.state;
+
     const urlParams = new URLSearchParams(window.location.search);
-    urlParams.set('seed', toHex(this.seed, 8));
-    urlParams.set('act', Act[this.act]);
-    urlParams.set('difficulty', Difficulty[this.difficulty]);
+    urlParams.set('seed', toHex(state.map.id, 8));
+    urlParams.set('act', Act[state.map.act]);
+    urlParams.set('difficulty', Difficulty[state.map.difficulty]);
     urlParams.set('color', this.color);
     const center = this.map.getCenter();
     if (center == null) throw new Error('Invalid Map location');
@@ -133,7 +135,28 @@ export class Diablo2MapViewer {
   update(): void {
     this.updateUrl();
     this.updateDom();
-    const d2Url = `${toHex(this.seed, 8)}/${Difficulty[this.difficulty]}/${Act[this.act]}/{z}/{x}/{y}/${this.color}`;
+
+    const state = this.ctx.state;
+    const map = state.map;
+
+    // State Update
+    if (state.player.x > 0) {
+      const { lng, lat } = LevelBounds.sourceToLatLng(state.player.x, state.player.y);
+      this.map.setCenter([lng, lat]);
+      this.map.setZoom(7); // TODO configure?
+      const geojson: GeoJSON.Feature = {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [lng, lat] },
+        properties: state.player,
+      };
+
+      const playerSource = this.map.getSource('player');
+      if (playerSource == null) this.map.addSource('player', { type: 'geojson', data: geojson });
+      else playerSource.setData(geojson);
+    }
+
+    const d2Url = `${toHex(map.id, 8)}/${Difficulty[map.difficulty]}/${Act[map.act]}/{z}/{x}/{y}/${this.color}`;
+
     if (this.lastUrl === d2Url) return;
     this.lastUrl = d2Url;
 
@@ -150,23 +173,24 @@ export class Diablo2MapViewer {
     this.map.addLayer({ id: 'layer-diablo2-collision', type: 'raster', source: 'source-diablo2-collision' });
 
     for (const [layerId, layer] of MapLayers) {
-      layer.source = 'source-diablo2-vector';
+      layer.source = layer.source ?? 'source-diablo2-vector';
       layer.id = layerId;
+      layer.name = layerId;
       this.map.addLayer(layer);
     }
   }
 
   setAct(a: string): void {
     const act = ActUtil.fromString(a);
-    if (act == null || this.act === act) return;
-    this.act = act;
+    if (act == null || this.ctx.state.map.act === act) return;
+    this.ctx.state.map.act = act;
     this.update();
   }
 
   setDifficulty(a: string): void {
     const difficulty = DifficultyUtil.fromString(a);
-    if (difficulty == null || this.difficulty === difficulty) return;
-    this.difficulty = difficulty;
+    if (difficulty == null || this.ctx.state.map.difficulty === difficulty) return;
+    this.ctx.state.map.difficulty = difficulty;
     this.update();
   }
 
@@ -181,9 +205,10 @@ export class Diablo2MapViewer {
   }
 
   updateDom(): void {
+    const state = this.ctx.state;
     const acts = document.querySelectorAll('button.options__act') as NodeListOf<HTMLButtonElement>;
     acts.forEach((f: HTMLButtonElement) => {
-      if (ActUtil.fromString(f.value) === this.act) {
+      if (ActUtil.fromString(f.value) === state.map.act) {
         f.classList.add('button-outline');
         f.classList.remove('button-clear');
       } else {
@@ -193,11 +218,11 @@ export class Diablo2MapViewer {
     });
 
     const seed = document.querySelector('.options__seed') as HTMLDivElement;
-    if (seed) seed.innerText = toHex(this.seed, 8);
+    if (seed) seed.innerText = toHex(state.map.id, 8);
 
     const difficulties = document.querySelectorAll('button.options__difficulty') as NodeListOf<HTMLButtonElement>;
     difficulties.forEach((f: HTMLButtonElement) => {
-      if (DifficultyUtil.fromString(f.value) === this.difficulty) {
+      if (DifficultyUtil.fromString(f.value) === state.map.difficulty) {
         f.classList.add('button-outline');
         f.classList.remove('button-clear');
       } else {

@@ -5,7 +5,7 @@ import { ulid } from 'ulid';
 import { Diablo2Client } from './client.js';
 import { Diablo2PacketParser } from './packet.parser.js';
 import { Diablo2State } from './state/game.js';
-import { ItemJson } from './state/json.js';
+import { Diablo2ItemJson } from '@diablo2/state';
 
 const { client, server } = PacketsPod;
 
@@ -109,7 +109,7 @@ export class Diablo2GameSession {
         if (this.isGoodItem(pkt.code, pkt.quality?.id)) {
           this.log.warn({ code: pkt.code, x: pkt.x, y: pkt.y, item: pkt.name, action: pkt.action.name }, 'ItemDropped');
 
-          const trackItem: ItemJson = {
+          const trackItem: Diablo2ItemJson = {
             id: pkt.id,
             code: pkt.code,
             x: pkt.x,

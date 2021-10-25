@@ -1,11 +1,11 @@
 {
-  "name": "@diablo2/viewer",
+  "name": "@diablo2/state",
   "version": "0.9.0",
   "private": "true",
   "repository": {
     "type": "git",
     "url": "https://github.com/blacha/diablo2.git",
-    "directory": "packages/viewer"
+    "directory": "packages/state"
   },
   "author": {
     "name": "Blayne Chard",
@@ -19,13 +19,11 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "@linzjs/geojson": "^6.10.0",
-    "maplibre-gl": "^2.0.0-pre.1"
+    "@diablo2/data": "^0.9.0"
   },
   "files": [
     "build/"
   ],
   "devDependencies": {
-    "maplibre-gl": "^2.0.0-pre.1"
   }
 }

@@ -66,12 +66,16 @@ function unknownPoint(): FeatureMaker | void {
 MapFeatureFilter.push(unknownPoint);
 
 /** Configure how map libre renders the geojson */
-const TextSymbol = {
+const TextSymbolLayout = {
   'icon-image': 'custom-marker',
   'text-field': ['get', 'name'],
   'text-font': ['Open Sans Bold'],
   'text-offset': [0, 0.6],
   'text-anchor': 'top',
+};
+const TextSymbolPaint = {
+  'text-halo-color': '#ffffff',
+  'text-halo-width': 2,
 };
 
 export interface StyleJsonObject extends Record<string, unknown> {
@@ -80,7 +84,7 @@ export interface StyleJsonObject extends Record<string, unknown> {
 
 export const MapLayers: Map<string, StyleJsonObject> = new Map();
 /** Level text eg "Blood Moor" */
-MapLayers.set('level-name', { type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'level-name'] });
+MapLayers.set('level-name', { type: 'symbol', layout: TextSymbolLayout, filter: ['==', 'type', 'level-name'] });
 
 /** Show waypoints as the polygon and the text */
 MapLayers.set('waypoint', {
@@ -91,7 +95,8 @@ MapLayers.set('waypoint', {
 MapLayers.set('waypoint-name', {
   id: 'waypoint-name',
   type: 'symbol',
-  layout: TextSymbol,
+  layout: TextSymbolLayout,
+  paint: TextSymbolPaint,
   filter: ['==', 'type', 'waypoint'],
 });
 
@@ -101,7 +106,12 @@ MapLayers.set('exit', {
   paint: { 'fill-color': '#ef476f', 'fill-opacity': 0.87 },
   filter: ['==', 'type', 'exit'],
 });
-MapLayers.set('exit-name', { type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'exit'] });
+MapLayers.set('exit-name', {
+  type: 'symbol',
+  layout: TextSymbolLayout,
+  paint: TextSymbolPaint,
+  filter: ['==', 'type', 'exit'],
+});
 
 MapLayers.set('exit-good', {
   type: 'fill',
@@ -128,7 +138,12 @@ MapLayers.set('super-unique', {
   },
   filter: ['==', 'type', 'super-unique'],
 });
-MapLayers.set('super-unique-name', { type: 'symbol', layout: TextSymbol, filter: ['==', 'type', 'super-unique'] });
+MapLayers.set('super-unique-name', {
+  type: 'symbol',
+  layout: TextSymbolLayout,
+  paint: TextSymbolPaint,
+  filter: ['==', 'type', 'super-unique'],
+});
 
 /** Show exits as a unknowns as a and name */
 MapLayers.set('unknown', {
@@ -143,16 +158,31 @@ MapLayers.set('unknown', {
   },
   filter: ['==', 'type', 'unknown'],
 });
-MapLayers.set('unknown-name', {
+MapLayers.set('door-name', {
   minzoom: 6,
   type: 'symbol',
-  layout: TextSymbol,
+  layout: TextSymbolLayout,
+  paint: TextSymbolPaint,
   filter: ['==', 'type', 'door'],
 });
 
-MapLayers.set('unknown-name-b', {
+MapLayers.set('unknown-name', {
   minzoom: 6,
   type: 'symbol',
-  layout: TextSymbol,
+  layout: TextSymbolLayout,
+  paint: TextSymbolPaint,
   filter: ['==', 'type', 'unknown'],
+});
+
+MapLayers.set('player', {
+  source: 'player',
+  type: 'circle',
+  paint: {
+    'circle-radius': 10,
+    'circle-color': '#ff00ff',
+    'circle-stroke-color': '#023047',
+    'circle-stroke-width': 1,
+    'circle-opacity': 0.87,
+  },
+  filter: ['==', 'type', 'player'],
 });

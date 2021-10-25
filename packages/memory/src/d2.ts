@@ -51,6 +51,9 @@ export class Diablo2Process {
 
   async scanForPlayer(playerName: string, logger: LogType): Promise<Diablo2Player | null> {
     const struts = this.strut;
+    if (this.lastGoodAddress.name > 0) {
+      logger.info({ lastGoodAddress: this.lastGoodAddress }, 'Offsets:Previous');
+    }
 
     for await (const mem of this.process.scanDistance(this.lastGoodAddress.name, (f) => {
       if (this.version === Diablo2Version.Classic) return true;

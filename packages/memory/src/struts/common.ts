@@ -1,5 +1,4 @@
 import { bp, StrutInfer } from 'binparse';
-import { Process } from '../process.js';
 import { Pointer } from './pointer.js';
 
 export const D2StatStrut = bp.object('D2StatStrut', {

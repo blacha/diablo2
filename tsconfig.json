@@ -3,6 +3,7 @@
     "references": [
         { "path": "./packages/mpq" },
         { "path": "./packages/data" },
+        { "path": "./packages/state" },
         { "path": "./packages/bintools" },
         { "path": "./packages/huffman" },
         { "path": "./packages/packets" },
