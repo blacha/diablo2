@@ -11,6 +11,15 @@ export const D2cClient = bp.object('D2cClient', {});
 export const D2cInventory = bp.object('D2cInventory', {});
 export const D2cLight = bp.object('D2cLight', {});
 
+export const D2cActMisc = bp.object('D2cActMisc', {
+  skip1: bp.skip(0x94),
+  tombLevel: bp.lu32,
+  skip2: bp.skip(0x450 - 0x94 - 4),
+  difficulty: bp.lu32,
+  skip3: bp.skip(0x46c - 0x450 - 4),
+  pAct: bp.lu32,
+});
+
 export const D2cRoom2 = bp.object('D2cRoom2', {
   skip1: bp.skip(0x34),
   x: bp.lu32,
@@ -50,13 +59,13 @@ export const D2cActStrut = bp.object('Act', {
   mapSeed: bp.lu32, //  0x0c
   pRoom1: new Pointer(D2cRoom1), // 0x10
   act: bp.lu32, // 0x14
+  skip2: bp.skip(0x48 - 0x18),
+  pActMisc: new Pointer(D2cActMisc), // 0x48
 });
 
 export const D2cMonsterData = bp.object('D2cMonsterData', {
   skip: bp.skip(22), //  0x00
   flags: bp.array('Flags', bp.u8, 5),
-  /** Pointer to PlayerStrut */
-  pData: new Pointer(D2cPlayerDataStrut), //0x10
 });
 
 export const D2cUnitAnyPlayerStrut = bp.object('UnitAnyPlayer', {
