@@ -84,7 +84,12 @@ export interface StyleJsonObject extends Record<string, unknown> {
 
 export const MapLayers: Map<string, StyleJsonObject> = new Map();
 /** Level text eg "Blood Moor" */
-MapLayers.set('level-name', { type: 'symbol', layout: TextSymbolLayout, filter: ['==', 'type', 'level-name'] });
+MapLayers.set('level-name', {
+  type: 'symbol',
+  layout: TextSymbolLayout,
+  paint: TextSymbolPaint,
+  filter: ['==', 'type', 'level-name'],
+});
 
 /** Show waypoints as the polygon and the text */
 MapLayers.set('waypoint', {
@@ -175,7 +180,7 @@ MapLayers.set('unknown-name', {
 });
 
 MapLayers.set('player', {
-  source: 'player',
+  source: 'game-state',
   type: 'circle',
   paint: {
     'circle-radius': 10,

@@ -4,6 +4,7 @@ import { LevelBounds, MapLocation } from './bounds.js';
 import { MapLayers } from './map.objects.js';
 import { registerMapProtocols } from './map.protocol.js';
 import { Diablo2GameState } from '@diablo2/state';
+import { toFeatureCollection } from '@linzjs/geojson';
 
 declare const maplibregl: any;
 
@@ -150,9 +151,9 @@ export class Diablo2MapViewer {
         properties: state.player,
       };
 
-      const playerSource = this.map.getSource('player');
-      if (playerSource == null) this.map.addSource('player', { type: 'geojson', data: geojson });
-      else playerSource.setData(geojson);
+      const playerSource = this.map.getSource('game-state');
+      if (playerSource == null) this.map.addSource('player', { type: 'geojson', data: toFeatureCollection([geojson]) });
+      else playerSource.setData(toFeatureCollection([geojson]));
     }
 
     const d2Url = `${toHex(map.id, 8)}/${Difficulty[map.difficulty]}/${Act[map.act]}/{z}/{x}/{y}/${this.color}`;
@@ -170,6 +171,7 @@ export class Diablo2MapViewer {
     this.map.addSource('source-diablo2-collision', { type: 'raster', tiles: [`d2r://${d2Url}`], maxzoom: 14 });
     this.map.addSource('source-diablo2-vector', { type: 'geojson', data: `d2v://${d2Url}` });
 
+    this.map.addSource('game-state', { type: 'geojson', data: toFeatureCollection([]) });
     this.map.addLayer({ id: 'layer-diablo2-collision', type: 'raster', source: 'source-diablo2-collision' });
 
     for (const [layerId, layer] of MapLayers) {

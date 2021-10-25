@@ -49,4 +49,4 @@ ENV GIT_HASH ${GIT_HASH}
 
 # Make sure InstallPath exists inside the registry
 COPY d2.install.reg /app/
-CMD ["node", "cli.cjs"]
+CMD ["node", "index.cjs"]

@@ -64,6 +64,7 @@ class Diablo2MapServer {
         Log.info(
           {
             port: this.port,
+            url: 'http://localhost:' + this.port,
             processes: MapCluster.ProcessCount,
             version: process.env.GIT_VERSION,
             hash: process.env.GIT_HASH,
