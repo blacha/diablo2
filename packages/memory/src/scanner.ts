@@ -17,9 +17,9 @@ export const Scanner = {
 
         const ctx = { startOffset: i, offset: i };
         let matches = true;
-        for (const [name, parser] of strut.fields) {
+        for (const { key, parser } of strut.fields) {
           const ret = parser.parse(buffer, ctx);
-          const val = expected[name as unknown as K];
+          const val = expected[key as unknown as K];
           if (val === undefined) continue;
           if (ret !== val) {
             matches = false;
@@ -61,11 +61,6 @@ export const Scanner = {
 };
 
 export const ScannerBuffer = {
-  pointer(offset: number): Buffer {
-    if (Pointer.type.size === 4) return ScannerBuffer.lu32(offset);
-    return ScannerBuffer.lu64(offset);
-  },
-
   lu32(offset: number): Buffer {
     const buf = Buffer.alloc(4);
     buf.writeUInt32LE(offset);
@@ -75,6 +70,11 @@ export const ScannerBuffer = {
     const buf = Buffer.alloc(8);
     buf.writeBigUInt64LE(BigInt(offset));
     return buf;
+  },
+
+  *pointer(buffer: Buffer, offset: number): Generator<number> {
+    const scanFor = Pointer.type.size === 4 ? ScannerBuffer.lu32(offset) : ScannerBuffer.lu64(offset);
+    yield* this.buffer(buffer, scanFor);
   },
 
   *text(buf: Buffer, text: string, length?: number, isNullTerminated = true): Generator<number> {

@@ -63,8 +63,8 @@ export function dump(buf: Buffer, title = ''): void {
 
 export function dumpStrut(obj: StrutTypeObject<Record<string, StrutAny>>): void {
   let offset = 0;
-  for (const [field, type] of obj.fields) {
-    console.log(toHex(offset), field, { size: type.size });
-    offset += type.size;
+  for (const { key, parser } of obj.fields) {
+    console.log(toHex(offset), key, { size: parser.size });
+    offset += parser.size;
   }
 }

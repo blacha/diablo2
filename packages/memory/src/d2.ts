@@ -69,14 +69,12 @@ export class Diablo2Process {
 
         logger.info({ offset: toHex(nameOffset + mem.map.start) }, 'Player:Offset');
 
-        const pointerBuf = ScannerBuffer.pointer(playerNameOffset);
-
         const lastPlayer = this.lastGoodAddress.player;
         for await (const p of this.process.scanDistance(
           lastPlayer,
           (f) => lastPlayer === 0 || Math.abs(f.start - lastPlayer) < 0x0f_ff_ff_ff,
         )) {
-          for (const off of ScannerBuffer.buffer(p.buffer, pointerBuf)) {
+          for (const off of ScannerBuffer.pointer(mem.buffer, playerNameOffset)) {
             const verOffset = this.version === Diablo2Version.Classic ? 20 : 16;
             const playerStrutOffset = off - verOffset;
 
