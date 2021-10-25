@@ -1,4 +1,6 @@
 export enum Diablo2Version {
+  Classic = 'Classic',
+  Resurrected = 'Resurrected',
   PathOfDiablo = 'PathOfDiablo',
   ProjectDiablo2 = 'ProjectDiablo2',
 }

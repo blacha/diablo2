@@ -1,4 +1,5 @@
 import { bp, StrutInfer } from 'binparse';
+import { Process } from '../process.js';
 import { Pointer } from './pointer.js';
 
 export const D2StatStrut = bp.object('D2StatStrut', {
@@ -25,6 +26,14 @@ export const D2PathStrut = bp.object('Path', {
 });
 export type PathS = StrutInfer<typeof D2PathStrut>;
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export type PointerS<T = unknown> = { offset: number; isValid: boolean };
+
 export interface ActS {
   mapSeed: number;
+  pActMisc: PointerS<ActMiscS>;
+}
+
+export interface ActMiscS {
+  difficulty: number;
 }

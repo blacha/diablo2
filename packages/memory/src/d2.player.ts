@@ -1,4 +1,4 @@
-import { Attribute, toHex } from '@diablo2/data';
+import { Attribute, Difficulty, toHex } from '@diablo2/data';
 import { Diablo2Process } from './d2.js';
 import { Pointer } from './index.js';
 import { LogType } from './logger.js';
@@ -63,5 +63,11 @@ export class Diablo2Player {
   getPath(player: UnitPlayer, logger: LogType): Promise<PathS> {
     if (!player.pPath.isValid) logger.error({ offset: toHex(player.pPath.offset) }, 'Player:OffsetInvalid:Path');
     return this.d2.readStrutAt(player.pPath.offset, this.d2.strut.Path);
+  }
+
+  async getDifficulty(act: ActS, logger: LogType): Promise<Difficulty> {
+    if (!act.pActMisc.isValid) logger.error({ offset: toHex(act.pActMisc.offset) }, 'Player:OffsetInvalid:Path');
+    const actMisc = await this.d2.readStrutAt(act.pActMisc.offset, this.d2.strut.ActMisc);
+    return actMisc.difficulty;
   }
 }

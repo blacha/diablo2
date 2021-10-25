@@ -8,11 +8,18 @@ export const D2rArenaUnit = bp.object('D2rArenaUnit', {});
 export const D2rPlayerTrade = bp.object('D2rPlayerTrade', {});
 export const D2rClient = bp.object('D2rClient', {});
 
+export const D2rActMisc = bp.object('D2rActMisc', {
+  tombLevel: bp.lu32,
+  skip2: bp.skip(0x830 - 0x00 - 4),
+  difficulty: bp.lu32, // 0x830??
+});
+
 export const D2rActStrut = bp.object('Act', {
-  unk1: new Pointer(bp.lu32), // 0x00
-  unk2: new Pointer(bp.lu32), // 0x08
-  unk3: bp.lu32, // 0x16
-  mapSeed: bp.lu32, //  0x20
+  skip1: bp.skip(0x14),
+  mapSeed: bp.lu32, // 0x14
+
+  skip2: bp.skip(0x70 - 0x14 - 4),
+  pActMisc: new Pointer(bp.lu32), // this is wrong
 });
 
 export const D2rPlayerDataStrut = bp.object('D2rPlayerData', {
@@ -64,5 +71,6 @@ export const D2rStrut = {
   StatList: D2StatListStrut,
   Stat: D2StatStrut,
   Act: D2rActStrut,
+  ActMisc: D2rActMisc,
   Path: D2PathStrut,
 };

@@ -107,6 +107,7 @@ export const D2cStrut = {
   StatList: D2StatListStrut,
   Stat: D2StatStrut,
   Act: D2cActStrut,
+  ActMisc: D2cActMisc,
   Path: D2PathStrut,
   Room1: D2cRoom1,
   Room2: D2cRoom2,

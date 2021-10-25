@@ -15,9 +15,6 @@ export class Diablo2GameSessionMemory {
   /** Delay to wait between ticks */
   tickSpeed = 250;
 
-  /** Default difficulty to use */
-  static Difficulty = Difficulty.Nightmare;
-
   constructor(proc: Diablo2Process, playerName: string) {
     this.d2 = proc;
     this.playerName = playerName;
@@ -77,7 +74,7 @@ export class Diablo2GameSessionMemory {
     // Track map information
     if (act.mapSeed !== this.state.map.id) {
       this.state.map.id = act.mapSeed;
-      this.state.map.difficulty = Diablo2GameSessionMemory.Difficulty;
+      this.state.map.difficulty = await obj.getDifficulty(act, logger);
       this.state.log.info({ map: this.state.map }, 'MapSeed:Changed');
     }
 
