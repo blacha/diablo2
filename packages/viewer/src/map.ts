@@ -171,7 +171,9 @@ export class Diablo2MapViewer {
     this.map.addSource('source-diablo2-collision', { type: 'raster', tiles: [`d2r://${d2Url}`], maxzoom: 14 });
     this.map.addSource('source-diablo2-vector', { type: 'geojson', data: `d2v://${d2Url}` });
 
-    this.map.addSource('game-state', { type: 'geojson', data: toFeatureCollection([]) });
+    if (this.map.getSource('game-state') == null) {
+      this.map.addSource('game-state', { type: 'geojson', data: toFeatureCollection([]) });
+    }
     this.map.addLayer({ id: 'layer-diablo2-collision', type: 'raster', source: 'source-diablo2-collision' });
 
     for (const [layerId, layer] of MapLayers) {
