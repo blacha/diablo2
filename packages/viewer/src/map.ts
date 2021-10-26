@@ -15,6 +15,11 @@ export class Diablo2MapViewer {
   updateUrlTimer: unknown;
   ctx: Diablo2GameState;
 
+  /** Zoom level to switch to when the player is centered, nullish to turn off */
+  stateZoom = 7;
+  /** Should the map follow the player */
+  centerOnPlayer = true;
+
   constructor(el: string) {
     this.ctx = new Diablo2GameState('');
     registerMapProtocols(maplibregl);
@@ -143,8 +148,10 @@ export class Diablo2MapViewer {
     // State Update
     if (state.player.x > 0) {
       const { lng, lat } = LevelBounds.sourceToLatLng(state.player.x, state.player.y);
-      this.map.setCenter([lng, lat]);
-      this.map.setZoom(7); // TODO configure?
+      if (this.centerOnPlayer) {
+        this.map.setCenter([lng, lat]);
+        if (this.stateZoom) this.map.setZoom(this.stateZoom); // TODO configure?
+      }
       const geojson: GeoJSON.Feature = {
         type: 'Feature',
         geometry: { type: 'Point', coordinates: [lng, lat] },
