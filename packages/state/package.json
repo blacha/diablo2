@@ -19,11 +19,11 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "@diablo2/data": "^0.9.0"
+    "@diablo2/data": "^0.9.0",
+    "@servie/events": "^3.0.0"
   },
   "files": [
     "build/"
   ],
-  "devDependencies": {
-  }
+  "devDependencies": {}
 }

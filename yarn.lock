@@ -1014,6 +1014,11 @@
   dependencies:
     "@octokit/openapi-types" "^10.5.0"
 
+"@servie/events@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@servie/events/-/events-3.0.0.tgz#89863ae789248976be0565558dd420d3b8753bd0"
+  integrity sha512-Zd79bWhTuG8NvPgSiOcivorJIDg+goMw76TIqYTIR5ua5HOEkS29fmIh2VVSeDeabNF6z8ceTwzB0pSh/BhXyw==
+
 "@tootallnate/once@1":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
