@@ -41,6 +41,6 @@ const ObjectParser = bp.object('Object', baseObj);
 export type ObjectNode = StrutInfer<typeof ObjectParser>;
 
 export const ObjectReader = bp.object('Levels', {
-  count: bp.variable('count', bp.lu32),
+  count: bp.lu32,
   objects: bp.array('Level', ObjectParser, 'count'),
 });

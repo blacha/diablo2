@@ -58,6 +58,6 @@ const Item = bp.object('Item', {
 });
 
 export const ItemFileParser = bp.object('Items', {
-  count: bp.variable('count', bp.lu32),
+  count: bp.lu32,
   items: bp.array('Items', Item, 'count'),
 });
