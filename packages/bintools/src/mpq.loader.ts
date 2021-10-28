@@ -52,6 +52,10 @@ export class Diablo2MpqLoader {
     this.MpqData = Mpq.load(path.join(basePath, 'd2data.mpq'));
     this.MpqExp = Mpq.load(path.join(basePath, 'd2exp.mpq'));
 
+    const startTime = Date.now();
+    await Promise.all([this.MpqData.header, this.MpqExp.header, this.MpqPatch.header]);
+    log?.debug({ duration: Date.now() - startTime }, 'Mpq:Init');
+
     data.basePath = basePath;
 
     await Promise.all([

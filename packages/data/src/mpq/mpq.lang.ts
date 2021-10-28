@@ -38,6 +38,10 @@ export class Diablo2MpqLang {
     this.mpq = mpq;
   }
 
+  get size(): number {
+    return this.expansion.byKey.size + this.patch.byKey.size + this.classic.byKey.size;
+  }
+
   getByIndex(index: number): string | undefined {
     // This is a commonly used bad key?
     if (index === 5382) return undefined;

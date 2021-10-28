@@ -1,7 +1,8 @@
 import { promises as fs } from 'fs';
 import { FileHandle } from 'fs/promises';
-import { decompressSector } from './compression/index.js';
+import { basename } from 'path';
 import { decompressPkWare } from './compression/compress.pkware.js';
+import { decompressSector } from './compression/index.js';
 import { MpqFlags, MpqFormatVersion, MpqHashType } from './const.js';
 import { MpqEncryptionTable } from './encryption.js';
 import {
@@ -13,29 +14,28 @@ import {
   MpqHeaderReader,
 } from './header.js';
 
-// Common big ints used during decompression
-const x0b = BigInt(0x0b);
-const x11111111 = BigInt(0x11111111);
-const x15 = BigInt(0x15);
-const x3 = BigInt(0x3);
-const x400 = BigInt(0x400);
-const x5 = BigInt(0x5);
-const xff = BigInt(0xff);
-const xffffffff = BigInt(0xffffffff);
-
 const charA = 'a'.charCodeAt(0);
 const charZ = 'z'.charCodeAt(0);
 
 const upperCaseChange = charA - 'A'.charCodeAt(0);
 
+let id = 1;
 export abstract class Mpq {
+  /** Unique id of the MPQ since load */
+  id: number;
+  /** human friendly name of the MPQ */
+  name: string;
   hashTable: Map<string, MpqHashEntry>;
   blockTable: MpqBlockEntry[];
 
   /** Create a new instance of a MPQ Reader */
-  static load(file: Buffer | string): Mpq {
+  static load(file: Buffer | string, name?: string): Mpq {
     if (typeof file === 'string') return new MpqFile(file);
-    return new MpqBuffer(file);
+    return new MpqBuffer(file, name);
+  }
+  constructor(name?: string) {
+    this.id = id++;
+    this.name = name ?? `Mpq:${this.id}`;
   }
 
   abstract read(offset: number, byteCount: number): Promise<Buffer>;
@@ -71,14 +71,13 @@ export abstract class Mpq {
       hashTable.set(hashKey, entry);
     }
     this.hashTable = hashTable;
+
     return header;
   }
 
   _header: Promise<MpqHeader> | null;
   get header(): Promise<MpqHeader> {
-    if (this._header == null) {
-      this._header = this.readHeader();
-    }
+    if (this._header == null) this._header = this.readHeader();
     return this._header;
   }
 
@@ -194,44 +193,37 @@ export abstract class Mpq {
   hash(str: string, type: MpqHashType): number {
     // Allow the use of '/' as a path separator
     if (str.includes('/') && !str.includes('\\')) str = str.replace(/\//g, '\\');
-    let seed1 = BigInt(0x7fed7fed);
-    let seed2 = BigInt(0xeeeeeeee);
+    let seed1 = 0x7fed7fed;
+    let seed2 = 0xeeeeeeee;
     for (let i = 0; i < str.length; i++) {
       let ch = str.charCodeAt(i);
       // upper case lowercase characters
       if (ch >= charA && ch < charZ) ch -= upperCaseChange;
-      const value = MpqEncryptionTable.get((type << 8) + ch);
-      if (value == null) throw new Error('MPQ Unable to hash character: ' + ch);
-      seed1 = (value ^ (seed1 + seed2)) & xffffffff;
-      seed2 = (BigInt(ch) + seed1 + seed2 + (seed2 << x5) + x3) & xffffffff;
+      const value = MpqEncryptionTable[(type << 8) + ch];
+      seed1 = value ^ (seed1 + seed2);
+      seed2 = ch + seed1 + seed2 + (seed2 << 5) + 3;
     }
-    return Number(seed1);
+    return seed1 >>> 0;
   }
-
   /**
    * Decrypt MPQ data
    * @param data buffer of data needing to be decrypted
    * @param key key to use to decrypt the buffer
    */
   decrypt(data: Buffer, key: number, offset = 0, size = data.length): void {
-    let seed1 = BigInt(key);
-    let seed2 = BigInt(0xeeeeeeee);
+    let hash = key;
+    let seed = 0xeeeeeeee;
 
-    const itLen = Math.floor(size / 4);
-    for (let i = 0; i < itLen; i++) {
-      const encValue = MpqEncryptionTable.get(Number(x400 + (seed1 & xff)));
-      if (encValue == null) throw new Error('MPQ Unable to decrypt char: ' + Number(x400 + (seed1 & xff)));
-      seed2 += encValue;
-      seed2 &= xffffffff;
+    for (let i = 0; i < size; i += 4) {
+      seed += MpqEncryptionTable[0x400 + (hash & 0xff)];
+      let value = data.readUInt32LE(offset);
+      value = (value ^ (hash + seed)) >>> 0;
 
-      let bufValue = BigInt(data.readUInt32LE(offset + i * 4));
-      bufValue = (bufValue ^ (seed1 + seed2)) & xffffffff;
+      data.writeUInt32LE(value, offset);
+      offset += 4;
 
-      seed1 = ((~seed1 << x15) + x11111111) | (seed1 >> x0b);
-      seed1 &= xffffffff;
-
-      seed2 = (bufValue + seed2 + (seed2 << x5) + x3) & xffffffff;
-      data.writeUInt32LE(Number(bufValue), offset + i * 4);
+      hash = ((~hash << 0x15) + 0x11111111) | (hash >>> 0x0b);
+      seed = value + seed + (seed << 5) + 3;
     }
   }
 }
@@ -244,7 +236,7 @@ export abstract class Mpq {
 export class MpqFile extends Mpq {
   fileName: string;
   constructor(fileName: string) {
-    super();
+    super(basename(fileName));
     this.fileName = fileName;
   }
 
@@ -272,8 +264,8 @@ export class MpqFile extends Mpq {
  */
 export class MpqBuffer extends Mpq {
   buffer: Buffer;
-  constructor(buffer: Buffer) {
-    super();
+  constructor(buffer: Buffer, name?: string) {
+    super(name);
     this.buffer = buffer;
   }
 
