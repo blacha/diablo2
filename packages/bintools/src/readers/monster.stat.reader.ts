@@ -17,7 +17,7 @@ const MonsterParser = bp.object('Monster', {
 export type MonsterNode = StrutInfer<typeof MonsterParser>;
 
 export const MonsterReader = bp.object('Monsters', {
-  count: bp.variable('count', bp.lu32),
+  count: bp.lu32,
   monsters: bp.array('Monster', MonsterParser, 'count'),
 });
 
@@ -34,6 +34,6 @@ const Monster2Parser = bp.object('Monster2', {
 });
 /** MonStats2.bin */
 export const MonsterReader2 = bp.object('Monsters2', {
-  count: bp.variable('count', bp.lu32),
+  count: bp.lu32,
   monsters: bp.array('Monster', Monster2Parser, 'count'),
 });

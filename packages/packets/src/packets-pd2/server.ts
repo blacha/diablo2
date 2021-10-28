@@ -12,8 +12,8 @@ export const Unknown0x57 = Diablo2Packet.empty(0x57, 'Unknown0x57');
 
 export const Unknown0x56 = Diablo2Packet.create(0x56, 'Unknown0x56', {
   unk1: bp.skip(16),
-  packetLength: bp.variable('count', bp.u8),
-  unk2: bp.array('Unknown1', bp.u8, 'count'),
+  packetLength: bp.u8,
+  unk2: bp.array('Unknown1', bp.u8, 'packetLength'),
 });
 
 export const ServerPacketsPd2 = {

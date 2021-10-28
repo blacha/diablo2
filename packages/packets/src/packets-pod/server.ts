@@ -342,9 +342,9 @@ export const PartyMemberPulse = Diablo2Packet.create(0x90, 'PartyMemberPulse', {
   y: bp.lu32,
 });
 export const BaseSkills = Diablo2Packet.create(0x94, 'BaseSkills', {
-  amount: bp.variable('count', bp.u8),
+  amount: bp.u8,
   unitId: bp.lu32,
-  skills: bp.array('Skills', bp.object('SkillLevels', { skill: bp.lu16, level: bp.u8 }), 'count', false),
+  skills: bp.array('Skills', bp.object('SkillLevels', { skill: bp.lu16, level: bp.u8 }), 'amount', false),
 });
 export const PlayerWeaponSwitch = Diablo2Packet.empty(0x97, 'PlayerWeaponSwitch');
 export const SkillTriggered = Diablo2Packet.create(0x99, 'SkillTriggered', { unk1: bp.skip(15) });
@@ -374,9 +374,9 @@ export const StateDelayed = Diablo2Packet.create(0xa7, 'StateDelayed', {
 export const StateSet = Diablo2Packet.create(0xa8, 'StateSet', {
   unitType: bp.u8,
   unitId: bp.lu32,
-  packetLength: bp.variable('count', bp.u8),
+  packetLength: bp.u8,
   state: bp.u8,
-  stateEffects: bp.array('StateEffects', bp.u8, 'count', true),
+  stateEffects: bp.array('StateEffects', bp.u8, 'packetLength', true),
 });
 export const StateEnd = Diablo2Packet.create(0xa9, 'StateEnd', {
   unitType: bp.u8,
@@ -389,8 +389,8 @@ export const StateEnd = Diablo2Packet.create(0xa9, 'StateEnd', {
 export const StateAdd = Diablo2Packet.create(0xaa, 'StateAdd', {
   unitType: bp.u8,
   unitId: bp.lu32,
-  packetLength: bp.variable('count', bp.u8),
-  stateEffects: bp.array('StateEffects', bp.u8, 'count', true),
+  packetLength: bp.u8,
+  stateEffects: bp.array('StateEffects', bp.u8, 'packetLength', true),
 });
 
 export const NpcHeal = Diablo2Packet.create(0xab, 'NpcHeal', { unitType: bp.u8, unitId: bp.lu32, unitLife: bp.u8 });
