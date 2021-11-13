@@ -3066,9 +3066,9 @@ ignore@^5.1.4, ignore@^5.1.8:
   integrity sha512-BMpfD7PpiETpBl/A6S498BaIJ6Y/ABT93ETbby2fP00v4EbvPBXWEoaR1UBPKs3iR53pJY7EtZk5KACI57i1Uw==
 
 implode-decoder@^1.0.1:
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/implode-decoder/-/implode-decoder-1.0.1.tgz#6b10d1db3eb54e26d5b9fd95fabce603c94c18af"
-  integrity sha1-axDR2z61TibVuf2V+rzmA8lMGK8=
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/implode-decoder/-/implode-decoder-1.0.2.tgz#0d956b151b77a81f22cd68dd3e67788440554726"
+  integrity sha512-Cqkx+E+nfT84AtvKgSbBL0n+2k/diyXJASvoCLyowZ3NC8s6sgTsE5h0qzUgZkCohWawBD0qFL7xF6rcHZSfMw==
   dependencies:
     inherits "^2.0.1"
 
