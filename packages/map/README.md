@@ -184,29 +184,6 @@ http://localhost:8899/v1/map/0xff00ff/Hell/23.png
 The server can control multiple map processes, when starting the server the `$DIABLO2_CLUSTER_SIZE` environment variable controls how many map processes to start.
 
 
-### Troubleshooting:
-
-* `/bin/sh: 1: ./build.mapgen.sh: not found`
- 
-I had this issue and I suspect it was windows removing the 'executable' permissions from this bash script.
-I worked around it by making this change to the `Dockerfile`:
-
-Replaced the line
-```
-RUN ./build.mapgen.sh
-```
-with (the contents of build.mapgen.sh)
-```
-RUN mkdir bin -p
-RUN i686-w64-mingw32-g++ -o bin/d2-map.exe \
-    -Wno-write-strings \
-    -static-libgcc -static-libstdc++ \
-    map/json.c map/map.c map/offset.c map/d2_client.c map/main.c 
-RUN echo $(date --iso-8601=seconds) "Build done"
-```  
-
-
-
 ## Fixing offsets
 
 When the diablo 2game client update the offsets need to call change

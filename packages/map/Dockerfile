@@ -17,7 +17,7 @@ ENV GIT_VERSION ${GIT_VERSION}
 ARG GIT_HASH
 ENV GIT_HASH ${GIT_HASH}
 
-RUN ./build.mapgen.sh
+RUN bash build.mapgen.sh
 
 # Make a run environment with nodejs and wine
 FROM tianon/wine:5
