@@ -11,8 +11,9 @@ export class MapImageRoute implements Route {
   async process(req: Request): Promise<Buffer> {
     const { seed, difficulty, level } = await MapImageRoute.validateParams(req);
     const act = ActUtil.fromLevel(level);
+
     const maps = await MapCluster.map(seed, difficulty, act, req.log);
-    const zone = maps[level];
+    const zone = maps.find((f) => f.id === level);
     if (zone == null) throw new HttpError(422, 'Invalid level');
 
     const canvas = NodeCanvas.createCanvas(zone.size.width, zone.size.height + 32);
