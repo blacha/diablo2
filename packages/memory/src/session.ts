@@ -1,5 +1,5 @@
 import { Diablo2State } from '@diablo2/core';
-import { Attribute } from '@diablo2/data';
+import { Attribute, Diablo2Mpq, UnitType } from '@diablo2/data';
 import { bp } from 'binparse';
 import { Diablo2Process } from './d2.js';
 import { Diablo2Player } from './d2.player.js';
@@ -34,6 +34,7 @@ export class Diablo2GameSessionMemory {
         if (player == null) continue;
 
         await this.updateState(player, logger);
+        this.state.player.name = this.playerName;
         await sleep(this.tickSpeed);
         errorCount = 0;
       } catch (err) {
@@ -97,9 +98,55 @@ export class Diablo2GameSessionMemory {
       this.state.trackXp(xp, true);
     }
 
+    // Track Npcs
+    const units = await obj.getNearBy(path, logger);
+    // console.log({ units });
+    for (const unit of units.values()) {
+      if (unit.type.id === UnitType.NPC) {
+        const monName = Diablo2Mpq.monsters.name(unit.txtFileNo);
+        if (monName == null) continue;
+        if (monName.includes('evil force')) continue;
+        const stats = await obj.loadStats(unit, logger);
+
+        const lifeCurrent = stats.get(Attribute.Life);
+        const lifeMax = stats.get(Attribute.LifeMax);
+
+        let lifePercent = 0;
+        if (lifeCurrent && lifeMax) {
+          lifePercent = (lifeCurrent / lifeMax) * 100;
+        }
+
+        if (isNaN(lifePercent) || lifePercent === 0) {
+          if (this.state.units.delete(unit.unitId)) this.state.dirty();
+          continue;
+        }
+
+        const loc = await unit.pPath.fetch(this.d2.process);
+        if (this.state.units.has(unit.unitId)) {
+          this.state.moveNpc(unit.unitId, loc.x, loc.y, lifePercent);
+        } else {
+          this.state.trackNpc({
+            id: unit.unitId,
+            type: 'npc',
+            name: monName,
+            x: loc.x,
+            y: loc.y,
+            code: unit.txtFileNo,
+            life: lifePercent,
+            flags: {},
+            enchants: [],
+            updatedAt: Date.now(),
+          });
+        }
+      }
+      // Noop
+    }
+
     const duration = Number(process.hrtime.bigint() - startTime) / 1_000_000;
 
     if (duration > 10) logger.warn({ duration }, 'Update:Tick:Slow');
+    else if (duration > 5) logger.info({ duration }, 'Update:Tick:Slow');
     else logger.trace({ duration }, 'Update:Tick');
+    // console.log(this.state.units.size);
   }
 }

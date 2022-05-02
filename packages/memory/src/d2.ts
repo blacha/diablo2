@@ -44,6 +44,15 @@ export class Diablo2Process {
   async scanForPlayer(playerName: string, logger: LogType): Promise<Diablo2Player | null> {
     if (this.lastOffset.name > 0) {
       logger.info({ lastGoodAddress: this.lastOffset }, 'Offsets:Previous');
+
+      try {
+        const unit = await this.readStrutAt(this.lastOffset.player, D2rUnitAnyStrut);
+        if (Pointer.isPointersValid(unit) != 0) {
+          return new Diablo2Player(this, this.lastOffset.player);
+        }
+      } catch (e) {
+        console.log('Cache:Failed', { e });
+      }
     }
 
     for await (const mem of this.process.scanDistance(this.lastOffset.name)) {
@@ -81,6 +90,7 @@ export class Diablo2Process {
               },
               'Player:Offset:Pointer',
             );
+            console.log(unit);
 
             if (Pointer.isPointersValid(unit) === 0) continue;
             logger.info(

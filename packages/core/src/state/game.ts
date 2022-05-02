@@ -2,6 +2,7 @@ import { Logger } from '@diablo2/bintools';
 import { Difficulty } from '@diablo2/data';
 import { Diablo2ParsedPacket } from '@diablo2/packets';
 import * as GameJson from '@diablo2/state';
+import { NpcMove } from 'packages/packets/src/packets-pod/server';
 
 type OnCloseEvent = (game: Diablo2State) => void;
 const MaxAgeMs = 5 * 60_000;
@@ -184,7 +185,7 @@ export class Diablo2State {
     }
   }
 
-  moveNpc(pkt: Diablo2ParsedPacket<unknown>, id: number, x: number, y: number, life = -1): void {
+  moveNpc(id: number, x: number, y: number, life = -1): void {
     if (x === 0 || y === 0) return;
     let unit = this.units.get(id);
 
@@ -255,7 +256,7 @@ export class Diablo2State {
       player: this.player,
       map: this.map,
       objects: [...this.objects.values()],
-      units: [...this.units.values()],
+      units: [...this.units.values()].sort((a, b) => a.id - b.id),
       items: [...this.items.values()].sort(latestUpdated).slice(0, 25),
       kills: [...this.kills.values()],
     };

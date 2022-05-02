@@ -191,3 +191,16 @@ MapLayers.set('player', {
   },
   filter: ['==', 'type', 'player'],
 });
+
+MapLayers.set('npc', {
+  source: 'game-state',
+  type: 'circle',
+  paint: {
+    'circle-radius': 5,
+    'circle-color': '#ff00ff',
+    'circle-stroke-color': '#023047',
+    'circle-stroke-width': 1,
+    'circle-opacity': 0.87,
+  },
+  filter: ['==', 'type', 'npc'],
+});

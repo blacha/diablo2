@@ -1,11 +1,20 @@
-import { Attribute, Difficulty, toHex } from '@diablo2/data';
+import { Attribute, Difficulty, toHex, UnitType } from '@diablo2/data';
 import { Diablo2Process } from './d2.js';
 import { Pointer } from './index.js';
 import { LogType } from './logger.js';
 // import { UnitPlayer } from './structures.js';
 import { ActS, D2rActMiscStrut, D2rActStrut, D2rStatListStrut, D2rStatStrut } from './struts/d2r.js';
 import { D2rPathStrut, PathS } from './struts/d2r.path.js';
-import { D2rUnitAnyStrut, UnitAnyS } from './struts/d2r.unit.any.js';
+import { D2rRoomStrut, RoomPointer, RoomS } from './struts/d2r.room.js';
+import { D2rUnitAnyStrut, PointerUnitAny, UnitAnyS } from './struts/d2r.unit.any.js';
+
+function isValidPointer(p: number): boolean {
+  if (p < 0x00110000) return false;
+  if (p > 0x7fffffff0000) return false;
+  return true;
+}
+
+const TrackUnitTypes = new Set([UnitType.Item, UnitType.NPC]);
 
 export class Diablo2Player {
   d2: Diablo2Process;
@@ -77,5 +86,39 @@ export class Diablo2Player {
 
     const actMisc = await this.d2.readStrutAt(act.pActMisc.offset, D2rActMiscStrut);
     return actMisc.difficulty;
+  }
+
+  async getRooms(path: PathS, logger: LogType): Promise<RoomS[]> {
+    const rooms: RoomS[] = [];
+    const firstRoom = await path.pRoom.fetch(this.d2.process);
+    const roomCount = firstRoom.roomNearCount > 9 ? 9 : firstRoom.roomNearCount;
+
+    for (let i = 0; i < roomCount; i++) {
+      // console.log('Room', toHex(firstRoom.pRoomNear.offset + i * 8));
+      const ptr = await this.d2.readStrutAt(firstRoom.pRoomNear.offset + i * 8, RoomPointer);
+      const nextRoom = await ptr.fetch(this.d2.process);
+      rooms.push(nextRoom);
+    }
+    logger.trace({ roomCount: rooms.length }, 'Player:Room:Load');
+    return rooms;
+  }
+
+  async getNearBy(path: PathS, logger: LogType): Promise<Map<number, UnitAnyS>> {
+    const objs = new Map<number, UnitAnyS>();
+
+    const rooms = await this.getRooms(path, logger);
+
+    for (const r of rooms) {
+      if (!r.pUnitFirst.isValid) continue;
+      let currentUnit = await this.d2.readStrutAt(r.pUnitFirst.offset, D2rUnitAnyStrut);
+      if (TrackUnitTypes.has(currentUnit.type.id)) objs.set(currentUnit.unitId, currentUnit);
+
+      while (isValidPointer(currentUnit.pRoomNext)) {
+        currentUnit = await this.d2.readStrutAt(currentUnit.pRoomNext, D2rUnitAnyStrut);
+        if (TrackUnitTypes.has(currentUnit.type.id)) objs.set(currentUnit.unitId, currentUnit);
+      }
+    }
+
+    return objs;
   }
 }

@@ -1,33 +1,29 @@
+import { UnitType } from '@diablo2/data';
 import { bp, StrutInfer } from 'binparse';
-import { D2rPlayerDataStrut, D2rActStrut, D2rStatListStrut } from './d2r.js';
+import { D2rActStrut, D2rPlayerDataStrut, D2rStatListStrut } from './d2r.js';
 import { D2rPathStrut } from './d2r.path.js';
 import { Pointer } from './pointer.js';
 
+const { lu32, at, u8, lu64 } = bp;
+
 export const D2rUnitAnyStrut = bp.object('D2rUnitAny', {
-  type: bp.lu32, //  0x00
-  txtFileNo: bp.lu32, // 0x04
-  unitId: bp.lu32, // 0x08
-  mode: bp.lu32, // 0x0c
-  /** Pointer to PlayerStrut */
-  pData: new Pointer(D2rPlayerDataStrut), //0x10
-  actId: bp.lu32, // 0x18
-  // New??
-  unk1: bp.lu32, // 0x1c
-  /** Pointer to Act */
-  pAct: new Pointer(D2rActStrut), // 0x20
-  seedA: bp.lu32, // 0x28
-  seedB: bp.lu32, // 0x2c
-  unk2: bp.array('Unk2', new Pointer(bp.lu32), 1), // 0x30
-  pPath: new Pointer(D2rPathStrut), // 0x38
-  unk3: bp.skip(40), // x040
-  unk4: bp.array('Unk4', new Pointer(bp.lu32), 4), // 0x068
+  type: lu32.refine((r) => ({ id: r, type: UnitType[r] })), //  0x00
+  txtFileNo: lu32, // 0x04
+  unitId: lu32, // 0x08
+  mode: lu32, // 0x0c
+  pData: at(0x10, new Pointer(D2rPlayerDataStrut)),
+  actId: at(0x18, bp.lu32),
+  pAct: at(0x20, new Pointer(D2rActStrut)),
+  pPath: at(0x38, new Pointer(D2rPathStrut)),
+  pStats: at(0x88, new Pointer(D2rStatListStrut)),
+  pNext: at(0x150, lu64),
+  pRoomNext: at(0x158, lu64), // pointer to self
 
-  pStats: new Pointer(D2rStatListStrut), // 0x88
-
-  unk5: bp.array('Unk5', new Pointer(bp.lu32), 25 /* 25 */),
-  // pSomething: new Pointer(D2rUnk),
-
-  // nextUnit: bp.lu64, // 0x158
+  playerClass: at(0x174, bp.u8),
 });
+
+D2rUnitAnyStrut.setSize(0x174);
+
+export const PointerUnitAny = new Pointer(D2rUnitAnyStrut);
 
 export type UnitAnyS = StrutInfer<typeof D2rUnitAnyStrut>;

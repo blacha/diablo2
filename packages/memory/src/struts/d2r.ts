@@ -20,28 +20,30 @@ export type ActMiscS = StrutInfer<typeof D2rActMiscStrut>;
 
 export const D2rActStrut = bp.object('Act', {
   // mapSeed: at(0x1c, lu32), // This has been moved
+  // unk1: at(0x08, new Pointer(bp.u8)),
   actId: at(0x28, lu32),
-  pActMisc: at(0x78, new Pointer(lu32)), // this is wrong
+  pActMisc: at(0x78, new Pointer(D2rActMiscStrut)), // this is wrong
 });
 D2rActStrut.setSize(0x80);
 export type ActS = StrutInfer<typeof D2rActStrut>;
 
 export const D2rPlayerDataStrut = bp.object('D2rPlayerData', {
   name: bp.string(0x40), // 0x00
-  questNormal: new Pointer(D2rQuestData), // 0x10
-  questNightmare: new Pointer(D2rQuestData), // 0x18
-  questHell: new Pointer(D2rQuestData), // 0x20
-  wpNormal: new Pointer(D2rWaypointData), // 0x28
-  wpNightmare: new Pointer(D2rWaypointData), // 0x30
-  wpHell: new Pointer(D2rWaypointData), // 0x38
+  questNormal: new Pointer(D2rQuestData), // 0x40
+  questNightmare: new Pointer(D2rQuestData), // 0x48
+  questHell: new Pointer(D2rQuestData), // 0x50
+  wpNormal: new Pointer(D2rWaypointData), // 0x58
+  wpNightmare: new Pointer(D2rWaypointData), // 0x60
+  wpHell: new Pointer(D2rWaypointData), // 0x68
   unk1: bp.skip(0x68 - (0x38 + 8)),
   arenaUnit: new Pointer(D2rArenaUnit), // 0x68
   unk2: bp.skip(0xc0 - (0x68 + 8)),
   playerTrade: new Pointer(D2rPlayerTrade), // 0xc0
-  unk3: bp.skip(0x1d0 - (0xc0 + 8)),
+  // unk3: bp.skip(0x1d0 - (0xc0 + 8)),
   // unk3: bp.skip(0x268 - (0xc0 + 8)),
-  client: new Pointer(D2rClient),
+  // client: at(0x208, new Pointer(D2rClient)),
 });
+D2rPlayerDataStrut.setSize(0x270);
 
 export const D2rUnk = bp.object('D2rUnk', {});
 
@@ -53,12 +55,11 @@ export const D2rStatStrut = bp.object('D2StatStrut', {
 export type StatS = StrutInfer<typeof D2rStatStrut>;
 
 export const D2rStatListStrut = bp.object('D2StatListStrut', {
-  unk1: bp.array('unk1', new Pointer(bp.u8), 3), // 3 * 8 = 24
-  unk2: bp.array('unk2', bp.lu32, 6), // 4 * 4 = 24
-  pStats: new Pointer(D2rStatStrut),
+  pStats: at(0x30, new Pointer(D2rStatStrut)),
   count: bp.lu16,
   countB: bp.lu16,
 });
+D2rStatListStrut.setSize(0x3c);
 export type StatListS = StrutInfer<typeof D2rStatListStrut>;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
