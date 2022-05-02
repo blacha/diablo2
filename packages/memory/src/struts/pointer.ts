@@ -31,7 +31,7 @@ export class PointerResult<T extends StrutAny> {
 }
 
 export class Pointer<T extends StrutAny> extends StrutBase<PointerResult<T>> {
-  static type = bp.lu32;
+  static type = bp.lu64; // Default to 64bit pointers
   target: T;
 
   constructor(target: T) {

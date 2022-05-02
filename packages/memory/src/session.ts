@@ -1,5 +1,6 @@
 import { Diablo2State } from '@diablo2/core';
 import { Attribute } from '@diablo2/data';
+import { bp } from 'binparse';
 import { Diablo2Process } from './d2.js';
 import { Diablo2Player } from './d2.player.js';
 import { id, Log, LogType } from './logger.js';
@@ -15,6 +16,8 @@ export class Diablo2GameSessionMemory {
   /** Delay to wait between ticks */
   tickSpeed = 250;
 
+  mapSeed: number;
+
   constructor(proc: Diablo2Process, playerName: string) {
     this.d2 = proc;
     this.playerName = playerName;
@@ -22,7 +25,7 @@ export class Diablo2GameSessionMemory {
   }
 
   async start(logger: LogType): Promise<void> {
-    logger.info({ pid: this.d2.process.pid }, 'Session:Start');
+    logger.info({ d2Proc: this.d2.process.pid, player: this.playerName }, 'Session:Start');
 
     let errorCount = 0;
     while (true) {
@@ -34,7 +37,7 @@ export class Diablo2GameSessionMemory {
         await sleep(this.tickSpeed);
         errorCount = 0;
       } catch (err) {
-        logger.error({ pid: this.d2.process.pid, err }, 'Session:Error');
+        logger.error({ d2Proc: this.d2.process.pid, err }, 'Session:Error');
         errorCount++;
         await sleep(this.tickSpeed * errorCount);
         if (errorCount > 5) break;
@@ -50,7 +53,7 @@ export class Diablo2GameSessionMemory {
     this.player = null;
     let backOff = 0;
     while (true) {
-      logger.info({ pid: this.d2.process.pid }, 'Session:WaitForPlayer');
+      logger.info({ d2Proc: this.d2.process.pid, player: this.playerName }, 'Session:WaitForPlayer');
 
       await sleep(Math.min(backOff * 500, 5_000));
       backOff++;
@@ -62,18 +65,20 @@ export class Diablo2GameSessionMemory {
   }
 
   async updateState(obj: Diablo2Player, logger: LogType): Promise<void> {
-    const startTime = Date.now();
+    const startTime = process.hrtime.bigint();
     const player = await obj.validate(logger);
     // Player object is no longer validate assume game has exited
     if (player == null) return;
 
     const path = await obj.getPath(player, logger);
     const act = await obj.getAct(player, logger);
+
+    const mapSeed = await obj.d2.readStrutAt(this.mapSeed, bp.lu32);
     this.state.map.act = player.actId;
 
     // Track map information
-    if (act.mapSeed !== this.state.map.id) {
-      this.state.map.id = act.mapSeed;
+    if (mapSeed !== this.state.map.id) {
+      this.state.map.id = mapSeed;
       this.state.map.difficulty = await obj.getDifficulty(act, logger);
       this.state.log.info({ map: this.state.map }, 'MapSeed:Changed');
     }
@@ -92,9 +97,9 @@ export class Diablo2GameSessionMemory {
       this.state.trackXp(xp, true);
     }
 
-    const duration = Date.now() - startTime;
+    const duration = Number(process.hrtime.bigint() - startTime) / 1_000_000;
 
-    if (duration > 100) logger.warn({ duration }, 'Update:Tick');
+    if (duration > 10) logger.warn({ duration }, 'Update:Tick:Slow');
     else logger.trace({ duration }, 'Update:Tick');
   }
 }
