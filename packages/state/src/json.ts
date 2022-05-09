@@ -1,4 +1,4 @@
-import { Act, Difficulty, ItemCategory, ItemQuality, NpcEnchant, NpcFlags, NpcResists } from '@diablo2/data';
+import { Act, Difficulty, ItemQuality, NpcEnchant, NpcFlags, NpcResists } from '@diablo2/data';
 
 export interface Diablo2GameStateJson {
   id: string;

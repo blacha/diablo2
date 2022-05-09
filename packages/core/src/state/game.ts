@@ -113,7 +113,7 @@ export class Diablo2State {
     if (xp.current === -1 || isSet) xp.current = num;
     else xp.current += num;
     if (xp.start === -1) xp.start = xp.current;
-    if (startXp == xp.current) return;
+    if (startXp === xp.current) return;
 
     xp.diff = xp.current - xp.start;
     this.dirty();

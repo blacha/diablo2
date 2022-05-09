@@ -1,4 +1,3 @@
-import { ItemQuality } from '@diablo2/data';
 import { bp, StrutInfer } from 'binparse';
 import { D2rActStrut } from './d2r.act.js';
 import { D2rArenaUnit, D2rPlayerTrade, D2rQuestData, D2rStatListStrut, D2rWaypointData } from './d2r.js';
