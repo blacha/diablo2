@@ -110,13 +110,12 @@ export class Diablo2GameSession {
           this.log.warn({ code: pkt.code, x: pkt.x, y: pkt.y, item: pkt.name, action: pkt.action.name }, 'ItemDropped');
 
           const trackItem: Diablo2ItemJson = {
+            type: 'item',
             id: pkt.id,
             code: pkt.code,
             x: pkt.x,
             y: pkt.y,
-            category: pkt.category,
             quality: pkt.quality,
-            level: pkt.level,
             updatedAt: Date.now(),
             name: pkt.name ?? 'Unknown',
           };
@@ -126,17 +125,17 @@ export class Diablo2GameSession {
     });
 
     // Handle NPC Movement
-    this.parser.on(server.NpcMove, (pkt) => this.state.moveNpc(pkt, pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(server.NpcAttack, (pkt) => this.state.moveNpc(pkt, pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(server.NpcMoveToTarget, (pkt) => this.state.moveNpc(pkt, pkt.unitId, pkt.x, pkt.y));
-    this.parser.on(server.NpcStop, (pkt) => this.state.moveNpc(pkt, pkt.unitId, pkt.x, pkt.y, pkt.life));
+    this.parser.on(server.NpcMove, (pkt) => this.state.moveNpc(pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.NpcAttack, (pkt) => this.state.moveNpc(pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.NpcMoveToTarget, (pkt) => this.state.moveNpc(pkt.unitId, pkt.x, pkt.y));
+    this.parser.on(server.NpcStop, (pkt) => this.state.moveNpc(pkt.unitId, pkt.x, pkt.y, pkt.life));
 
     this.parser.on(server.NpcUpdate, (pkt) => {
       // TODO why are state 8 & 9 = dead?
       if (pkt.state === 0x09 || pkt.state === 0x08) pkt.life = 0;
 
       // console.log('NpcUpdate', pkt.unitId, pkt.unitLife);
-      this.state.moveNpc(pkt, pkt.unitId, pkt.x, pkt.y, pkt.life);
+      this.state.moveNpc(pkt.unitId, pkt.x, pkt.y, pkt.life);
     });
 
     // this.parser.on(server.NpcAction, (pkt) => {
@@ -158,7 +157,7 @@ export class Diablo2GameSession {
         x: pkt.x,
         y: pkt.y,
         code: pkt.code,
-        flags: pkt.flags ?? {},
+        isNormal: true,
         updatedAt: Date.now(),
         enchants: pkt.enchants ?? [],
       });

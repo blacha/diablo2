@@ -18,7 +18,7 @@
     "test": "ospec --globs 'build/**/*.test.js'"
   },
   "dependencies": {
-    "binparse": "^2.0.1",
+    "binparse": "^2.1.0",
     "implode-decoder": "^1.0.1"
   },
   "publishConfig": {

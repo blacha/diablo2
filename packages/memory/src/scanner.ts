@@ -33,7 +33,7 @@ export const Scanner = {
 
   async *pointerNear(proc: Process, num: number, range: number): AsyncGenerator<number> {
     const minRange = num - range;
-    const maxRange = num + range;
+    const maxRange = num;
     for await (const { buffer, map } of proc.scan()) {
       for (let i = 0; i < buffer.length - 3; i++) {
         if (buffer[i + 4] !== 0) continue;

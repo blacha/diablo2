@@ -7,6 +7,7 @@ export interface Diablo2Item {
 
 export class Diablo2MpqItem {
   byCode: Map<string, Diablo2Item> = new Map();
+  byIndex: Diablo2Item[] = [];
   mpq: Diablo2MpqData;
 
   constructor(mpq: Diablo2MpqData) {
@@ -15,5 +16,6 @@ export class Diablo2MpqItem {
 
   add(item: Diablo2Item): void {
     this.byCode.set(item.code, item);
+    this.byIndex.push(item);
   }
 }

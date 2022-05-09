@@ -138,31 +138,10 @@ export class Diablo2MapViewer {
   };
 
   lastUrl: string | null;
-  update(): void {
-    this.updateUrl();
-    this.updateDom();
 
+  updateMapStyles(): void {
     const state = this.ctx.state;
     const map = state.map;
-
-    // State Update
-    if (state.player.x > 0) {
-      const { lng, lat } = LevelBounds.sourceToLatLng(state.player.x, state.player.y);
-      if (this.centerOnPlayer) {
-        this.map.setCenter([lng, lat]);
-        if (this.stateZoom) this.map.setZoom(this.stateZoom); // TODO configure?
-      }
-      const geojson: GeoJSON.Feature = {
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: [lng, lat] },
-        properties: state.player,
-      };
-
-      const playerSource = this.map.getSource('game-state');
-      if (playerSource == null) this.map.addSource('player', { type: 'geojson', data: toFeatureCollection([geojson]) });
-      else playerSource.setData(toFeatureCollection([geojson]));
-    }
-
     const d2Url = `${toHex(map.id, 8)}/${Difficulty[map.difficulty]}/${Act[map.act]}/{z}/{x}/{y}/${this.color}`;
 
     if (this.lastUrl === d2Url) return;
@@ -188,6 +167,54 @@ export class Diablo2MapViewer {
       layer.id = layerId;
       layer.name = layerId;
       this.map.addLayer(layer);
+    }
+  }
+  update(): void {
+    // console.log('Diablo2MapViewer.update()');
+    this.updateUrl();
+    this.updateDom();
+    this.updateMapStyles();
+
+    const state = this.ctx.state;
+
+    // State Update
+    if (state.player.x > 0) {
+      const { lng, lat } = LevelBounds.sourceToLatLng(state.player.x, state.player.y);
+      if (this.centerOnPlayer) {
+        this.map.setCenter([lng, lat]);
+        if (this.stateZoom) this.map.setZoom(this.stateZoom); // TODO configure?
+      }
+      const playerJson: GeoJSON.Feature = {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [lng, lat] },
+        properties: state.player,
+      };
+
+      const features = [playerJson];
+      for (const unit of state.units) {
+        const { lng, lat } = LevelBounds.sourceToLatLng(unit.x, unit.y);
+
+        const unitJson: GeoJSON.Feature = {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [lng, lat] },
+          properties: unit,
+        };
+        features.push(unitJson);
+      }
+
+      for (const item of state.items) {
+        const { lng, lat } = LevelBounds.sourceToLatLng(item.x, item.y);
+        const itemJson: GeoJSON.Feature = {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [lng, lat] },
+          properties: item,
+        };
+        features.push(itemJson);
+      }
+      const playerSource = this.map.getSource('game-state');
+      if (playerSource == null) {
+        this.map.addSource('game-state', { type: 'geojson', data: toFeatureCollection(features) });
+      } else playerSource.setData(toFeatureCollection(features));
     }
   }
 

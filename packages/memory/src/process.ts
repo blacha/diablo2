@@ -24,6 +24,7 @@ export class Process {
   /** Find a pid from a process name */
   static async findPidByName(name: string): Promise<number | null> {
     const files = await fs.readdir('/proc');
+
     for (const file of files) {
       const pid = Number(file);
       if (isNaN(pid)) continue;
