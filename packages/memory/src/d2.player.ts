@@ -2,11 +2,11 @@ import { Attribute, Difficulty, toHex, UnitType } from '@diablo2/data';
 import { Diablo2Process } from './d2.js';
 import { Pointer } from './index.js';
 import { LogType } from './logger.js';
-// import { UnitPlayer } from './structures.js';
-import { ActS, D2rActMiscStrut, D2rActStrut, D2rStatListStrut, D2rStatStrut } from './struts/d2r.js';
+import { ActS, D2rActStrut, D2rActMiscStrut } from './struts/d2r.act.js';
+import { D2rStatListStrut, D2rStatStrut } from './struts/d2r.js';
 import { D2rPathStrut, PathS } from './struts/d2r.path.js';
-import { D2rRoomStrut, RoomPointer, RoomS } from './struts/d2r.room.js';
-import { D2rUnitAnyStrut, PointerUnitAny, UnitAnyS } from './struts/d2r.unit.any.js';
+import { RoomPointer, RoomS } from './struts/d2r.room.js';
+import { D2rUnitStrut, UnitAnyS } from './struts/d2r.unit.any.js';
 
 function isValidPointer(p: number): boolean {
   if (p < 0x00110000) return false;
@@ -43,18 +43,25 @@ export class Diablo2Player {
   }
 
   get player(): Promise<UnitAnyS> {
-    return this.d2.readStrutAt(this.offset, D2rUnitAnyStrut);
+    return this.d2.readStrutAt(this.offset, D2rUnitStrut);
   }
 
   getStats(player: UnitAnyS, logger: LogType): Promise<Map<Attribute, number>> {
     return this.loadStats(player, logger);
   }
 
-  async loadStats(player: UnitAnyS, logger: LogType): Promise<Map<Attribute, number>> {
-    if (!player.pStats.isValid) logger.error({ offset: toHex(player.pStats.offset) }, 'Player:OffsetInvalid:Stats');
+  async loadStats(unit: UnitAnyS, logger: LogType, logError = true): Promise<Map<Attribute, number>> {
+    if (!unit.pStats.isValid) {
+      if (logError) logger.error({ offset: toHex(unit.pStats.offset) }, 'Unit:OffsetInvalid:Stats');
+      return new Map();
+    }
     const stats = new Map<Attribute, number>();
 
-    const statList = await this.d2.readStrutAt(player.pStats.offset, D2rStatListStrut);
+    const statList = await this.d2.readStrutAt(unit.pStats.offset, D2rStatListStrut);
+    if (!statList.pStats.isValid) {
+      if (logError) logger.error({ offset: toHex(unit.pStats.offset) }, 'Unit:OffsetInvalid:StatList');
+      return new Map();
+    }
     const buf = await this.d2.process.read(statList.pStats.offset, D2rStatStrut.size * statList.count);
 
     for (let i = 0; i < statList.count; i++) {
@@ -110,12 +117,12 @@ export class Diablo2Player {
 
     for (const r of rooms) {
       if (!r.pUnitFirst.isValid) continue;
-      let currentUnit = await this.d2.readStrutAt(r.pUnitFirst.offset, D2rUnitAnyStrut);
-      if (TrackUnitTypes.has(currentUnit.type.id)) objs.set(currentUnit.unitId, currentUnit);
+      let currentUnit = await this.d2.readStrutAt(r.pUnitFirst.offset, D2rUnitStrut);
+      if (TrackUnitTypes.has(currentUnit.type)) objs.set(currentUnit.unitId, currentUnit);
 
       while (isValidPointer(currentUnit.pRoomNext)) {
-        currentUnit = await this.d2.readStrutAt(currentUnit.pRoomNext, D2rUnitAnyStrut);
-        if (TrackUnitTypes.has(currentUnit.type.id)) objs.set(currentUnit.unitId, currentUnit);
+        currentUnit = await this.d2.readStrutAt(currentUnit.pRoomNext, D2rUnitStrut);
+        if (TrackUnitTypes.has(currentUnit.type)) objs.set(currentUnit.unitId, currentUnit);
       }
     }
 

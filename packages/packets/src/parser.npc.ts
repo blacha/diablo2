@@ -3,7 +3,7 @@ import { BitStream, bp, StrutBase, StrutParserContext, toHex } from 'binparse';
 
 const NpcEnchantsIgnore = new Set([NpcEnchant.RandomName, NpcEnchant.None, NpcEnchant.Quest, NpcEnchant.Ai]);
 
-export interface NpcInfo {
+export interface NpcInfo extends NpcFlags {
   unitId: number;
   /** NpcId */
   code: number;
@@ -14,7 +14,6 @@ export interface NpcInfo {
 
   /** Name of monster */
   name: string;
-  flags?: NpcFlags;
   enchants?: { id: NpcEnchant; name: keyof typeof NpcEnchant }[];
 
   /** Was the NPC parsed successfully */
@@ -81,23 +80,22 @@ export class DataTypeNpc extends StrutBase<NpcInfo> {
       }
     }
 
-    const flags: NpcFlags = {};
-    npc.flags = flags;
+    npc.isNormal = true;
     if (br.bool()) {
-      if (br.bool()) flags.isChampion = true;
-      if (br.bool()) flags.isUnique = true;
-      if (br.bool()) flags.isSuperUnique = true;
-      if (br.bool()) flags.isMinion = true;
-      if (br.bool()) flags.isGhostly = true;
+      npc.isNormal = false;
+      if (br.bool()) npc.isChampion = true;
+      if (br.bool()) npc.isUnique = true;
+      if (br.bool()) npc.isSuperUnique = true;
+      if (br.bool()) npc.isMinion = true;
+      if (br.bool()) npc.isGhostly = true;
     }
 
-    if (flags.isSuperUnique) {
+    if (npc.isSuperUnique) {
       const superUniqueId = br.bits(16);
       npc.name = Diablo2Mpq.monsters.superUniqueName(superUniqueId);
     }
-    if (Object.keys(flags).length === 0) delete npc.flags;
 
-    if (npc.flags?.isSuperUnique || npc.flags?.isUnique) {
+    if (npc.isSuperUnique || npc.isUnique) {
       while (br.offset + 8 < br.maxOffset - 16) {
         const enchant = br.bits(8);
 

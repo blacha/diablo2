@@ -2,7 +2,6 @@ import { Logger } from '@diablo2/bintools';
 import { Difficulty } from '@diablo2/data';
 import { Diablo2ParsedPacket } from '@diablo2/packets';
 import * as GameJson from '@diablo2/state';
-import { NpcMove } from 'packages/packets/src/packets-pod/server';
 
 type OnCloseEvent = (game: Diablo2State) => void;
 const MaxAgeMs = 5 * 60_000;
@@ -110,9 +109,11 @@ export class Diablo2State {
 
   trackXp(num: number, isSet = false): void {
     const xp = this.player.xp;
+    const startXp = xp.current;
     if (xp.current === -1 || isSet) xp.current = num;
     else xp.current += num;
     if (xp.start === -1) xp.start = xp.current;
+    if (startXp == xp.current) return;
 
     xp.diff = xp.current - xp.start;
     this.dirty();
@@ -160,6 +161,7 @@ export class Diablo2State {
 
   trackKill(u: GameJson.Diablo2NpcJson): void {
     if (u.code === -1) return;
+    if (u.type !== 'npc') return;
     let kill = this.kills.get(u.code);
     if (kill == null) {
       kill = {
@@ -170,11 +172,11 @@ export class Diablo2State {
       this.kills.set(u.code, kill);
     }
     kill.total += 1;
-    if (u.flags.isMinion) kill.isMinion = (kill.isMinion || 0) + 1;
-    if (u.flags.isChampion) kill.isChampion = (kill.isChampion || 0) + 1;
-    if (u.flags.isSuperUnique) kill.isSuperUnique = (kill.isSuperUnique || 0) + 1;
-    if (u.flags.isGhostly) kill.isGhostly = (kill.isGhostly || 0) + 1;
-    if (u.flags.isSuperUnique) {
+    if (u.isMinion) kill.isMinion = (kill.isMinion || 0) + 1;
+    if (u.isChampion) kill.isChampion = (kill.isChampion || 0) + 1;
+    if (u.isSuperUnique) kill.isSuperUnique = (kill.isSuperUnique || 0) + 1;
+    if (u.isGhostly) kill.isGhostly = (kill.isGhostly || 0) + 1;
+    if (u.isSuperUnique) {
       kill.special = kill.special ?? [];
       kill.special.push(u.name);
       return;
@@ -208,10 +210,11 @@ export class Diablo2State {
         code: -1,
         name: 'Unknown',
         enchants: [],
-        flags: {},
+        isNormal: true,
       };
       this.units.set(id, unit);
     }
+    if (unit.x === x && unit.y === y && unit.life === life) return;
     unit.x = x;
     unit.y = y;
     unit.life = life;

@@ -15,6 +15,7 @@ export enum Attribute {
   Experience,
   GoldInPlayer,
   GoldInStash,
+  ArmorPercent,
   EnhancedDamageMax,
   EnhancedDamage,
   AttackRating,

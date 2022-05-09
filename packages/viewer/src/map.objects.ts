@@ -197,10 +197,111 @@ MapLayers.set('npc', {
   type: 'circle',
   paint: {
     'circle-radius': 5,
-    'circle-color': '#ff00ff',
+    'circle-color': '#747474',
     'circle-stroke-color': '#023047',
     'circle-stroke-width': 1,
+    'circle-opacity': 0.47,
+  },
+  filter: ['all', ['==', 'isNormal', true]],
+});
+
+MapLayers.set('npc-minion', {
+  source: 'game-state',
+  type: 'circle',
+  paint: {
+    'circle-radius': 7,
+    'circle-color': '#ff0000',
+    'circle-stroke-color': '#023047',
+    'circle-stroke-width': 1,
+    'circle-opacity': 0.47,
+  },
+  filter: ['all', ['==', 'isMinion', true]],
+});
+
+MapLayers.set('npc-unique', {
+  source: 'game-state',
+  type: 'circle',
+  paint: {
+    'circle-radius': 8,
+    'circle-color': '#ff0000',
+    'circle-stroke-color': '#023047',
+    'circle-stroke-width': 1,
+    'circle-opacity': 0.9,
+  },
+  filter: ['all', ['==', 'isUnique', true]],
+});
+
+MapLayers.set('npc-resist-fire', {
+  source: 'game-state',
+  type: 'symbol',
+  layout: {
+    'text-allow-overlap': true,
+    'text-size': 24,
+    'text-field': 'i',
+    'text-offset': [0, -1],
+    'text-font': ['Open Sans Bold'],
+  },
+  paint: {
+    // 'text-translate-anchor': 'viewport',
+    'text-color': '#fa541c',
+  },
+  filter: ['>', 'resistFire', 100],
+});
+
+MapLayers.set('npc-resist-lightning', {
+  source: 'game-state',
+  type: 'symbol',
+  layout: {
+    'text-allow-overlap': true,
+    'text-size': 24,
+    'text-field': 'i',
+    'text-offset': [0.5, -1],
+    'text-font': ['Open Sans Bold'],
+  },
+  paint: {
+    'text-color': '#ffbb96',
+  },
+  filter: ['>', 'resistLightning', 100],
+});
+
+MapLayers.set('npc-resist-physical', {
+  source: 'game-state',
+  type: 'symbol',
+  layout: {
+    'text-size': 24,
+    'text-allow-overlap': true,
+    'text-field': 'i',
+    'text-offset': [-0.5, -1],
+    'text-font': ['Open Sans Bold'],
+  },
+  paint: {
+    'text-color': '#52c41a',
+  },
+  filter: ['>', 'resistPhysical', 100],
+});
+
+MapLayers.set('npc-super-unique', {
+  source: 'game-state',
+  type: 'circle',
+  paint: {
+    'circle-radius': 6,
+    'circle-color': '#00ffff',
+    'circle-stroke-color': '#023047',
+    'circle-stroke-width': 5,
     'circle-opacity': 0.87,
   },
-  filter: ['==', 'type', 'npc'],
+  filter: ['==', 'isSuperUnique', true],
+});
+
+MapLayers.set('items', {
+  source: 'game-state',
+  type: 'circle',
+  paint: {
+    'circle-radius': 3,
+    'circle-color': '#00ff00',
+    'circle-stroke-color': '#207020',
+    'circle-stroke-width': 3,
+    'circle-opacity': 0.87,
+  },
+  filter: ['==', 'type', 'item'],
 });

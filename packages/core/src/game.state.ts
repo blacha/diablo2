@@ -110,13 +110,12 @@ export class Diablo2GameSession {
           this.log.warn({ code: pkt.code, x: pkt.x, y: pkt.y, item: pkt.name, action: pkt.action.name }, 'ItemDropped');
 
           const trackItem: Diablo2ItemJson = {
+            type: 'item',
             id: pkt.id,
             code: pkt.code,
             x: pkt.x,
             y: pkt.y,
-            category: pkt.category,
             quality: pkt.quality,
-            level: pkt.level,
             updatedAt: Date.now(),
             name: pkt.name ?? 'Unknown',
           };
@@ -158,7 +157,7 @@ export class Diablo2GameSession {
         x: pkt.x,
         y: pkt.y,
         code: pkt.code,
-        flags: pkt.flags ?? {},
+        isNormal: true,
         updatedAt: Date.now(),
         enchants: pkt.enchants ?? [],
       });

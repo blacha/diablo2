@@ -170,7 +170,7 @@ export class Diablo2MapViewer {
     }
   }
   update(): void {
-    console.log('Diablo2MapViewer.update()');
+    // console.log('Diablo2MapViewer.update()');
     this.updateUrl();
     this.updateDom();
     this.updateMapStyles();
@@ -181,7 +181,6 @@ export class Diablo2MapViewer {
     if (state.player.x > 0) {
       const { lng, lat } = LevelBounds.sourceToLatLng(state.player.x, state.player.y);
       if (this.centerOnPlayer) {
-        console.log('SetCenter', [lng, lat]);
         this.map.setCenter([lng, lat]);
         if (this.stateZoom) this.map.setZoom(this.stateZoom); // TODO configure?
       }
@@ -192,7 +191,6 @@ export class Diablo2MapViewer {
       };
 
       const features = [playerJson];
-      // console.log(state.units);
       for (const unit of state.units) {
         const { lng, lat } = LevelBounds.sourceToLatLng(unit.x, unit.y);
 
@@ -203,11 +201,16 @@ export class Diablo2MapViewer {
         };
         features.push(unitJson);
       }
-      // console.log(
-      //   'Features',
-      //   features.map((c) => c.properties),
-      // );
 
+      for (const item of state.items) {
+        const { lng, lat } = LevelBounds.sourceToLatLng(item.x, item.y);
+        const itemJson: GeoJSON.Feature = {
+          type: 'Feature',
+          geometry: { type: 'Point', coordinates: [lng, lat] },
+          properties: item,
+        };
+        features.push(itemJson);
+      }
       const playerSource = this.map.getSource('game-state');
       if (playerSource == null) {
         this.map.addSource('game-state', { type: 'geojson', data: toFeatureCollection(features) });

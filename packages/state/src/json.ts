@@ -1,4 +1,4 @@
-import { Act, Difficulty, ItemCategory, ItemQuality, NpcEnchant, NpcFlags } from '@diablo2/data';
+import { Act, Difficulty, ItemCategory, ItemQuality, NpcEnchant, NpcFlags, NpcResists } from '@diablo2/data';
 
 export interface Diablo2GameStateJson {
   id: string;
@@ -34,19 +34,22 @@ export interface Diablo2PlayerJson extends Diablo2BaseGameJson {
   life: number;
 }
 
-export interface Diablo2NpcJson extends Diablo2BaseGameJson {
+export interface Diablo2NpcJson extends Diablo2BaseGameJson, NpcFlags, NpcResists {
   type: 'npc';
   code: number;
+  /** Health percentage, 0 - 100, 0 means dead */
   life: number;
-  flags: NpcFlags;
   enchants: { id: NpcEnchant; name: keyof typeof NpcEnchant }[];
 }
 
 export interface Diablo2ItemJson extends Diablo2BaseGameJson {
+  type: 'item';
   code: string;
-  category: { id: ItemCategory; name: keyof typeof ItemCategory };
-  quality: { id: ItemQuality; name: keyof typeof ItemQuality };
-  level: number;
+  quality: { id: ItemQuality; name: string };
+  sockets?: number;
+  isEthereal?: boolean;
+  isIdentified?: boolean;
+  isRuneWord?: boolean;
 }
 export interface Diablo2ObjectJson {
   type: string;

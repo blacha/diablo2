@@ -50,14 +50,15 @@ o.spec('NpcAssign', () => {
     o(npc.y).equals(5117);
     o(npc.life).equals(128);
     o(npc.name).equals('Hungry Dead');
-    o(npc.flags).equals(undefined);
+    o(npc.isNormal).equals(true);
   });
 
   o('should parse a champion hungry dead', () => {
     const npc = NpcAssign.raw(
       Buffer.from('aca900000006005f14b6137d16512158e03801e09601a701a900000069006da9000000', 'hex'),
     );
-    o(npc.flags).deepEquals({ isChampion: true, isUnique: true });
+    o(npc.isChampion).equals(true);
+    o(npc.isUnique).equals(true);
     o(npc.name).equals('Hungry Dead');
   });
 
@@ -74,7 +75,8 @@ o.spec('NpcAssign', () => {
     o(npc.life).equals(128);
     o(npc.code).equals(20);
     o(npc.name).equals('Rakanishu');
-    o(npc.flags).deepEquals({ isSuperUnique: true, isUnique: true });
+    o(npc.isSuperUnique).equals(true);
+    o(npc.isUnique).equals(true); // .deepEquals({ isSuperUnique: true, isUnique: true });
   });
 
   const NpcEnchants = [
