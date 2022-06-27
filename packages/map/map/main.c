@@ -127,7 +127,7 @@ int main(int argc, char *argv[]) {
 
 
     if (argActId > 0 && argMapId > 0) {
-        printf("--act and --level cannot be used together\n");
+        printf("--act and --map cannot be used together\n");
         printf(CliUsage);
         return 1;
     }
