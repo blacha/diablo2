@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
 
     char c[INPUT_BUFFER];
 
-    char *gameFolder = NULL;
+    char gamePath[MAX_PATH];
     DWORD argSeed = 0xff00ff00;
     int argMapId = -1;
     int argDifficulty = 0;
@@ -120,8 +120,8 @@ int main(int argc, char *argv[]) {
             log_debug("Cli:Arg", lk_b("verbose", true));
             log_level(LOG_TRACE);
         } else {
-            gameFolder = arg;
-            log_debug("Cli:Arg", lk_s("game", gameFolder));
+            GetFullPathName(arg, MAX_PATH, gamePath, NULL);
+            log_debug("Cli:Arg", lk_s("game", gamePath));
         }
     }
 
@@ -131,14 +131,13 @@ int main(int argc, char *argv[]) {
         printf(CliUsage);
         return 1;
     }
-    if (gameFolder == NULL) {
+    if (gamePath == NULL) {
         printf(CliUsage);
         return 1;
     }
 
-
     int64_t initStartTime = currentTimeMillis();
-    d2_game_init(gameFolder);
+    d2_game_init(gamePath);
     int64_t duration = currentTimeMillis() - initStartTime;
     log_info("Map:Init:Done", lk_s("version", GIT_VERSION), lk_s("hash", GIT_HASH), lk_i("duration", duration));
 
