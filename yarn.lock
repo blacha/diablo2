@@ -741,9 +741,9 @@
     write-file-atomic "^3.0.3"
 
 "@linzjs/geojson@^6.10.0":
-  version "6.10.0"
-  resolved "https://registry.yarnpkg.com/@linzjs/geojson/-/geojson-6.10.0.tgz#485920802367f4307617717f053920e0fbf9b2df"
-  integrity sha512-eb4J4J6gdJCOneWYeTim5tKi4UMVUuIzFBQfGzesZLrLwPBNqwMByBAblR058gG+NBdwHYI69MzGQbMq+MiCDA==
+  version "6.32.1"
+  resolved "https://registry.yarnpkg.com/@linzjs/geojson/-/geojson-6.32.1.tgz#44da2d378eab7668e37740b8b222301b6d88b099"
+  integrity sha512-FKK3iYYV4WHyYtawMUskJ09yG+fAo80+ewDrACxTg4/Vh+lVDC2Xl8qSWl4CgUSs7VZl6eIWx5x1MpHBJt8HlQ==
   dependencies:
     "@types/geojson" "^7946.0.7"
     lineclip "^1.1.5"
