@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@linzjs/style": "^3.0.0",
-    "@types/node": "^16.11.7",
+    "@types/node": "^18.11.15",
     "@types/ospec": "^4.0.2",
     "lerna": "^4.0.0",
     "ospec": "^4.0.1",
