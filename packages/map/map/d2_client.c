@@ -487,11 +487,37 @@ int d2_dump_map(int seed, int difficulty, int levelCode) {
     json_object_end();
 
     json_array_start("objects");
+    bool levelSeen[200];
 
     for (Room2 *pRoom2 = pLevel->pRoom2First; pRoom2; pRoom2 = pRoom2->pRoom2Next) {
         BOOL bAdded = !pRoom2->pRoom1;
 
         if (bAdded) d2common_add_room_data(gameVersion, pAct, pLevel, pRoom2);
+
+        for (int i = 0; i < pRoom2->dwRoomsNear; i++) {
+            if (pLevel->dwLevelNo != pRoom2->pRoom2Near[i]->pLevel->dwLevelNo){
+                int roomOffsetX = pRoom2->dwPosX * 5 - originX;
+                int roomOffsetY = pRoom2->dwPosY * 5 - originY;
+                // todo this offset is wrong
+                int levelX = roomOffsetX + pRoom2->pRoom2Near[i]->pLevel->dwPosX * 5;
+                int levelY = roomOffsetY + pRoom2->pRoom2Near[i]->pLevel->dwPosY * 5 ;
+
+                int levelNumber = pRoom2->pRoom2Near[i]->pLevel->dwLevelNo;
+
+                // Only dump a exit once
+                if (levelSeen[levelNumber] == 1) continue;
+                levelSeen[levelNumber] = 1;
+
+                json_object_start();
+                json_key_value("id", levelNumber);
+                json_key_value("type", "exit");
+                json_key_value("x", levelX);
+                json_key_value("y", levelY);
+                if (is_good_exit(pAct, pLevel, levelNumber)) json_key_value("isGoodExit", true);
+                json_object_end();
+            }
+        }
+
         dump_objects(pAct, pLevel, pRoom2);
 
         if (pRoom2->pRoom1) add_collision_data(pRoom2->pRoom1->Coll, originX, originY);
